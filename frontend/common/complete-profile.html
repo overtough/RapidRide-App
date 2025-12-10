@@ -1,8 +1,9 @@
 <!doctype html>
 <html>
+
 <head>
-  <meta charset="utf-8"/>
-  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Complete Profile — RapidRide</title>
   <link rel="stylesheet" href="css/global.css">
   <style>
@@ -12,6 +13,7 @@
       justify-content: center;
       min-height: 100vh;
     }
+
     .avatar-selection {
       display: flex;
       gap: 1rem;
@@ -19,6 +21,7 @@
       flex-wrap: wrap;
       justify-content: center;
     }
+
     .avatar-option {
       width: 60px;
       height: 60px;
@@ -29,33 +32,39 @@
       display: flex;
       align-items: center;
       justify-content: center;
-      background: rgba(255,255,255,0.1);
+      background: rgba(255, 255, 255, 0.1);
       overflow: hidden;
     }
+
     .avatar-option:hover {
       border-color: var(--primary);
       transform: scale(1.05);
     }
+
     .avatar-option.selected {
       border-color: var(--primary);
       box-shadow: 0 0 15px var(--primary-glow);
     }
+
     .avatar-option img {
       width: 100%;
       height: 100%;
       object-fit: cover;
     }
+
     .driver-fields {
       display: none;
       border-top: 1px solid var(--glass-border);
       padding-top: 1rem;
       margin-top: 1rem;
     }
+
     .driver-fields.active {
       display: block;
     }
   </style>
 </head>
+
 <body>
   <div class="auth-container">
     <div class="glass-card slide-up" style="max-width: 600px; width: 100%; padding: 3rem;">
@@ -101,7 +110,7 @@
           <label>I want to be a</label>
           <select id="role" class="input-field" required>
             <option value="rider">Rider (Passenger)</option>
-            <option value="captain">Captain (Driver)</option>
+            <option value="driver">Captain (Driver)</option>
           </select>
         </div>
 
@@ -136,7 +145,8 @@
 
       <div class="text-center mt-4" style="padding-top: 1rem; border-top: 1px solid var(--glass-border);">
         <p style="color: var(--text-muted); font-size: 0.9rem;">
-          Already have a profile? <a href="signin-phone.html" style="color: var(--primary); font-weight: 600;">Sign in instead</a>
+          Already have a profile? <a href="signin-phone.html" style="color: var(--primary); font-weight: 600;">Sign in
+            instead</a>
         </p>
       </div>
     </div>
@@ -145,28 +155,28 @@
   <!-- Firebase SDKs -->
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  
+
   <script src="js/firebase-config.js"></script>
   <script src="js/config.js"></script>
 
   <script>
     // Use centralized API config
     const API_BASE = API_CONFIG.BASE_URL;
-    
+
     // DEBUG: Log everything
     console.log('=== COMPLETE PROFILE DEBUG ===');
     console.log('1. Checking tokens...');
     const token = localStorage.getItem('token');
     const firebaseToken = localStorage.getItem('firebaseToken');
-    
+
     console.log('2. Token status:', {
       hasToken: !!token,
       hasFirebaseToken: !!firebaseToken,
       tokenPreview: token ? token.substring(0, 30) + '...' : 'NONE',
       firebaseTokenPreview: firebaseToken ? firebaseToken.substring(0, 30) + '...' : 'NONE',
-      allLocalStorage: {...localStorage}
+      allLocalStorage: { ...localStorage }
     });
-    
+
     if (!token && !firebaseToken) {
       console.error('3. NO TOKENS FOUND - This is the problem!');
       console.log('Check if tokens were saved after phone verification');
@@ -194,7 +204,7 @@
     const driverFields = document.getElementById('driverFields');
 
     roleSelect.addEventListener('change', () => {
-      if (roleSelect.value === 'captain') {
+      if (roleSelect.value === 'driver') {
         driverFields.classList.add('active');
       } else {
         driverFields.classList.remove('active');
@@ -217,7 +227,7 @@
         avatar: avatarInput.value
       };
 
-      if (role === 'captain') {
+      if (role === 'driver') {
         profileData.vehicle = {
           type: document.getElementById('vehicleType').value,
           model: document.getElementById('vehicleModel').value,
@@ -229,18 +239,18 @@
       try {
         // Get fresh Firebase ID token from current user
         let firebaseToken = localStorage.getItem('firebaseToken');
-        
+
         // If not in localStorage, try to get from Firebase Auth current user
         if (!firebaseToken && window.firebaseAuth && window.firebaseAuth.currentUser) {
           firebaseToken = await window.firebaseAuth.currentUser.getIdToken();
           localStorage.setItem('firebaseToken', firebaseToken);
         }
-        
+
         // Fallback to regular token if Firebase token not available
         if (!firebaseToken) {
           firebaseToken = token;
         }
-        
+
         const response = await fetch(`${API_BASE}/auth/complete-profile`, {
           method: 'POST',
           headers: {
@@ -259,20 +269,20 @@
           console.log('✅ Profile completed successfully!');
           console.log('Profile saved successfully');
           console.log('Full response:', data);
-          
+
           // Token already stored during phone verification - no need to store JWT
           // Firebase ID token is used for all requests
-          
+
           // Wait a moment to ensure everything is saved
           await new Promise(resolve => setTimeout(resolve, 500));
-          
+
           console.log('Redirecting to dashboard...');
           console.log('Firebase token in localStorage:', localStorage.getItem('firebaseToken') ? 'YES' : 'NO');
 
           // Redirect based on role
           if (role === 'admin') {
             window.location.href = '../admin/admin_dashboard.html';
-          } else if (role === 'captain') {
+          } else if (role === 'driver') {
             window.location.href = '../driver/driver_home.html';
           } else {
             window.location.href = '../rider/rider_home.html';
@@ -292,4 +302,5 @@
     });
   </script>
 </body>
+
 </html>

@@ -22,9 +22,9 @@ if (!window.API_CONFIG) {
                     this.backendIP = config.ip;
                     console.log('✅ Backend IP loaded:', this.backendIP);
                 } catch (error) {
-                    // Fallback to last known IP
-                    this.backendIP = '10.208.153.27';
-                    console.warn('⚠️ Using fallback IP:', this.backendIP);
+                    // Fallback to Railway URL
+                    this.backendIP = 'rapidride-app-production.up.railway.app';
+                    console.warn('⚠️ Using fallback URL:', this.backendIP);
                 }
             }
         },
@@ -43,9 +43,9 @@ if (!window.API_CONFIG) {
                 }
                 return 'http://localhost:3000/api';
             } else {
-                // Production - Use HTTPS backend with dynamic IP
-                const ip = this.backendIP || '10.208.153.27';
-                return `https://${ip}:3001/api`;
+                // Production - Railway URL (no port needed)
+                const backend = this.backendIP || 'rapidride-app-production.up.railway.app';
+                return `https://${backend}/api`;
             }
         },
 
@@ -62,9 +62,9 @@ if (!window.API_CONFIG) {
                 }
                 return 'http://localhost:3000';
             } else {
-                // Production - Use HTTPS backend with dynamic IP
-                const ip = this.backendIP || '10.208.153.27';
-                return `https://${ip}:3001`;
+                // Production - Railway URL (no port needed)
+                const backend = this.backendIP || 'rapidride-app-production.up.railway.app';
+                return `https://${backend}`;
             }
         },
 
@@ -73,8 +73,8 @@ if (!window.API_CONFIG) {
             if (this.isLocal) {
                 return 'http://localhost:8001';
             } else {
-                const ip = this.backendIP || '10.208.153.27';
-                return `http://${ip}:8001`;
+                const backend = this.backendIP || 'rapidride-app-production.up.railway.app';
+                return `https://${backend}`;
             }
         }
     };

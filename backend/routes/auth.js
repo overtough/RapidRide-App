@@ -266,6 +266,12 @@ router.post('/firebase-phone', async (req, res) => {
       console.log('📝 Updating existing user in MongoDB...');
       user.phone = phone;
       user.phoneVerified = true;
+
+      // Fix corrupted createdAt if it exists
+      if (user.createdAt && typeof user.createdAt === 'object' && user.createdAt.$date) {
+        user.createdAt = new Date(user.createdAt.$date);
+      }
+
       await user.save();
       console.log('✅ User updated in MongoDB:', user._id);
     }
