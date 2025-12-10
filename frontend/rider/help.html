@@ -1,0 +1,1378 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Rider Support — RapidRide</title>
+  <link rel="stylesheet" href="../common/css/global.css">
+  <style>
+    body {
+      padding-top: 80px;
+      padding-bottom: 2rem;
+    }
+
+    .topbar {
+      position: fixed;
+      top: 0;
+      left: 0;
+      width: 100%;
+      height: 70px;
+      background: rgba(255, 255, 255, 0.03);
+      backdrop-filter: blur(20px);
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      padding: 0 2rem;
+      z-index: 1000;
+    }
+
+    .back-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      width: 40px;
+      height: 40px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      border-color: var(--primary);
+      transform: translateX(-4px);
+    }
+
+    .back-btn svg {
+      color: #fff;
+    }
+
+    .topbar-center {
+      flex: 1;
+      text-align: center;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #fff;
+      margin-left: -40px; /* Center text accounting for back button */
+    }
+
+    .help-container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 0 2rem;
+    }
+
+    .welcome-section {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.1), rgba(139, 92, 246, 0.1));
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .welcome-section h1 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+
+    .welcome-section p {
+      color: var(--text-muted);
+      font-size: 1rem;
+    }
+
+    .faq-section {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      color: #fff;
+      margin-bottom: 1rem;
+      display: flex;
+      align-items: center;
+      gap: 0.75rem;
+    }
+
+    .section-icon {
+      font-size: 1.5rem;
+    }
+
+    .faq-item {
+      background: rgba(255, 255, 255, 0.02);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      margin-bottom: 0.75rem;
+      overflow: hidden;
+      transition: all 0.3s ease;
+    }
+
+    .faq-item:hover {
+      border-color: rgba(99, 102, 241, 0.3);
+    }
+
+    .faq-question {
+      padding: 1rem 1.25rem;
+      font-weight: 600;
+      color: #fff;
+      cursor: pointer;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      user-select: none;
+    }
+
+    .faq-arrow {
+      transition: transform 0.3s ease;
+      color: var(--primary);
+      font-size: 0.9rem;
+    }
+
+    .faq-item.open .faq-arrow {
+      transform: rotate(180deg);
+    }
+
+    .faq-answer {
+      max-height: 0;
+      overflow: hidden;
+      transition: max-height 0.3s ease;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+
+    .faq-answer-content {
+      padding: 0 1.25rem 1rem 1.25rem;
+    }
+
+    .faq-item.open .faq-answer {
+      max-height: 500px;
+    }
+
+    .contact-section {
+      background: linear-gradient(135deg, rgba(99, 102, 241, 0.05), rgba(139, 92, 246, 0.05));
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 2rem;
+      text-align: center;
+      margin-top: 2rem;
+    }
+
+    .contact-section h2 {
+      font-size: 1.5rem;
+      margin-bottom: 0.5rem;
+      color: #fff;
+    }
+
+    .contact-section p {
+      color: var(--text-muted);
+      margin-bottom: 1.5rem;
+    }
+
+    .contact-buttons {
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+      align-items: center;
+      max-width: 400px;
+      margin: 0 auto;
+    }
+
+    .contact-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 0.75rem 1.5rem;
+      color: #fff;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+      width: 100%;
+      justify-content: center;
+    }
+
+    .contact-btn:hover {
+      background: rgba(99, 102, 241, 0.1);
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    /* Chat Modal Styles */
+    .chat-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .chat-modal.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .chat-modal-content {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      width: 90%;
+      max-width: 500px;
+      height: 600px;
+      max-height: 80vh;
+      display: flex;
+      flex-direction: column;
+    }
+
+    .chat-header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .chat-header h3 {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin: 0;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .chat-status {
+      display: inline-flex;
+      align-items: center;
+      gap: 0.5rem;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-left: 0.5rem;
+    }
+
+    .chat-status-dot {
+      width: 8px;
+      height: 8px;
+      background: #10b981;
+      border-radius: 50%;
+      animation: pulse 2s infinite;
+    }
+
+    @keyframes pulse {
+      0%, 100% { opacity: 1; }
+      50% { opacity: 0.5; }
+    }
+
+    .chat-close {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .chat-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: scale(1.1);
+    }
+
+    .chat-messages {
+      flex: 1;
+      overflow-y: auto;
+      padding: 1.5rem;
+      display: flex;
+      flex-direction: column;
+      gap: 1rem;
+    }
+
+    .chat-message {
+      display: flex;
+      gap: 0.75rem;
+      max-width: 80%;
+    }
+
+    .chat-message.sent {
+      align-self: flex-end;
+      flex-direction: row-reverse;
+    }
+
+    .chat-avatar {
+      width: 36px;
+      height: 36px;
+      border-radius: 50%;
+      background: var(--primary);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      flex-shrink: 0;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .chat-message.sent .chat-avatar {
+      background: var(--accent);
+    }
+
+    .chat-bubble {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      word-wrap: break-word;
+    }
+
+    .chat-message.sent .chat-bubble {
+      background: rgba(99, 102, 241, 0.2);
+      border-color: var(--primary);
+    }
+
+    .chat-time {
+      font-size: 0.75rem;
+      color: var(--text-muted);
+      margin-top: 0.25rem;
+    }
+
+    .chat-input-container {
+      padding: 1rem 1.5rem;
+      border-top: 1px solid var(--glass-border);
+      display: flex;
+      gap: 0.75rem;
+    }
+
+    .chat-input {
+      flex: 1;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 0.75rem 1rem;
+      color: white;
+      font-size: 0.95rem;
+      resize: none;
+      max-height: 100px;
+    }
+
+    .chat-input:focus {
+      outline: none;
+      border-color: var(--primary);
+    }
+
+    .chat-send-btn {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      background: var(--primary);
+      border: none;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      flex-shrink: 0;
+    }
+
+    .chat-send-btn:hover {
+      background: var(--accent);
+      transform: scale(1.05);
+    }
+
+    .chat-send-btn:active {
+      transform: scale(0.95);
+    }
+
+    .chat-send-btn svg {
+      width: 20px;
+      height: 20px;
+      stroke: white;
+    }
+
+    .chat-empty {
+      text-align: center;
+      padding: 3rem 1rem;
+      color: var(--text-muted);
+    }
+
+    .chat-empty-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      opacity: 0.5;
+    }
+
+    .chat-end-btn:hover {
+      background: rgba(239, 68, 68, 0.3) !important;
+      transform: translateY(-1px);
+    }
+
+    .chat-list-item {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 0.75rem;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .chat-list-item:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: rgba(139, 92, 246, 0.5);
+      transform: translateX(4px);
+    }
+
+    .chat-list-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 0.5rem;
+    }
+
+    .chat-ticket {
+      font-weight: 600;
+      color: var(--primary);
+      font-size: 0.95rem;
+    }
+
+    .chat-status-badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.75rem;
+      font-weight: 600;
+      text-transform: uppercase;
+    }
+
+    .chat-status-badge.active {
+      background: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
+      border: 1px solid rgba(34, 197, 94, 0.3);
+    }
+
+    .chat-status-badge.ended {
+      background: rgba(156, 163, 175, 0.2);
+      color: #9ca3af;
+      border: 1px solid rgba(156, 163, 175, 0.3);
+    }
+
+    .chat-list-preview {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      margin-bottom: 0.5rem;
+      white-space: nowrap;
+      overflow: hidden;
+      text-overflow: ellipsis;
+    }
+
+    .chat-list-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .chat-unread-badge {
+      background: var(--primary);
+      color: white;
+      padding: 0.15rem 0.5rem;
+      border-radius: 12px;
+      font-size: 0.75rem;
+      font-weight: 600;
+    }
+
+    @media (max-width: 768px) {
+      .help-container {
+        padding: 0 1rem;
+      }
+
+      .topbar {
+        padding: 0 1rem;
+      }
+
+      .welcome-section h1 {
+        font-size: 1.5rem;
+      }
+
+      .section-title {
+        font-size: 1.1rem;
+      }
+    }
+  </style>
+</head>
+<body>
+  <!-- Chat List Modal -->
+  <div class="chat-modal" id="chatListModal">
+    <div class="chat-modal-content" style="height: 500px;">
+      <div class="chat-header">
+        <h3>📋 Previous Chats</h3>
+        <div class="chat-close" onclick="closeChatListModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </div>
+      </div>
+      <div class="chat-messages" id="chatListContainer" style="padding: 1rem;">
+        <div class="chat-empty">
+          <div class="chat-empty-icon">📋</div>
+          <p>No previous chats</p>
+          <p style="font-size: 0.9rem; margin-top: 0.5rem;">Start a new conversation to get support</p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Chat Modal -->
+  <div class="chat-modal" id="chatModal">
+    <div class="chat-modal-content">
+      <div class="chat-header">
+        <div style="display: flex; align-items: center; gap: 0.75rem;">
+          <button onclick="closeChatModal(); openChatListModal();" style="padding: 0.5rem; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: white; cursor: pointer; display: flex; align-items: center; justify-content: center; transition: all 0.3s ease;">
+            <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="19" y1="12" x2="5" y2="12"></line>
+              <polyline points="12 19 5 12 12 5"></polyline>
+            </svg>
+          </button>
+          <div style="flex: 1; min-width: 0;">
+            <h3 style="margin: 0; white-space: nowrap; overflow: hidden; text-overflow: ellipsis;">
+              💬 Admin Support
+              <span class="chat-status">
+                <span class="chat-status-dot"></span>
+                Online
+              </span>
+            </h3>
+            <p id="chatTicketNumber" style="margin: 0.25rem 0 0 0; font-size: 0.85rem; color: var(--text-muted); white-space: nowrap; overflow: hidden; text-overflow: ellipsis;"></p>
+          </div>
+        </div>
+        <div style="display: flex; gap: 0.5rem; align-items: center;">
+          <button class="chat-end-btn" id="endChatBtn" onclick="endCurrentChat()" style="padding: 0.5rem 1rem; background: rgba(239, 68, 68, 0.2); border: 1px solid rgba(239, 68, 68, 0.5); border-radius: 8px; color: #ef4444; font-size: 0.85rem; font-weight: 600; cursor: pointer; transition: all 0.3s ease; white-space: nowrap; margin-left: 0.5rem;">
+            End Chat
+          </button>
+          <div class="chat-close" onclick="closeChatModal()">
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg>
+          </div>
+        </div>
+      </div>
+      <div class="chat-messages" id="chatMessages">
+        <div class="chat-empty">
+          <div class="chat-empty-icon">💬</div>
+          <p>Start a conversation with admin</p>
+          <p style="font-size: 0.9rem; margin-top: 0.5rem;">We typically reply within minutes</p>
+        </div>
+      </div>
+      <div class="chat-input-container">
+        <textarea class="chat-input" id="chatInput" placeholder="Type your message..." rows="1"></textarea>
+        <button class="chat-send-btn" onclick="sendMessage()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <line x1="22" y1="2" x2="11" y2="13"></line>
+            <polygon points="22 2 15 22 11 13 2 9 22 2"></polygon>
+          </svg>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- End Chat Confirmation Modal -->
+  <div id="endChatConfirmModal" style="display: none; position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(0, 0, 0, 0.5); backdrop-filter: blur(4px); z-index: 10000; align-items: center; justify-content: center;">
+    <div style="background: linear-gradient(135deg, rgba(255, 255, 255, 0.1), rgba(255, 255, 255, 0.05)); backdrop-filter: blur(20px); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 16px; padding: 2rem; max-width: 400px; width: 90%; box-shadow: 0 8px 32px rgba(0, 0, 0, 0.3);">
+      <h3 style="margin: 0 0 1rem 0; font-size: 1.25rem; color: white;">End Chat Confirmation</h3>
+      <p style="margin: 0 0 1.5rem 0; color: rgba(255, 255, 255, 0.8); line-height: 1.5;">
+        Are you sure you want to end this chat? You can still view it later in Previous Chats, but no further messages can be sent.
+      </p>
+      <div style="display: flex; gap: 0.75rem; justify-content: flex-end;">
+        <button onclick="hideEndChatConfirmation()" style="padding: 0.75rem 1.5rem; background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.2); border-radius: 8px; color: white; font-weight: 600; cursor: pointer; transition: all 0.3s ease;">
+          Cancel
+        </button>
+        <button onclick="confirmEndChat()" style="padding: 0.75rem 1.5rem; background: linear-gradient(135deg, #ef4444, #dc2626); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer; transition: all 0.3s ease; box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);">
+          End Chat
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Topbar -->
+  <div class="topbar">
+    <button class="back-btn" onclick="window.location.href='rider_home.html'">
+      <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+    </button>
+    <div class="topbar-center">Rider Support — RapidRide</div>
+  </div>
+
+  <!-- Help Container -->
+  <div class="help-container">
+    <!-- Welcome Section -->
+    <div class="welcome-section">
+      <h1>🚗 How can we help you?</h1>
+      <p>Find answers to common questions about riding with RapidRide</p>
+    </div>
+
+    <!-- Getting Started -->
+    <div class="faq-section">
+      <div class="section-title">
+        <span class="section-icon">🚀</span>
+        Getting Started
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          How do I go online and start accepting rides?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            Toggle the "Driver Status" switch on your dashboard from offline to online. Once you're online, you'll start receiving ride requests based on your location. Make sure your location services are enabled and you have a stable internet connection.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          How do I accept a ride request?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            When you receive a ride request, you'll see a notification with the pickup location, destination, and estimated fare. Tap "Accept" to confirm. You can also enable "Auto Accept" in your preferences to automatically accept rides that match your criteria.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          What are the requirements to drive with RapidRide?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            You need: (1) A valid driver's license, (2) Vehicle registration documents, (3) Valid insurance, (4) A smartphone with GPS, (5) Clean driving record, (6) Vehicle that meets our standards (age, condition, safety features). All documents are verified during the onboarding process.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Earnings & Payments -->
+    <div class="faq-section">
+      <div class="section-title">
+        <span class="section-icon">💰</span>
+        Earnings & Payments
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          How do I view my earnings?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            Click on "View Earnings" in the Quick Links section of your dashboard. You can see today's earnings, weekly totals, and monthly summaries. The earnings page also shows a detailed breakdown of each completed ride including fare, tips, and bonuses.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          When and how do I get paid?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            Earnings are automatically transferred to your registered bank account every week on Monday. You can also use "Instant Pay" to cash out your earnings immediately (small processing fee applies). Minimum payout threshold is ₹500.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          How is my fare calculated?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            Fare is based on: Base fare + (Distance × per km rate) + (Time × per minute rate) + Any applicable surge pricing. You earn 80% of the total fare, with 20% going to RapidRide as service fee. Tips go 100% to you.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          What are bonuses and surge pricing?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            Surge pricing activates during high-demand periods (rush hours, bad weather, events). You'll earn 1.5x to 3x normal rates. Bonuses are awarded for completing a certain number of rides, maintaining high ratings, or driving during specific hours. Check the Earnings page for active promotions.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Rides & Ratings -->
+    <div class="faq-section">
+      <div class="section-title">
+        <span class="section-icon">⭐</span>
+        Rides & Ratings
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          How does the rating system work?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            After each ride, riders rate you from 1 to 5 stars. Your overall rating is the average of your last 500 rides. Maintain a rating above 4.6 to stay in good standing. High ratings unlock bonuses and priority ride requests. You can also rate riders after each trip.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          What if a rider cancels after I've started driving to them?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            If a rider cancels after you've accepted and started driving to the pickup location, you'll receive a cancellation fee (typically ₹50-80). This compensates you for your time and fuel. The fee is automatically added to your earnings.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          Can I cancel a ride after accepting?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            Yes, but frequent cancellations affect your acceptance rate and may impact your account standing. Valid reasons for cancellation include: rider not showing up after 5 minutes, safety concerns, or vehicle issues. Use the cancel button and select a reason.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          What should I do if there's an issue during a ride?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            For safety emergencies, use the in-app emergency button to contact local authorities. For other issues (wrong destination, rider behavior, payment problems), contact support immediately through the app. You can also end the ride early if you feel unsafe.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Vehicle & Documents -->
+    <div class="faq-section">
+      <div class="section-title">
+        <span class="section-icon">🚗</span>
+        Vehicle & Documents
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          How do I update my vehicle information?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            Go to your Profile page and click "Update Vehicle" in the Vehicle Information section. You can change your vehicle model, type, registration number, and color. Changes require verification and may take 24-48 hours to process.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          How often do I need to renew my documents?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            Driver's license and vehicle registration must be valid at all times. You'll receive notifications 30 days before any document expires. Upload renewed documents through your profile page. riding with expired documents will result in account suspension.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          What vehicle types can I register?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            We accept sedans, hatchbacks, and SUVs that are less than 10 years old. Vehicle must have 4 doors, working AC, seat belts for all passengers, and pass our safety inspection. Premium vehicles (luxury sedans, SUVs) can qualify for higher fare rates.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Safety & Guidelines -->
+    <div class="faq-section">
+      <div class="section-title">
+        <span class="section-icon">🛡️</span>
+        Safety & Guidelines
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          What safety features are available?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            RapidRide includes: (1) Real-time GPS tracking, (2) Emergency button to contact authorities, (3) Ride sharing with trusted contacts, (4) 24/7 safety support line, (5) Two-way ratings, (6) Rider verification, (7) Insurance coverage for all rides.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          What are the community guidelines for drivers?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            Be professional and courteous. Maintain a clean vehicle. Follow traffic laws. Don't discriminate based on pickup/dropoff location, race, religion, or disability. Don't ask for off-app payments. Don't use your phone while driving (except for navigation). Violations result in warnings or account deactivation.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          Am I insured while driving for RapidRide?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            Yes, all rides are covered by RapidRide's commercial insurance policy. This includes liability coverage for bodily injury and property damage while you're on an active ride (from pickup to dropoff). Your personal insurance covers you while waiting for rides.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Account & Settings -->
+    <div class="faq-section">
+      <div class="section-title">
+        <span class="section-icon">⚙️</span>
+        Account & Settings
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          How do I update my profile information?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            Click on your profile picture in the top-right corner to access your profile page. You can update your name, avatar, license number, and vehicle information. Phone number and email changes require verification for security.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          What do the preference settings do?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            Auto Accept: Automatically accepts rides meeting your criteria. Push Notifications: Alerts for new rides and updates. SMS Alerts: Text messages for important events. Voice Navigation: Turn-by-turn audio directions. Adjust these in your profile preferences.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          How do I take a break or go offline temporarily?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            Simply toggle your Driver Status to "Offline" on the dashboard. You won't receive any ride requests while offline. There's no penalty for going offline, and you can come back online anytime. Take breaks as needed to rest and stay safe.
+          </div>
+        </div>
+      </div>
+
+      <div class="faq-item">
+        <div class="faq-question">
+          What happens if I want to deactivate my account?
+          <span class="faq-arrow">▼</span>
+        </div>
+        <div class="faq-answer">
+          <div class="faq-answer-content">
+            Go to your Profile page and scroll to the Danger Zone section. Click "Delete Account" and confirm. All pending earnings will be paid out within 7 business days. You can reactivate your account within 30 days by contacting support.
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Contact Section -->
+    <div class="contact-section">
+      <h2>Still need help?</h2>
+      <p>Our support team is available 24/7 to assist you</p>
+      <div class="contact-buttons">
+        <button class="contact-btn" onclick="startNewChat()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 15a2 2 0 0 1-2 2H7l-4 4V5a2 2 0 0 1 2-2h14a2 2 0 0 1 2 2z"></path>
+          </svg>
+          Contact Admin
+        </button>
+        <button class="contact-btn" onclick="openChatListModal()">
+          <svg xmlns="http://www.w3.org/2000/svg" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <path d="M21 11.5a8.38 8.38 0 0 1-.9 3.8 8.5 8.5 0 0 1-7.6 4.7 8.38 8.38 0 0 1-3.8-.9L3 21l1.9-5.7a8.38 8.38 0 0 1-.9-3.8 8.5 8.5 0 0 1 4.7-7.6 8.38 8.38 0 0 1 3.8-.9h.5a8.48 8.48 0 0 1 8 8v.5z"></path>
+          </svg>
+          View Previous Chats
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // FAQ Accordion
+    document.querySelectorAll('.faq-item').forEach(item => {
+      const question = item.querySelector('.faq-question');
+      question.addEventListener('click', () => {
+        const isOpen = item.classList.contains('open');
+        
+        // Close all other items
+        document.querySelectorAll('.faq-item').forEach(otherItem => {
+          if (otherItem !== item) {
+            otherItem.classList.remove('open');
+          }
+        });
+        
+        // Toggle current item
+        if (isOpen) {
+          item.classList.remove('open');
+        } else {
+          item.classList.add('open');
+        }
+      });
+    });
+
+    // Chat variables
+    let currentChatId = null;
+    let currentTicketNumber = null;
+    let messagePollingInterval = null;
+    let lastMessageTimestamp = null;
+
+    // Start new chat
+    async function startNewChat() {
+      const initialMessage = "Hello, I need assistance with...";
+      try {
+        console.log('Creating new chat...');
+        const response = await apiFetch('/support/chats/create', {
+          method: 'POST',
+          body: {
+            message: initialMessage,
+            userType: 'rider'
+          }
+        });
+        
+        console.log('Response status:', response.status);
+        console.log('Response data:', response.data);
+        console.log('data.success:', response.data?.success);
+        console.log('data.chat:', response.data?.chat);
+        
+        if (data.success) {
+          currentChatId = data.chat.chatId;
+          currentTicketNumber = data.chat.ticketNumber;
+          console.log('Chat created! ID:', currentChatId, 'Ticket:', currentTicketNumber);
+          openChatModal();
+          await loadChatMessages(currentChatId);
+          startMessagePolling();
+        } else {
+          console.error('Chat creation failed:', data);
+          alert('Failed to start chat: ' + (data.message || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Failed to create chat:', error);
+        alert('Failed to start chat: ' + error.message);
+      }
+    }
+
+    // Open chat list modal
+    async function openChatListModal() {
+      const modal = document.getElementById('chatListModal');
+      modal.classList.add('active');
+      await loadChatList();
+    }
+
+    function closeChatListModal() {
+      const modal = document.getElementById('chatListModal');
+      modal.classList.remove('active');
+    }
+
+    // Load chat list
+    async function loadChatList() {
+      try {
+        console.log('Loading chat list...');
+        const response = await apiFetch('/support/chats', {
+          method: 'GET'
+        });
+        
+        console.log('Chat list response status:', response.status);
+        const data = await response.json();
+        console.log('Chat list data:', data);
+        const container = document.getElementById('chatListContainer');
+        
+        if (data.chats && data.chats.length > 0) {
+          container.innerHTML = '';
+          data.chats.forEach(chat => {
+            const chatItem = createChatListItem(chat);
+            container.appendChild(chatItem);
+          });
+        } else {
+          container.innerHTML = `
+            <div class="chat-empty">
+              <div class="chat-empty-icon">📋</div>
+              <p>No previous chats</p>
+              <p style="font-size: 0.9rem; margin-top: 0.5rem;">Start a new conversation to get support</p>
+            </div>
+          `;
+        }
+      } catch (error) {
+        console.error('Failed to load chat list:', error);
+        alert('Failed to load chats. Please try again.');
+      }
+    }
+
+    // Create chat list item
+    function createChatListItem(chat) {
+      const div = document.createElement('div');
+      div.className = 'chat-list-item';
+      div.onclick = () => openExistingChat(chat.chatId);
+      
+      const header = document.createElement('div');
+      header.className = 'chat-list-header';
+      
+      const ticket = document.createElement('span');
+      ticket.className = 'chat-ticket';
+      ticket.textContent = chat.ticketNumber;
+      
+      const badge = document.createElement('span');
+      badge.className = `chat-status-badge ${chat.status}`;
+      badge.textContent = chat.status;
+      
+      header.appendChild(ticket);
+      header.appendChild(badge);
+      
+      const preview = document.createElement('div');
+      preview.className = 'chat-list-preview';
+      preview.textContent = chat.lastMessage || 'No messages yet';
+      
+      const footer = document.createElement('div');
+      footer.className = 'chat-list-footer';
+      
+      const date = document.createElement('span');
+      date.textContent = new Date(chat.updatedAt).toLocaleDateString();
+      
+      footer.appendChild(date);
+      
+      if (chat.unreadCount > 0) {
+        const unreadBadge = document.createElement('span');
+        unreadBadge.className = 'chat-unread-badge';
+        unreadBadge.textContent = `${chat.unreadCount} new`;
+        footer.appendChild(unreadBadge);
+      }
+      
+      div.appendChild(header);
+      div.appendChild(preview);
+      div.appendChild(footer);
+      
+      return div;
+    }
+
+    // Open existing chat
+    async function openExistingChat(chatId) {
+      closeChatListModal();
+      currentChatId = chatId;
+      openChatModal();
+      await loadChatMessages(chatId);
+      startMessagePolling();
+    }
+
+    // Load chat messages
+    async function loadChatMessages(chatId) {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_CONFIG.BASE_URL}/support/chats/${chatId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          const chat = data.chat;
+          currentTicketNumber = chat.ticketNumber;
+          
+          // Update ticket number display
+          document.getElementById('chatTicketNumber').textContent = `Ticket: ${chat.ticketNumber}`;
+          
+          // Update end button visibility
+          const endBtn = document.getElementById('endChatBtn');
+          if (chat.status === 'ended') {
+            endBtn.style.display = 'none';
+          } else {
+            endBtn.style.display = 'block';
+          }
+          
+          // Hide input container if chat is ended
+          const inputContainer = document.querySelector('.chat-input-container');
+          if (chat.status === 'ended') {
+            inputContainer.style.display = 'none';
+          } else {
+            inputContainer.style.display = 'flex';
+          }
+          
+          const messagesContainer = document.getElementById('chatMessages');
+          messagesContainer.innerHTML = '';
+          
+          if (chat.messages.length > 0) {
+            chat.messages.forEach(msg => {
+              const isSent = msg.senderType === 'rider';
+              const messageEl = createMessageElement(msg.text, isSent, msg.timestamp);
+              messagesContainer.appendChild(messageEl);
+            });
+            lastMessageTimestamp = chat.messages[chat.messages.length - 1].timestamp;
+          }
+          
+          messagesContainer.scrollTop = messagesContainer.scrollHeight;
+        }
+      } catch (error) {
+        console.error('Failed to load messages:', error);
+      }
+    }
+
+    // Start polling for new messages
+    function startMessagePolling() {
+      if (messagePollingInterval) {
+        clearInterval(messagePollingInterval);
+      }
+      messagePollingInterval = setInterval(() => {
+        if (currentChatId) {
+          checkNewMessages();
+        }
+      }, 5000); // Poll every 5 seconds
+    }
+
+    // Check for new messages
+    async function checkNewMessages() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_CONFIG.BASE_URL}/support/chats/${currentChatId}`, {
+          method: 'GET',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          const chat = data.chat;
+          const newMessages = chat.messages.filter(msg => 
+            !lastMessageTimestamp || msg.timestamp > lastMessageTimestamp
+          );
+          
+          if (newMessages.length > 0) {
+            const messagesContainer = document.getElementById('chatMessages');
+            newMessages.forEach(msg => {
+              const isSent = msg.senderType === 'rider';
+              const messageEl = createMessageElement(msg.text, isSent, msg.timestamp);
+              messagesContainer.appendChild(messageEl);
+            });
+            lastMessageTimestamp = newMessages[newMessages.length - 1].timestamp;
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+          }
+        }
+      } catch (error) {
+        console.error('Failed to check new messages:', error);
+      }
+    }
+
+    // Chat Modal Functions
+    function openChatModal() {
+      document.getElementById('chatModal').classList.add('active');
+      setTimeout(() => {
+        document.getElementById('chatInput').focus();
+      }, 100);
+    }
+
+    function closeChatModal() {
+      document.getElementById('chatModal').classList.remove('active');
+      if (messagePollingInterval) {
+        clearInterval(messagePollingInterval);
+        messagePollingInterval = null;
+      }
+      currentChatId = null;
+      currentTicketNumber = null;
+      lastMessageTimestamp = null;
+    }
+
+    // Send message
+    async function sendMessage() {
+      const input = document.getElementById('chatInput');
+      const message = input.value.trim();
+      
+      if (message && currentChatId) {
+        try {
+          const token = localStorage.getItem('token');
+          const response = await fetch(`${API_CONFIG.BASE_URL}/support/chats/${currentChatId}/messages`, {
+            method: 'POST',
+            headers: {
+              'Authorization': `Bearer ${token}`,
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ message })
+          });
+          
+          const data = await response.json();
+          if (data.success) {
+            const messagesContainer = document.getElementById('chatMessages');
+            
+            // Remove empty state if present
+            const emptyState = messagesContainer.querySelector('.chat-empty');
+            if (emptyState) {
+              emptyState.remove();
+            }
+            
+            // Add message to UI
+            const userMessage = createMessageElement(message, true);
+            messagesContainer.appendChild(userMessage);
+            
+            // Clear input
+            input.value = '';
+            input.style.height = 'auto';
+            
+            // Scroll to bottom
+            messagesContainer.scrollTop = messagesContainer.scrollHeight;
+            
+            // Update last message timestamp
+            lastMessageTimestamp = new Date().toISOString();
+          }
+        } catch (error) {
+          console.error('Failed to send message:', error);
+          alert('Failed to send message. Please try again.');
+        }
+      }
+    }
+
+    // End current chat
+    function showEndChatConfirmation() {
+      document.getElementById('endChatConfirmModal').style.display = 'flex';
+    }
+
+    function hideEndChatConfirmation() {
+      document.getElementById('endChatConfirmModal').style.display = 'none';
+    }
+
+    async function confirmEndChat() {
+      if (!currentChatId) return;
+      
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_CONFIG.BASE_URL}/support/chats/${currentChatId}/end`, {
+          method: 'POST',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+        
+        const data = await response.json();
+        if (data.success) {
+          hideEndChatConfirmation();
+          await loadChatMessages(currentChatId); // Reload to show ended state
+        } else {
+          alert('Failed to end chat: ' + (data.message || 'Unknown error'));
+        }
+      } catch (error) {
+        console.error('Failed to end chat:', error);
+        alert('Failed to end chat. Please try again.');
+      }
+    }
+    
+    // Keep for backward compatibility
+    async function endCurrentChat() {
+      showEndChatConfirmation();
+    }
+
+    // Create message element
+    function createMessageElement(text, isSent, timestamp) {
+      const messageDiv = document.createElement('div');
+      messageDiv.className = `chat-message ${isSent ? 'sent' : ''}`;
+      
+      const time = timestamp ? new Date(timestamp) : new Date();
+      const timeStr = time.toLocaleTimeString('en-US', { hour: '2-digit', minute: '2-digit' });
+      
+      messageDiv.innerHTML = `
+        <div class="chat-avatar">${isSent ? 'D' : 'A'}</div>
+        <div>
+          <div class="chat-bubble">${text}</div>
+          <div class="chat-time">${timeStr}</div>
+        </div>
+      `;
+      
+      return messageDiv;
+    }
+
+    // Auto-resize textarea
+    const chatInput = document.getElementById('chatInput');
+    if (chatInput) {
+      chatInput.addEventListener('input', function() {
+        this.style.height = 'auto';
+        this.style.height = Math.min(this.scrollHeight, 100) + 'px';
+      });
+
+      // Send message on Enter (without Shift)
+      chatInput.addEventListener('keypress', function(e) {
+        if (e.key === 'Enter' && !e.shiftKey) {
+          e.preventDefault();
+          sendMessage();
+        }
+      });
+    }
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', function(e) {
+      if (e.key === 'Escape') {
+        const chatModal = document.getElementById('chatModal');
+        const chatListModal = document.getElementById('chatListModal');
+        if (chatModal && chatModal.classList.contains('active')) {
+          closeChatModal();
+        }
+        if (chatListModal && chatListModal.classList.contains('active')) {
+          closeChatListModal();
+        }
+      }
+    });
+  </script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="../common/js/firebase-config.js"></script>
+  <script src="../common/js/auth.js"></script>
+</body>
+</html>

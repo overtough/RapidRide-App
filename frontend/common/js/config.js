@@ -1,0 +1,91 @@
+// API Configuration - Dynamic IP Detection
+// Automatically detects environment and backend IP
+
+if (!window.API_CONFIG) {
+    window.API_CONFIG = {
+        // Check if running locally
+        isLocal: window.location.hostname === 'localhost' ||
+            window.location.hostname === '127.0.0.1' ||
+            window.location.hostname.includes('192.168') ||
+            window.location.hostname.includes('10.'),
+
+        // Backend IP (will be fetched dynamically for production)
+        backendIP: null,
+
+        // Initialize backend IP
+        async init() {
+            if (!this.isLocal && !this.backendIP) {
+                try {
+                    // Fetch backend IP from a config endpoint
+                    const response = await fetch('https://rapidrideonline.web.app/backend-config.json');
+                    const config = await response.json();
+                    this.backendIP = config.ip;
+                    console.log('✅ Backend IP loaded:', this.backendIP);
+                } catch (error) {
+                    // Fallback to last known IP
+                    this.backendIP = '10.208.153.27';
+                    console.warn('⚠️ Using fallback IP:', this.backendIP);
+                }
+            }
+        },
+
+        // API Base URLs
+        get BASE_URL() {
+            if (this.isLocal) {
+                // Local development - Express backend
+                const host = window.location.hostname;
+                const protocol = window.location.protocol;
+
+                if (host.includes('192.168') || host.includes('10.')) {
+                    // Use HTTPS on port 3001, HTTP on port 3000
+                    const port = protocol === 'https:' ? 3001 : 3000;
+                    return `${protocol}//${host}:${port}/api`;
+                }
+                return 'http://localhost:3000/api';
+            } else {
+                // Production - Use HTTPS backend with dynamic IP
+                const ip = this.backendIP || '10.208.153.27';
+                return `https://${ip}:3001/api`;
+            }
+        },
+
+        get WS_URL() {
+            if (this.isLocal) {
+                // Auto-detect if accessing via network IP and use correct port
+                const host = window.location.hostname;
+                const protocol = window.location.protocol;
+
+                if (host.includes('192.168') || host.includes('10.')) {
+                    // Use HTTPS on port 3001, HTTP on port 3000
+                    const port = protocol === 'https:' ? 3001 : 3000;
+                    return `${protocol}//${host}:${port}`;
+                }
+                return 'http://localhost:3000';
+            } else {
+                // Production - Use HTTPS backend with dynamic IP
+                const ip = this.backendIP || '10.208.153.27';
+                return `https://${ip}:3001`;
+            }
+        },
+
+        // FastAPI ML Service
+        get ML_URL() {
+            if (this.isLocal) {
+                return 'http://localhost:8001';
+            } else {
+                const ip = this.backendIP || '10.208.153.27';
+                return `http://${ip}:8001`;
+            }
+        }
+    };
+
+    // Initialize and log config
+    window.API_CONFIG.init().then(() => {
+        console.log('🔧 API Config loaded:', {
+            environment: window.API_CONFIG.isLocal ? 'LOCAL' : 'PRODUCTION',
+            backendIP: window.API_CONFIG.backendIP,
+            apiUrl: window.API_CONFIG.BASE_URL,
+            wsUrl: window.API_CONFIG.WS_URL
+        });
+    });
+}

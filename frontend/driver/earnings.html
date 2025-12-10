@@ -1,0 +1,80 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Earnings — RapidRide</title>
+  <link rel="stylesheet" href="../common/css/global.css">
+  <style>
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .earnings-stats {
+      display: grid;
+      grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+      gap: 1.5rem;
+      margin-top: 2rem;
+    }
+    .stat-card {
+      background: rgba(255,255,255,0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: var(--radius-sm);
+      padding: 1.5rem;
+      text-align: center;
+    }
+    .stat-value {
+      font-size: 2rem;
+      font-weight: 700;
+      color: var(--primary);
+      margin: 0.5rem 0;
+    }
+    .stat-label {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+  </style>
+</head>
+<body>
+  <header class="topbar">
+    <div class="flex-center gap-2">
+      <img src='../assets/logo.png' class="mini-logo" alt="" style="height: 30px;">
+      <strong>RapidRide</strong>
+    </div>
+    <div class="right">
+      <a href="driver_home.html" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Back</a>
+    </div>
+  </header>
+
+  <main class="container slide-up" style="padding-top: 2rem;">
+    <div class="glass-card">
+      <h2>Earnings Dashboard</h2>
+      <p class="mb-4">Track your daily and weekly earnings.</p>
+
+      <div class="earnings-stats">
+        <div class="stat-card">
+          <div class="stat-label">Today's Earnings</div>
+          <div class="stat-value" id="todayEarnings">₹0</div>
+          <div class="small text-muted" id="todayRides">0 Rides</div>
+        </div>
+        <div class="stat-card">
+          <div class="stat-label">This Week</div>
+          <div class="stat-value" id="weekEarnings">₹0</div>
+          <div class="small text-muted" id="weekRides">0 Rides</div>
+        </div>
+      </div>
+    </div>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="../common/js/firebase-config.js"></script>
+  <script src="../common/js/config.js"></script>
+  <script src="../common/js/auth.js"></script>
+  <script src="../common/js/confirm-logout.js"></script>
+</body>
+</html>

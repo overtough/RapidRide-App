@@ -1,0 +1,1063 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Driver Profile — RapidRide</title>
+  <link rel="stylesheet" href="../common/css/global.css">
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      display: grid;
+      grid-template-columns: 1fr auto 1fr;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--glass-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar-left {
+      justify-self: start;
+    }
+
+    .topbar-center {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+      justify-self: center;
+    }
+
+    .topbar-right {
+      justify-self: end;
+    }
+
+    .mini-logo {
+      height: 40px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    .profile-header {
+      display: flex;
+      align-items: center;
+      gap: 2rem;
+      padding: 2rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      margin-bottom: 2rem;
+    }
+
+    .profile-avatar {
+      width: 100px;
+      height: 100px;
+      background: linear-gradient(135deg, var(--primary), var(--accent));
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2.5rem;
+      font-weight: 700;
+      color: white;
+      flex-shrink: 0;
+      position: relative;
+    }
+
+    .profile-avatar img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      border-radius: 50%;
+    }
+
+    .profile-info {
+      flex: 1;
+    }
+
+    .profile-name {
+      font-size: 1.8rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+    }
+
+    .profile-email {
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+    }
+
+    .profile-stats {
+      display: flex;
+      gap: 2rem;
+      margin-top: 1rem;
+    }
+
+    .stat-item {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .stat-value {
+      font-size: 1.5rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .stat-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .section {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 2rem;
+      margin-bottom: 2rem;
+    }
+
+    .section-title {
+      font-size: 1.3rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+    }
+
+    .info-grid {
+      display: grid;
+      gap: 1.5rem;
+    }
+
+    .info-item {
+      display: flex;
+      flex-direction: column;
+      gap: 0.5rem;
+    }
+
+    .info-label {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      font-weight: 600;
+    }
+
+    .info-value {
+      font-size: 1.1rem;
+      color: var(--text);
+      padding: 0.8rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .edit-icon {
+      cursor: pointer;
+      opacity: 0.6;
+      transition: opacity 0.2s;
+      flex-shrink: 0;
+      padding: 0.3rem;
+    }
+
+    .edit-icon:hover {
+      opacity: 1;
+    }
+
+    .edit-icon svg {
+      width: 18px;
+      height: 18px;
+      stroke: var(--primary);
+    }
+
+    .preferences-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .pref-item {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 8px;
+    }
+
+    .pref-label {
+      font-weight: 600;
+    }
+
+    .pref-desc {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .toggle-switch {
+      position: relative;
+      width: 50px;
+      height: 28px;
+      flex-shrink: 0;
+    }
+
+    .toggle-switch input {
+      opacity: 0;
+      width: 0;
+      height: 0;
+    }
+
+    .toggle-slider {
+      position: absolute;
+      cursor: pointer;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(255, 255, 255, 0.1);
+      transition: 0.3s;
+      border-radius: 34px;
+      border: 1px solid var(--glass-border);
+    }
+
+    .toggle-slider:before {
+      position: absolute;
+      content: "";
+      height: 20px;
+      width: 20px;
+      left: 3px;
+      bottom: 3px;
+      background: white;
+      transition: 0.3s;
+      border-radius: 50%;
+    }
+
+    .toggle-switch input:checked + .toggle-slider {
+      background: var(--primary);
+    }
+
+    .toggle-switch input:checked + .toggle-slider:before {
+      transform: translateX(22px);
+    }
+
+    .danger-zone {
+      margin-top: 3rem;
+      padding-top: 2rem;
+      border-top: 1px solid rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-danger {
+      background: rgba(239, 68, 68, 0.2);
+      border: 1px solid rgba(239, 68, 68, 0.3);
+      color: #ef4444;
+    }
+
+    .btn-danger:hover {
+      background: rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-logout {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid rgba(239, 68, 68, 0.4);
+      color: #ef4444;
+      padding: 0.6rem 1.2rem;
+      border-radius: 8px;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .btn-logout:hover {
+      background: rgba(239, 68, 68, 0.25);
+      border-color: rgba(239, 68, 68, 0.6);
+      transform: translateY(-1px);
+      box-shadow: 0 4px 12px rgba(239, 68, 68, 0.3);
+    }
+
+    .btn-logout:active {
+      transform: translateY(0);
+      box-shadow: 0 2px 6px rgba(239, 68, 68, 0.2);
+    }
+
+    .avatar-container {
+      position: relative;
+      display: inline-block;
+    }
+
+    .avatar-edit-btn {
+      position: absolute;
+      bottom: 5px;
+      right: 5px;
+      width: 35px;
+      height: 35px;
+      background: var(--primary);
+      border: 3px solid var(--glass-bg);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      z-index: 10;
+    }
+
+    .avatar-edit-btn:hover {
+      background: var(--accent);
+      transform: scale(1.1);
+    }
+
+    .avatar-edit-btn svg {
+      width: 18px;
+      height: 18px;
+      stroke: white;
+    }
+
+    .avatar-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+
+    .avatar-modal-content {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      max-width: 500px;
+      width: 90%;
+    }
+
+    .avatar-modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+      text-align: center;
+    }
+
+    .avatar-grid {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1.5rem;
+      margin-bottom: 2rem;
+    }
+
+    .avatar-option {
+      aspect-ratio: 1;
+      border: 3px solid var(--glass-border);
+      border-radius: 16px;
+      overflow: hidden;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      background: rgba(255, 255, 255, 0.03);
+    }
+
+    .avatar-option:hover {
+      border-color: var(--primary);
+      transform: scale(1.05);
+    }
+
+    .avatar-option.selected {
+      border-color: var(--primary);
+      box-shadow: 0 0 0 3px rgba(99, 102, 241, 0.3);
+    }
+
+    .avatar-option img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+
+    .avatar-modal-buttons {
+      display: flex;
+      gap: 1rem;
+    }
+
+    .avatar-modal-buttons button {
+      flex: 1;
+    }
+
+    .edit-modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+    }
+
+    .edit-modal-content {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 2.5rem;
+      max-width: 450px;
+      width: 90%;
+    }
+
+    .edit-modal-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 2rem;
+    }
+
+    .edit-form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .edit-form-label {
+      display: block;
+      font-size: 0.9rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+    }
+
+    .edit-form-input {
+      width: 100%;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid var(--glass-border);
+      border-radius: 12px;
+      color: var(--text);
+      font-size: 1rem;
+      outline: none;
+      transition: all 0.3s ease;
+      box-sizing: border-box;
+    }
+
+    .edit-form-input:focus {
+      border-color: var(--primary);
+      background: rgba(255, 255, 255, 0.08);
+    }
+
+    /* Select dropdown specific styles */
+    .edit-form-input select,
+    .vehicle-type-select {
+      appearance: none;
+      -webkit-appearance: none;
+      -moz-appearance: none;
+      cursor: pointer;
+      background-image: url('data:image/svg+xml;charset=UTF-8,<svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="white" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="6 9 12 15 18 9"></polyline></svg>');
+      background-repeat: no-repeat;
+      background-position: right 1rem center;
+      background-size: 16px;
+      padding-right: 3rem;
+    }
+
+    .edit-form-input select option,
+    .vehicle-type-select option {
+      background: #1e293b;
+      color: white;
+      padding: 0.75rem 1rem;
+      font-size: 1rem;
+      border: none;
+    }
+
+    .edit-form-input select option:hover,
+    .vehicle-type-select option:hover {
+      background: rgba(139, 92, 246, 0.3);
+      color: white;
+    }
+
+    .edit-form-input select option:checked,
+    .vehicle-type-select option:checked {
+      background: var(--primary);
+      color: white;
+      font-weight: 600;
+    }
+
+    .edit-modal-buttons {
+      display: flex;
+      gap: 1rem;
+      margin-top: 2rem;
+    }
+
+    .edit-modal-buttons button {
+      flex: 1;
+    }
+
+    .vehicle-card {
+      background: rgba(99, 102, 241, 0.1);
+      border: 1px solid rgba(99, 102, 241, 0.3);
+      border-radius: 12px;
+      padding: 1.5rem;
+      margin-top: 1rem;
+    }
+
+    .vehicle-info {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 1rem;
+      margin-top: 1rem;
+    }
+
+    .vehicle-detail {
+      display: flex;
+      flex-direction: column;
+    }
+
+    .vehicle-label {
+      font-size: 0.8rem;
+      color: var(--text-muted);
+      margin-bottom: 0.3rem;
+    }
+
+    .vehicle-value {
+      font-weight: 600;
+      color: var(--primary);
+    }
+  </style>
+  <script src="../../../../../../../common/js/config.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <a href="driver_home.html" class="btn btn-secondary">← Back</a>
+    </div>
+    <div class="topbar-center">
+      <img src="../assets/logo.png" class="mini-logo" alt="RapidRide" onerror="this.style.display='none'">
+      <span>Driver Profile</span>
+    </div>
+    <div class="topbar-right">
+      <button class="btn-logout logout" id="logoutBtn">
+        <span>Logout</span>
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
+          <polyline points="16 17 21 12 16 7"></polyline>
+          <line x1="21" y1="12" x2="9" y2="12"></line>
+        </svg>
+      </button>
+    </div>
+  </header>
+
+  <main class="container">
+    <!-- Profile Header -->
+    <div class="profile-header">
+      <div class="avatar-container">
+        <div class="profile-avatar" id="profileAvatar">?</div>
+        <button class="avatar-edit-btn" onclick="showAvatarModal()" title="Change avatar">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+        </button>
+      </div>
+      <div class="profile-info">
+        <div class="profile-name" id="profileName">Loading...</div>
+        <div class="profile-email" id="profileEmail">Loading...</div>
+        <div class="profile-stats">
+          <div class="stat-item">
+            <span class="stat-value" id="profileTotalRides">0</span>
+            <span class="stat-label">Total Rides</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="profileRating">★ New</span>
+            <span class="stat-label">Rating</span>
+          </div>
+          <div class="stat-item">
+            <span class="stat-value" id="profileTotalEarnings">₹0</span>
+            <span class="stat-label">Total Earnings</span>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Personal Information -->
+    <section class="section">
+      <h2 class="section-title">Personal Information</h2>
+      
+      <div class="info-grid">
+        <div class="info-item">
+          <span class="info-label">Full Name</span>
+          <div class="info-value" id="nameContainer">
+            <span id="infoName">—</span>
+            <span class="edit-icon" onclick="toggleEdit('name')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">Email Address</span>
+          <div class="info-value" id="emailContainer">
+            <span id="infoEmail">—</span>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">Phone Number</span>
+          <div class="info-value" id="phoneContainer">
+            <span id="infoPhone">—</span>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">License Number</span>
+          <div class="info-value" id="licenseContainer">
+            <span id="infoLicense">—</span>
+            <span class="edit-icon" onclick="toggleEdit('license')">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+                <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+              </svg>
+            </span>
+          </div>
+        </div>
+
+        <div class="info-item">
+          <span class="info-label">Member Since</span>
+          <div class="info-value" id="infoMemberSince">—</div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Vehicle Information -->
+    <section class="section">
+      <h2 class="section-title">
+        Vehicle Information
+        <button class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="toggleEdit('vehicle')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
+            <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
+            <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
+          </svg>
+          Update Vehicle
+        </button>
+      </h2>
+      
+      <div class="vehicle-card" id="vehicleCard">
+        <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
+          <span style="font-size: 2rem;">🚗</span>
+          <div>
+            <div style="font-size: 1.2rem; font-weight: 700;" id="vehicleModel">—</div>
+            <div style="color: var(--text-muted); font-size: 0.9rem;" id="vehicleType">—</div>
+          </div>
+        </div>
+        <div class="vehicle-info">
+          <div class="vehicle-detail">
+            <span class="vehicle-label">Registration Number</span>
+            <span class="vehicle-value" id="vehicleNumber">—</span>
+          </div>
+          <div class="vehicle-detail">
+            <span class="vehicle-label">Color</span>
+            <span class="vehicle-value" id="vehicleColor">—</span>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Danger Zone -->
+    <section class="section">
+      <div class="danger-zone">
+        <h3 style="color: #ef4444; margin-bottom: 1rem;">Danger Zone</h3>
+        <p style="color: var(--text-muted); margin-bottom: 1rem;">Once you delete your account, there is no going back. Please be certain.</p>
+        <button class="btn btn-danger" onclick="confirmDeleteAccount()">Delete Account</button>
+      </div>
+    </section>
+  </main>
+
+  <!-- Avatar Modal -->
+  <div id="avatarModal" class="avatar-modal">
+    <div class="avatar-modal-content">
+      <h2 class="avatar-modal-title">Choose Your Avatar</h2>
+      <div class="avatar-grid">
+        <div class="avatar-option" onclick="selectAvatar('1')">
+          <img src="../assets/1.png" alt="Avatar 1">
+        </div>
+        <div class="avatar-option" onclick="selectAvatar('2')">
+          <img src="../assets/2.png" alt="Avatar 2">
+        </div>
+        <div class="avatar-option" onclick="selectAvatar('3')">
+          <img src="../assets/3.png" alt="Avatar 3">
+        </div>
+        <div class="avatar-option" onclick="selectAvatar('4')">
+          <img src="../assets/4.png" alt="Avatar 4">
+        </div>
+      </div>
+      <div class="avatar-modal-buttons">
+        <button class="btn btn-secondary" onclick="closeAvatarModal()">Cancel</button>
+        <button class="btn btn-primary" onclick="saveAvatar()">Save Avatar</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Name Modal -->
+  <div id="editNameModal" class="edit-modal">
+    <div class="edit-modal-content">
+      <h2 class="edit-modal-title">Edit Name</h2>
+      <div class="edit-form-group">
+        <label class="edit-form-label">Full Name</label>
+        <input type="text" id="editNameInput" class="edit-form-input" placeholder="Enter your full name">
+      </div>
+      <div class="edit-modal-buttons">
+        <button class="btn btn-secondary" onclick="closeEditModal('name')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveEdit('name')">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit License Modal -->
+  <div id="editLicenseModal" class="edit-modal">
+    <div class="edit-modal-content">
+      <h2 class="edit-modal-title">Edit License Number</h2>
+      <div class="edit-form-group">
+        <label class="edit-form-label">License Number</label>
+        <input type="text" id="editLicenseInput" class="edit-form-input" placeholder="Enter license number">
+      </div>
+      <div class="edit-modal-buttons">
+        <button class="btn btn-secondary" onclick="closeEditModal('license')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveEdit('license')">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Edit Vehicle Modal -->
+  <div id="editVehicleModal" class="edit-modal">
+    <div class="edit-modal-content">
+      <h2 class="edit-modal-title">Update Vehicle Information</h2>
+      <div class="edit-form-group">
+        <label class="edit-form-label">Vehicle Model</label>
+        <input type="text" id="editVehicleModel" class="edit-form-input" placeholder="e.g., Honda City">
+      </div>
+      <div class="edit-form-group">
+        <label class="edit-form-label">Vehicle Type</label>
+        <select id="editVehicleType" class="edit-form-input vehicle-type-select">
+          <option value="Bike">🏍️ Bike (Up to 1 passenger)</option>
+          <option value="Auto">🛺 Auto (Up to 3 passengers)</option>
+          <option value="Car">🚗 Car (Up to 4 passengers)</option>
+          <option value="SUV">🚙 SUV (Up to 6 passengers)</option>
+          <option value="Carpool">🚕 Carpool (Up to 3-4 passengers)</option>
+          <option value="Shuttle">🚐 Shuttle (Up to 8-12 passengers)</option>
+        </select>
+      </div>
+      <div class="edit-form-group">
+        <label class="edit-form-label">Registration Number</label>
+        <input type="text" id="editVehicleNumber" class="edit-form-input" placeholder="e.g., KA01AB1234">
+      </div>
+      <div class="edit-form-group">
+        <label class="edit-form-label">Color</label>
+        <input type="text" id="editVehicleColor" class="edit-form-input" placeholder="e.g., White">
+      </div>
+      <div class="edit-modal-buttons">
+        <button class="btn btn-secondary" onclick="closeEditModal('vehicle')">Cancel</button>
+        <button class="btn btn-primary" onclick="saveEdit('vehicle')">Save Changes</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="../common/js/firebase-config.js"></script>
+  <script src="../common/js/config.js"></script>
+  <script src="../common/js/auth.js"></script>
+  <script src="../common/js/confirm-logout.js"></script>
+  <script>
+    let currentUser = null;
+    let selectedAvatarId = null;
+
+    // Initialize page with Firebase auth
+    firebase.auth().onAuthStateChanged(async (user) => {
+      console.log('🔐 Profile auth state changed:', user ? user.uid : 'null');
+      
+      if (!user) {
+        console.warn('❌ No Firebase user, redirecting to signin');
+        location.href = '../common/signin.html';
+        return;
+      }
+      
+      try {
+        console.log('📡 Fetching user data from backend...');
+        // Fetch user data from backend
+        const response = await apiFetch('/auth/me');
+        console.log('📥 Backend response:', response);
+        
+        if (!response.ok) {
+          console.error('❌ Backend returned error:', response.status, response.data);
+          location.href = '../common/signin.html';
+          return;
+        }
+        
+        if (!response.data || !response.data.user) {
+          console.error('❌ No user data in response:', response.data);
+          location.href = '../common/signin.html';
+          return;
+        }
+        
+        console.log('✅ User data loaded:', response.data.user.name);
+        currentUser = response.data.user;
+        updateUI(currentUser);
+        await fetchUserStats();
+      } catch (error) {
+        console.error('❌ Failed to load user data:', error);
+        location.href = '../common/signin.html';
+      }
+    });
+
+    function updateUI(user) {
+      // Profile header
+      document.getElementById('profileName').textContent = user.name || 'Driver';
+      document.getElementById('profileEmail').textContent = user.email || user.phone || '—';
+      
+      // Fetch and display stats
+      fetchUserStats();
+      
+      // Avatar
+      const avatarEl = document.getElementById('profileAvatar');
+      if (user.avatar) {
+        const avatarSrc = user.avatar.includes('/') ? user.avatar : `../assets/${user.avatar}.png`;
+        avatarEl.innerHTML = `<img src="${avatarSrc}" alt="Avatar">`;
+      } else if (user.name) {
+        avatarEl.textContent = user.name.charAt(0).toUpperCase();
+      }
+      
+      // Personal info
+      document.getElementById('infoName').textContent = user.name || '—';
+      document.getElementById('infoEmail').textContent = user.email || '—';
+      document.getElementById('infoPhone').textContent = user.phone || '—';
+      document.getElementById('infoLicense').textContent = user.license || '—';
+      
+      // Member since
+      if (user.createdAt) {
+        const date = new Date(user.createdAt);
+        document.getElementById('infoMemberSince').textContent = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+      }
+      
+      // Vehicle info
+      if (user.vehicle) {
+        document.getElementById('vehicleModel').textContent = user.vehicle.model || '—';
+        document.getElementById('vehicleType').textContent = user.vehicle.type || '—';
+        document.getElementById('vehicleNumber').textContent = user.vehicle.number || '—';
+        document.getElementById('vehicleColor').textContent = user.vehicle.color || '—';
+      }
+    }
+
+    async function fetchUserStats() {
+      try {
+        const response = await apiFetch('/auth/stats');
+
+        if (!response.ok) {
+          throw new Error('Failed to fetch stats');
+        }
+
+        const data = await response.json();
+        const stats = data.stats;
+
+        // Update stats display
+        document.getElementById('profileTotalRides').textContent = stats.completedRides || 0;
+        document.getElementById('profileTotalEarnings').textContent = '₹' + (stats.totalEarnings || 0);
+        
+        // Display rating (already calculated as average in backend)
+        if (stats.totalRatings > 0 && stats.rating > 0) {
+          const avgRating = stats.rating.toFixed(1);
+          document.getElementById('profileRating').textContent = `★ ${avgRating}`;
+        } else {
+          document.getElementById('profileRating').textContent = '★ New';
+        }
+      } catch (error) {
+        console.error('Error fetching stats:', error);
+        // Set default values on error
+        document.getElementById('profileTotalRides').textContent = '0';
+        document.getElementById('profileRating').textContent = '★ New';
+        document.getElementById('profileTotalEarnings').textContent = '₹0';
+      }
+    }
+
+    // Avatar modal functions
+    function showAvatarModal() {
+      document.getElementById('avatarModal').style.display = 'flex';
+      // Pre-select current avatar if it matches
+      if (currentUser.avatar) {
+        const avatarId = currentUser.avatar.replace(/[^\d]/g, '');
+        if (avatarId) selectAvatar(avatarId);
+      }
+    }
+
+    function closeAvatarModal() {
+      document.getElementById('avatarModal').style.display = 'none';
+      selectedAvatarId = null;
+      document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
+    }
+
+    function selectAvatar(id) {
+      selectedAvatarId = id;
+      document.querySelectorAll('.avatar-option').forEach(el => el.classList.remove('selected'));
+      event.currentTarget.classList.add('selected');
+    }
+
+    async function saveAvatar() {
+      if (!selectedAvatarId) {
+        alert('Please select an avatar');
+        return;
+      }
+
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_CONFIG.BASE_URL}/auth/avatar`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({ avatar: selectedAvatarId })
+        });
+
+        const data = await response.json();
+        
+        if (response.ok && data.user) {
+          Auth.setCurrent(data.user);
+          currentUser = data.user;
+          updateUI(currentUser);
+          closeAvatarModal();
+        } else {
+          alert(data.message || 'Failed to update avatar');
+        }
+      } catch (error) {
+        console.error('Error updating avatar:', error);
+        alert('Failed to update avatar. Please try again.');
+      }
+    }
+
+    // Edit modal functions
+    function toggleEdit(field) {
+      const modal = document.getElementById(`edit${field.charAt(0).toUpperCase() + field.slice(1)}Modal`);
+      
+      if (field === 'name') {
+        document.getElementById('editNameInput').value = currentUser.name || '';
+      } else if (field === 'license') {
+        document.getElementById('editLicenseInput').value = currentUser.license || '';
+      } else if (field === 'vehicle') {
+        if (currentUser.vehicle) {
+          document.getElementById('editVehicleModel').value = currentUser.vehicle.model || '';
+          document.getElementById('editVehicleType').value = currentUser.vehicle.type || 'Sedan';
+          document.getElementById('editVehicleNumber').value = currentUser.vehicle.number || '';
+          document.getElementById('editVehicleColor').value = currentUser.vehicle.color || '';
+        }
+      }
+      
+      modal.style.display = 'flex';
+    }
+
+    function closeEditModal(field) {
+      const modal = document.getElementById(`edit${field.charAt(0).toUpperCase() + field.slice(1)}Modal`);
+      modal.style.display = 'none';
+    }
+
+    async function saveEdit(field) {
+      let updateData = {};
+      
+      if (field === 'name') {
+        const newName = document.getElementById('editNameInput').value.trim();
+        if (!newName) {
+          alert('Please enter a valid name');
+          return;
+        }
+        updateData.name = newName;
+      } else if (field === 'license') {
+        const newLicense = document.getElementById('editLicenseInput').value.trim();
+        if (!newLicense) {
+          alert('Please enter a valid license number');
+          return;
+        }
+        updateData.license = newLicense;
+      } else if (field === 'vehicle') {
+        const model = document.getElementById('editVehicleModel').value.trim();
+        const type = document.getElementById('editVehicleType').value;
+        const number = document.getElementById('editVehicleNumber').value.trim();
+        const color = document.getElementById('editVehicleColor').value.trim();
+        
+        if (!model || !number) {
+          alert('Please fill in all required vehicle fields');
+          return;
+        }
+        
+        updateData.vehicle = { model, type, number, color };
+      }
+
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_CONFIG.BASE_URL}/auth/profile`, {
+          method: 'PUT',
+          headers: {
+            'Authorization': `Bearer ${token}`,
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify(updateData)
+        });
+
+        const data = await response.json();
+        
+        if (response.ok && data.user) {
+          Auth.setCurrent(data.user);
+          currentUser = data.user;
+          updateUI(currentUser);
+          closeEditModal(field);
+        } else {
+          alert(data.message || 'Failed to update profile');
+        }
+      } catch (error) {
+        console.error('Error updating profile:', error);
+        alert('Failed to update profile. Please try again.');
+      }
+    }
+
+    function confirmDeleteAccount() {
+      if (confirm('Are you sure you want to delete your account? This action cannot be undone.')) {
+        if (confirm('This will permanently delete all your data. Continue?')) {
+          deleteAccount();
+        }
+      }
+    }
+
+    async function deleteAccount() {
+      try {
+        const token = localStorage.getItem('token');
+        const response = await fetch(`${API_CONFIG.BASE_URL}/auth/delete`, {
+          method: 'DELETE',
+          headers: {
+            'Authorization': `Bearer ${token}`
+          }
+        });
+
+        if (response.ok) {
+          Auth.logout();
+          window.location.href = '../common/signin.html';
+        } else {
+          const data = await response.json();
+          alert(data.message || 'Failed to delete account');
+        }
+      } catch (error) {
+        console.error('Error deleting account:', error);
+        alert('Failed to delete account. Please try again.');
+      }
+    }
+
+    // Logout function is handled by confirm-logout.js
+  </script>
+</body>
+</html>

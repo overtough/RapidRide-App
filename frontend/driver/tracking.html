@@ -1,0 +1,73 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Tracking — RapidRide</title>
+  <link rel="stylesheet" href="../common/css/global.css">
+  <style>
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(15, 23, 42, 0.6);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--glass-border);
+    }
+    .map-container {
+      height: 70vh;
+      background: rgba(0,0,0,0.3);
+      border-radius: var(--radius-lg);
+      margin: 2rem 0;
+      position: relative;
+      overflow: hidden;
+      border: 1px solid var(--glass-border);
+    }
+    .map-container::before {
+      content: 'Live Tracking Map';
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      color: var(--text-muted);
+      font-size: 1.5rem;
+    }
+  </style>
+  <script src="../../../../../../../common/js/config.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="flex-center gap-2">
+      <img src='../assets/logo.png' class="mini-logo" alt="" style="height: 30px;">
+      <strong>RapidRide</strong>
+    </div>
+    <div class="right">
+      <a href="driver_home.html" class="btn btn-secondary" style="padding: 0.5rem 1rem; font-size: 0.9rem;">Back</a>
+    </div>
+  </header>
+
+  <main class="container slide-up" style="padding-top: 2rem;">
+    <div class="glass-card">
+      <h2>Live Tracking</h2>
+      <p class="mb-4">Monitor your current ride progress.</p>
+      <div class="map-container"></div>
+    </div>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="../common/js/firebase-config.js"></script>
+  <script src="../common/js/config.js"></script>
+  <script src="../common/js/auth.js"></script>
+  <script>
+    (async function(){
+      const u0 = Auth.currentUser();
+      if(!u0){
+        const fetched = await Auth.populateFromServer();
+        if(!fetched) return location.href='../common/login.html';
+      }
+      const u = Auth.currentUser();
+      if(!u) return location.href='../common/login.html';
+    })();
+  </script>
+</body>
+</html>

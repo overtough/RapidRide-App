@@ -1,0 +1,163 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>RapidRide | Next Gen Mobility</title>
+  <link rel="stylesheet" href="common/css/global.css">
+  
+  <!-- Config: change the api-base meta or override window.APP_API_BASE at runtime -->
+  <style>
+    /* Landing Page Specific Styles */
+    .hero-section {
+      min-height: 100vh;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      padding: 2rem;
+      position: relative;
+    }
+    
+    .hero-content {
+      max-width: 500px;
+      text-align: center;
+    }
+    
+    .logo-container {
+      margin-bottom: 2rem;
+    }
+    
+    .logo-container img {
+      height: 80px;
+    }
+    
+    .action-grid {
+      display: grid;
+      gap: 1rem;
+      width: 100%;
+    }
+    
+    .status-bar {
+      margin-top: 2rem;
+      padding-top: 1rem;
+      border-top: 1px solid var(--glass-border);
+      font-size: 0.875rem;
+      color: var(--text-muted);
+      display: flex;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+    
+    .status-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: #22c55e;
+      box-shadow: 0 0 10px #22c55e;
+    }
+  </style>
+  <script src="../../../../../../common/js/config.js"></script>
+</head>
+<body>
+
+  <main class="hero-section">
+    <div class="glass-card hero-content slide-up">
+      <div class="logo-container">
+        <!-- Placeholder for logo if missing, or use existing -->
+        <img src="assets/logo.png" alt="RapidRide" onerror="this.style.display='none'">
+        <h1 class="brand-title">RapidRide</h1>
+      </div>
+      
+      <p class="brand-subtitle">Fast, secure, and reliable rides at your fingertips.</p><br>
+
+      <div class="action-grid">
+        <a href="common/signin-phone.html" class="btn btn-primary">🔥 Sign In with Phone</a>
+        <a href="common/verify-phone.html" class="btn btn-secondary">📱 Create Account</a>
+        <a href="common/signin.html" class="btn" style="background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.2);">📧 Email (Secondary)</a>
+      </div>
+
+      <!-- <div class="status-bar">
+        <div id="statusIndicator" class="status-dot" style="background: var(--text-muted); box-shadow: none;"></div>
+        <span id="status">System Ready</span>
+      </div> -->
+    </div>
+  </main>
+
+  <script>
+    // Application configuration and helpers to make it easy to wire a backend later.
+    (function () {
+      // Read default from meta tag
+      function readMeta(name) {
+        var el = document.querySelector('meta[name="' + name + '"]');
+        return el ? el.getAttribute('content') : null;
+      }
+
+      var defaultApiBase = readMeta('api-base') || '`${API_CONFIG.BASE_URL}';
+
+      // Allow overriding via global BEFORE this script runs: window.APP_API_BASE
+      var apiBase = (window.APP_API_BASE && String(window.APP_API_BASE).trim()) || defaultApiBase;
+
+      // Expose a simple appConfig
+      window.appConfig = {
+        apiBase: apiBase,
+        setApiBase: function (b) { this.apiBase = b; }
+      };
+
+      // Basic API fetch wrapper: prepends base, sends/receives JSON and attaches auth token if present
+      window.apiFetch = async function (path, options) {
+        var base = window.appConfig.apiBase.replace(/\/$/, '');
+        var url = path.indexOf('http') === 0 ? path : base + (path.indexOf('/') === 0 ? path : '/' + path);
+        options = options || {};
+        options.headers = options.headers || {};
+        if (options.body && !(options.body instanceof FormData)) {
+          options.headers['Content-Type'] = 'application/json';
+          options.body = JSON.stringify(options.body);
+        }
+        var token = localStorage.getItem('rr_token');
+        if (token) options.headers['Authorization'] = 'Bearer ' + token;
+
+        var res = await fetch(url, options);
+        var text = await res.text();
+        try { return { ok: res.ok, status: res.status, data: text ? JSON.parse(text) : null }; }
+        catch (e) { return { ok: res.ok, status: res.status, data: text }; }
+      };
+
+      // Simple auth helpers
+      window.auth = {
+        saveToken: function (t) { localStorage.setItem('rr_token', t); },
+        getToken: function () { return localStorage.getItem('rr_token'); },
+        clear: function () { localStorage.removeItem('rr_token'); }
+      };
+
+      // Test backend button - will call `${apiBase}/health` then show result. Backend should implement a health route.
+      // document.getElementById('testBackend').addEventListener('click', async function () {
+      //   var el = document.getElementById('status');
+      //   var dot = document.getElementById('statusIndicator');
+        
+      //   el.textContent = 'Pinging backend...';
+      //   dot.style.background = '#eab308'; // yellow
+      //   dot.style.boxShadow = '0 0 10px #eab308';
+        
+      //   try {
+      //     var r = await window.apiFetch('/health', { method: 'GET' });
+      //     if (r.ok) {
+      //       el.textContent = 'Online: ' + (r.data ? JSON.stringify(r.data) : 'OK');
+      //       dot.style.background = '#22c55e'; // green
+      //       dot.style.boxShadow = '0 0 10px #22c55e';
+      //     } else {
+      //       el.textContent = 'Backend Error: ' + r.status;
+      //       dot.style.background = '#ef4444'; // red
+      //       dot.style.boxShadow = '0 0 10px #ef4444';
+      //     }
+      //   } catch (err) {
+      //     el.textContent = 'Connection Failed';
+      //     dot.style.background = '#ef4444'; // red
+      //     dot.style.boxShadow = '0 0 10px #ef4444';
+      //   }
+      // });
+
+    })();
+  </script>
+  <script src="common/js/auth.js"></script>
+</body>
+</html>

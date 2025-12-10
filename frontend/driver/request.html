@@ -1,0 +1,500 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Ride Request — RapidRide</title>
+  <link rel="stylesheet" href="../common/css/global.css">
+  <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(15, 23, 42, 0.95);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--glass-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .back-btn {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0.5rem;
+      transition: all 0.3s ease;
+    }
+
+    .back-btn:hover {
+      color: var(--primary);
+      transform: scale(1.1);
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    .request-header {
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border-radius: 20px;
+      padding: 2rem;
+      text-align: center;
+      margin-bottom: 2rem;
+    }
+
+    .request-header h2 {
+      font-size: 2rem;
+      margin-bottom: 0.5rem;
+    }
+
+    .request-header p {
+      opacity: 0.9;
+      font-size: 1.1rem;
+    }
+
+    .timer {
+      display: inline-block;
+      padding: 0.5rem 1.5rem;
+      background: rgba(255, 255, 255, 0.2);
+      border-radius: 20px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      margin-top: 1rem;
+    }
+
+    .ride-details-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .detail-row {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      border-radius: 12px;
+      margin-bottom: 0.75rem;
+    }
+
+    .detail-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .detail-label {
+      color: var(--text-muted);
+      font-size: 0.9rem;
+    }
+
+    .detail-value {
+      font-weight: 600;
+      font-size: 1.1rem;
+    }
+
+    .location-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 1.5rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .location-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1rem;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      margin-bottom: 1rem;
+    }
+
+    .location-item:last-child {
+      margin-bottom: 0;
+    }
+
+    .location-icon {
+      width: 45px;
+      height: 45px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .location-icon.pickup {
+      background: rgba(34, 197, 94, 0.2);
+      border: 2px solid #22c55e;
+    }
+
+    .location-icon.drop {
+      background: rgba(239, 68, 68, 0.2);
+      border: 2px solid #ef4444;
+    }
+
+    .location-text {
+      flex: 1;
+    }
+
+    .location-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.25rem;
+    }
+
+    .location-address {
+      font-weight: 600;
+    }
+
+    .map-preview {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      padding: 1rem;
+      margin-bottom: 1.5rem;
+    }
+
+    .map-container {
+      height: 300px;
+      border-radius: 15px;
+      overflow: hidden;
+    }
+
+    #map {
+      width: 100%;
+      height: 100%;
+    }
+
+    .action-buttons {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+    }
+
+    .btn-accept {
+      padding: 1.5rem;
+      background: linear-gradient(135deg, var(--primary), var(--secondary));
+      border: none;
+      border-radius: 12px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: white;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 0.5rem;
+    }
+
+    .btn-accept:hover {
+      transform: translateY(-2px);
+      box-shadow: 0 8px 20px rgba(139, 92, 246, 0.5);
+    }
+
+    .btn-decline {
+      padding: 1.5rem;
+      background: rgba(239, 68, 68, 0.2);
+      border: 2px solid #ef4444;
+      border-radius: 12px;
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: #ef4444;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .btn-decline:hover {
+      background: rgba(239, 68, 68, 0.3);
+      transform: translateY(-2px);
+    }
+
+    @media (max-width: 768px) {
+      .action-buttons {
+        grid-template-columns: 1fr;
+      }
+    }
+  </style>
+  <script src="../../../../../../../common/js/config.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div style="display: flex; align-items: center; gap: 1rem;">
+      <button class="back-btn" onclick="goBack()">←</button>
+      <strong>Ride Request</strong>
+    </div>
+  </header>
+
+  <main class="container slide-up">
+    <div class="request-header">
+      <h2>🚗 New Ride Request</h2>
+      <p>Review the details and accept to start earning</p>
+      <div class="timer" id="timer">30s</div>
+    </div>
+
+    <div class="ride-details-card">
+      <h3 style="margin-bottom: 1rem;">💰 Ride Details</h3>
+      <div class="detail-row">
+        <span class="detail-label">Fare Amount</span>
+        <span class="detail-value" id="fareAmount">₹--</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Distance</span>
+        <span class="detail-value" id="distance">-- km</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Estimated Duration</span>
+        <span class="detail-value" id="duration">-- min</span>
+      </div>
+      <div class="detail-row">
+        <span class="detail-label">Vehicle Type</span>
+        <span class="detail-value" id="vehicleType">--</span>
+      </div>
+    </div>
+
+    <div class="location-card">
+      <h3 style="margin-bottom: 1rem;">📍 Locations</h3>
+      <div class="location-item">
+        <div class="location-icon pickup">📍</div>
+        <div class="location-text">
+          <div class="location-label">Pickup Location</div>
+          <div class="location-address" id="pickupAddress">Loading...</div>
+        </div>
+      </div>
+      <div class="location-item">
+        <div class="location-icon drop">🎯</div>
+        <div class="location-text">
+          <div class="location-label">Drop Location</div>
+          <div class="location-address" id="dropAddress">Loading...</div>
+        </div>
+      </div>
+    </div>
+
+    <div class="map-preview">
+      <h3 style="margin-bottom: 1rem;">🗺️ Route Preview</h3>
+      <div class="map-container">
+        <div id="map"></div>
+      </div>
+    </div>
+
+    <div class="action-buttons">
+      <button class="btn-accept" id="btnAccept" onclick="acceptRide()">
+        ✅ Accept Ride
+      </button>
+      <button class="btn-decline" onclick="declineRide()">
+        ✖ Decline
+      </button>
+    </div>
+  </main>
+
+  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="../common/js/firebase-config.js"></script>
+  <script src="../common/js/config.js"></script>
+  <script src="../common/js/auth.js"></script>
+  <script src="../common/js/confirm-logout.js"></script>
+  <script>
+    let map;
+    let timerInterval;
+    let timeLeft = 30;
+    let rideData = null;
+    const API_BASE = API_CONFIG.BASE_URL;
+
+    // Get ride ID from URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const rideId = urlParams.get('id');
+
+    if (!rideId) {
+      alert('No ride ID provided');
+      window.location.href = 'driver_home.html';
+    }
+
+    // Initialize
+    window.addEventListener('load', async () => {
+      // Check Firebase auth
+      firebase.auth().onAuthStateChanged(async (user) => {
+        if (!user) {
+          window.location.href = '../common/signin.html';
+          return;
+        }
+        
+        await loadRideRequest();
+        initMap();
+        startTimer();
+      });
+    });
+
+    async function loadRideRequest() {
+      // For now, get ride data from sessionStorage (passed from driver_home.html)
+      const storedRequests = JSON.parse(sessionStorage.getItem('rideRequests') || '[]');
+      rideData = storedRequests.find(r => r.rideId === rideId);
+
+      if (!rideData) {
+        alert('Ride request not found');
+        window.location.href = 'driver_home.html';
+        return;
+      }
+
+      displayRideDetails();
+    }
+
+    function displayRideDetails() {
+      if (!rideData) return;
+
+      document.getElementById('fareAmount').textContent = '₹' + (rideData.fare || '--');
+      document.getElementById('distance').textContent = rideData.distance ? rideData.distance.toFixed(1) + ' km' : '-- km';
+      document.getElementById('duration').textContent = rideData.duration ? rideData.duration + ' min' : '-- min';
+      document.getElementById('vehicleType').textContent = rideData.vehicleType || 'Car';
+      document.getElementById('pickupAddress').textContent = rideData.pickup?.address || 'Loading...';
+      document.getElementById('dropAddress').textContent = rideData.destination?.address || 'Loading...';
+    }
+
+    function initMap() {
+      if (!rideData) return;
+
+      const pickupLat = rideData.pickup.lat;
+      const pickupLng = rideData.pickup.lng;
+      const dropLat = rideData.destination.lat;
+      const dropLng = rideData.destination.lng;
+
+      // Center map between pickup and drop
+      const centerLat = (pickupLat + dropLat) / 2;
+      const centerLng = (pickupLng + dropLng) / 2;
+
+      map = L.map('map').setView([centerLat, centerLng], 13);
+
+      L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
+        attribution: '© OpenStreetMap contributors'
+      }).addTo(map);
+
+      // Add pickup marker
+      const pickupIcon = L.divIcon({
+        html: '<div style="font-size: 2rem;">📍</div>',
+        className: 'custom-marker',
+        iconSize: [40, 40],
+        iconAnchor: [20, 40]
+      });
+      L.marker([pickupLat, pickupLng], { icon: pickupIcon })
+        .addTo(map)
+        .bindPopup('Pickup Location');
+
+      // Add drop marker
+      const dropIcon = L.divIcon({
+        html: '<div style="font-size: 2rem;">🎯</div>',
+        className: 'custom-marker',
+        iconSize: [40, 40],
+        iconAnchor: [20, 40]
+      });
+      L.marker([dropLat, dropLng], { icon: dropIcon })
+        .addTo(map)
+        .bindPopup('Drop Location');
+
+      // Draw route line
+      L.polyline(
+        [[pickupLat, pickupLng], [dropLat, dropLng]],
+        { color: '#8b5cf6', weight: 4, opacity: 0.7 }
+      ).addTo(map);
+
+      // Fit bounds to show both markers
+      const bounds = L.latLngBounds([[pickupLat, pickupLng], [dropLat, dropLng]]);
+      map.fitBounds(bounds, { padding: [50, 50] });
+    }
+
+    function startTimer() {
+      const timerEl = document.getElementById('timer');
+      
+      timerInterval = setInterval(() => {
+        timeLeft--;
+        timerEl.textContent = timeLeft + 's';
+        
+        if (timeLeft <= 0) {
+          clearInterval(timerInterval);
+          alert('Request timed out');
+          window.location.href = 'driver_home.html';
+        }
+      }, 1000);
+    }
+
+    async function acceptRide() {
+      if (!rideData) return;
+
+      const btnAccept = document.getElementById('btnAccept');
+      btnAccept.disabled = true;
+      btnAccept.textContent = 'Accepting...';
+
+      try {
+        const response = await apiFetch(`/rides/${rideId}/accept`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          }
+        });
+
+        const data = await response.json();
+
+        if (!response.ok) {
+          throw new Error(data.message || 'Failed to accept ride');
+        }
+
+        clearInterval(timerInterval);
+        
+        // Store ride data in sessionStorage for ride_active page
+        sessionStorage.setItem('acceptedRide', JSON.stringify(data.ride));
+        
+        alert('Ride accepted successfully!');
+        
+        // Redirect to active ride page
+        window.location.href = `ride_active.html?rideId=${rideId}`;
+
+      } catch (error) {
+        console.error('Error accepting ride:', error);
+        alert('Failed to accept ride: ' + error.message);
+        btnAccept.disabled = false;
+        btnAccept.textContent = '✅ Accept Ride';
+      }
+    }
+
+    function declineRide() {
+      clearInterval(timerInterval);
+      window.location.href = 'driver_home.html';
+    }
+
+    function goBack() {
+      clearInterval(timerInterval);
+      window.location.href = 'driver_home.html';
+    }
+
+    // Cleanup on page unload
+    window.addEventListener('beforeunload', () => {
+      if (timerInterval) {
+        clearInterval(timerInterval);
+      }
+    });
+  </script>
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="../common/js/firebase-config.js"></script>
+  <script src="../common/js/auth.js"></script>
+</body>
+</html>

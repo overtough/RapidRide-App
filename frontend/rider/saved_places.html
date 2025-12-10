@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Saved Places — RapidRide</title>
+  <link rel="stylesheet" href="../common/css/global.css">
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--glass-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .mini-logo {
+      height: 40px;
+    }
+
+    .back-btn {
+      padding: 0.6rem 1.2rem;
+      background: transparent;
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      color: var(--text);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+      border-color: var(--primary);
+    }
+
+    .container {
+      max-width: 1000px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    .page-title {
+      font-size: 2rem;
+      font-weight: 700;
+      margin-bottom: 0.5rem;
+      background: linear-gradient(to right, var(--text-main), var(--primary));
+      -webkit-background-clip: text;
+      background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+
+    .page-subtitle {
+      color: var(--text-muted);
+      margin-bottom: 2rem;
+    }
+
+    .places-grid {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .place-card {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 1.5rem;
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      transition: all 0.2s;
+      cursor: pointer;
+    }
+
+    .place-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .place-icon {
+      font-size: 2rem;
+      flex-shrink: 0;
+    }
+
+    .place-info {
+      flex: 1;
+    }
+
+    .place-name {
+      font-size: 1.1rem;
+      font-weight: 700;
+      color: var(--text-main);
+      margin-bottom: 0.3rem;
+    }
+
+    .place-address {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .place-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .action-btn {
+      padding: 0.5rem 1rem;
+      border: 1px solid var(--glass-border);
+      border-radius: 8px;
+      background: transparent;
+      color: var(--text);
+      cursor: pointer;
+      font-size: 0.85rem;
+      transition: all 0.2s;
+    }
+
+    .action-btn:hover {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .action-btn.delete {
+      color: #ef4444;
+      border-color: rgba(239, 68, 68, 0.3);
+    }
+
+    .action-btn.delete:hover {
+      background: rgba(239, 68, 68, 0.1);
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 4rem 2rem;
+      color: var(--text-muted);
+    }
+
+    .empty-icon {
+      font-size: 4rem;
+      margin-bottom: 1rem;
+    }
+
+    .empty-title {
+      font-size: 1.3rem;
+      font-weight: 600;
+      margin-bottom: 0.5rem;
+      color: var(--text);
+    }
+
+    .empty-text {
+      margin-bottom: 1.5rem;
+    }
+  </style>
+  <script src="../../../../../../../common/js/config.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <img src="../assets/logo.png" class="mini-logo" alt="RapidRide" onerror="this.style.display='none'">
+      <span>Saved Places</span>
+    </div>
+    <button class="back-btn" onclick="window.location.href='rider_home.html'">← Back</button>
+  </header>
+
+  <main class="container">
+    <h1 class="page-title">⭐ Your Saved Places</h1>
+    <p class="page-subtitle">Quick access to your favorite locations</p>
+
+    <div class="places-grid" id="placesGrid">
+      <!-- Places will be loaded here -->
+    </div>
+
+    <div class="empty-state" id="emptyState" style="display: none;">
+      <div class="empty-icon">📍</div>
+      <div class="empty-title">No saved places yet</div>
+      <div class="empty-text">Star locations while booking a ride to save them here</div>
+      <button class="btn btn-primary" onclick="window.location.href='book_ride.html'">Book a Ride</button>
+    </div>
+  </main>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="../common/js/firebase-config.js"></script>
+  <script src="../common/js/config.js"></script>
+  <script src="../common/js/auth.js"></script>
+  <script>
+    // Load saved places from database
+    async function loadSavedPlaces() {
+      try {
+        const user = firebase.auth().currentUser;
+        
+        let saved = [];
+
+        if (user) {
+          // Fetch from backend
+          const response = await apiFetch('/auth/places');
+
+          if (response.ok) {
+            const data = await response.json();
+            saved = data.savedPlaces || [];
+            // Update localStorage cache
+            localStorage.setItem('rr_saved_places', JSON.stringify(saved));
+          } else {
+            // Fallback to localStorage
+            saved = JSON.parse(localStorage.getItem('rr_saved_places') || '[]');
+          }
+        } else {
+          // No user, use localStorage
+          saved = JSON.parse(localStorage.getItem('rr_saved_places') || '[]');
+        }
+        
+        const placesGrid = document.getElementById('placesGrid');
+        const emptyState = document.getElementById('emptyState');
+
+        if (saved.length === 0) {
+          placesGrid.style.display = 'none';
+          emptyState.style.display = 'block';
+          return;
+        }
+
+        placesGrid.style.display = 'grid';
+        emptyState.style.display = 'none';
+
+        placesGrid.innerHTML = saved.map((place, index) => `
+          <div class="place-card" onclick="bookRideToPlace(${index})">
+            <div class="place-icon">⭐</div>
+            <div class="place-info">
+              <div class="place-name">${place.name}</div>
+              <div class="place-address">${place.address}</div>
+            </div>
+            <div class="place-actions">
+              <button class="action-btn delete" onclick="event.stopPropagation(); deletePlace(${index})">
+                🗑️ Remove
+              </button>
+            </div>
+          </div>
+        `).join('');
+      } catch (e) {
+        console.error('Error loading saved places:', e);
+        // Fallback to localStorage
+        const saved = JSON.parse(localStorage.getItem('rr_saved_places') || '[]');
+        displayPlaces(saved);
+      }
+    }
+
+    // Delete a saved place
+    async function deletePlace(index) {
+      try {
+        const user = firebase.auth().currentUser;
+        
+        if (user) {
+          // Delete from backend
+          const response = await apiFetch('/auth/places', {
+            method: 'DELETE',
+            headers: {
+              'Content-Type': 'application/json'
+            },
+            body: JSON.stringify({ index })
+          });
+
+          if (response.ok) {
+            const data = await response.json();
+            // Update localStorage cache
+            localStorage.setItem('rr_saved_places', JSON.stringify(data.savedPlaces));
+          } else {
+            throw new Error('Backend delete failed');
+          }
+        } else {
+          // Fallback to localStorage
+          const saved = JSON.parse(localStorage.getItem('rr_saved_places') || '[]');
+          saved.splice(index, 1);
+          localStorage.setItem('rr_saved_places', JSON.stringify(saved));
+        }
+
+        loadSavedPlaces();
+      } catch (e) {
+        console.error('Error deleting place:', e);
+        // Fallback to localStorage
+        const saved = JSON.parse(localStorage.getItem('rr_saved_places') || '[]');
+        saved.splice(index, 1);
+        localStorage.setItem('rr_saved_places', JSON.stringify(saved));
+        loadSavedPlaces();
+      }
+    }
+
+    // Book ride to a saved place
+    function bookRideToPlace(index) {
+      try {
+        const saved = JSON.parse(localStorage.getItem('rr_saved_places') || '[]');
+        const place = saved[index];
+        
+        // Store the destination and redirect to book ride
+        sessionStorage.setItem('prefill_destination', JSON.stringify(place));
+        window.location.href = 'book_ride.html';
+      } catch (e) {
+        console.error('Error:', e);
+      }
+    }
+
+    // Initialize
+    window.addEventListener('load', () => {
+      loadSavedPlaces();
+    });
+  </script>
+</body>
+</html>

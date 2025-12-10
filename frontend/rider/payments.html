@@ -1,0 +1,434 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Payments — RapidRide</title>
+  <link rel="stylesheet" href="../common/css/global.css">
+  <style>
+    body {
+      padding: 0;
+      margin: 0;
+      min-height: 100vh;
+    }
+
+    .topbar {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      padding: 1rem 2rem;
+      background: rgba(15, 23, 42, 0.8);
+      backdrop-filter: blur(10px);
+      border-bottom: 1px solid var(--glass-border);
+      position: sticky;
+      top: 0;
+      z-index: 100;
+    }
+
+    .topbar-left {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      font-size: 1.2rem;
+      font-weight: 700;
+    }
+
+    .mini-logo {
+      height: 40px;
+    }
+
+    .container {
+      max-width: 900px;
+      margin: 0 auto;
+      padding: 2rem 1rem;
+    }
+
+    .section-title {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin-bottom: 1.5rem;
+      color: var(--text-main);
+    }
+
+    .payment-methods {
+      display: grid;
+      gap: 1rem;
+      margin-bottom: 3rem;
+    }
+
+    .method-card {
+      display: flex;
+      align-items: center;
+      gap: 1.5rem;
+      padding: 1.5rem;
+      background: var(--glass-bg);
+      border: 2px solid var(--glass-border);
+      border-radius: 12px;
+      cursor: pointer;
+      transition: all 0.2s;
+      position: relative;
+    }
+
+    .method-card:hover {
+      background: rgba(255, 255, 255, 0.08);
+      border-color: var(--primary);
+      transform: translateY(-2px);
+    }
+
+    .method-card.active {
+      border-color: var(--primary);
+      background: rgba(99, 102, 241, 0.1);
+    }
+
+    .method-icon {
+      width: 60px;
+      height: 60px;
+      background: rgba(99, 102, 241, 0.1);
+      border-radius: 12px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 2rem;
+      flex-shrink: 0;
+    }
+
+    .method-info {
+      flex: 1;
+    }
+
+    .method-name {
+      font-size: 1.1rem;
+      font-weight: 600;
+      margin-bottom: 0.3rem;
+    }
+
+    .method-details {
+      font-size: 0.9rem;
+      color: var(--text-muted);
+    }
+
+    .method-actions {
+      display: flex;
+      gap: 0.5rem;
+    }
+
+    .btn-icon {
+      width: 36px;
+      height: 36px;
+      padding: 0;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      border-radius: 8px;
+    }
+
+    .transaction-history {
+      margin-top: 3rem;
+    }
+
+    .transaction-list {
+      display: grid;
+      gap: 1rem;
+    }
+
+    .transaction-item {
+      display: flex;
+      align-items: center;
+      gap: 1rem;
+      padding: 1.2rem;
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+    }
+
+    .transaction-icon {
+      width: 50px;
+      height: 50px;
+      background: rgba(34, 197, 94, 0.1);
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 1.5rem;
+      flex-shrink: 0;
+    }
+
+    .transaction-details {
+      flex: 1;
+    }
+
+    .transaction-title {
+      font-weight: 600;
+      margin-bottom: 0.2rem;
+    }
+
+    .transaction-date {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+    }
+
+    .transaction-amount {
+      font-size: 1.2rem;
+      font-weight: 700;
+      color: var(--primary);
+    }
+
+    .add-payment-modal {
+      position: fixed;
+      top: 0;
+      left: 0;
+      right: 0;
+      bottom: 0;
+      background: rgba(0, 0, 0, 0.8);
+      backdrop-filter: blur(10px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 2000;
+    }
+
+    .add-payment-modal.show {
+      display: flex;
+    }
+
+    .modal-content {
+      background: var(--bg-dark);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      padding: 2rem;
+      max-width: 500px;
+      width: 90%;
+      max-height: 90vh;
+      overflow-y: auto;
+    }
+
+    .modal-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .close-modal {
+      background: none;
+      border: none;
+      color: var(--text);
+      font-size: 1.5rem;
+      cursor: pointer;
+      padding: 0;
+    }
+
+    .form-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .form-group label {
+      display: block;
+      margin-bottom: 0.5rem;
+      font-weight: 600;
+      font-size: 0.9rem;
+    }
+
+    .form-group input {
+      width: 100%;
+      padding: 0.9rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 2px solid var(--glass-border);
+      border-radius: 8px;
+      color: var(--text);
+      font-size: 1rem;
+    }
+
+    .form-group input:focus {
+      border-color: var(--primary);
+      outline: none;
+    }
+
+    .card-input-row {
+      display: grid;
+      grid-template-columns: 2fr 1fr;
+      gap: 1rem;
+    }
+  </style>
+  <script src="../../../../../../../common/js/config.js"></script>
+</head>
+<body>
+  <header class="topbar">
+    <div class="topbar-left">
+      <img src="../assets/logo.png" class="mini-logo" alt="RapidRide" onerror="this.style.display='none'">
+      <span>Payments</span>
+    </div>
+    <div>
+      <a href="rider_home.html" class="btn btn-secondary">← Back to Home</a>
+    </div>
+  </header>
+
+  <main class="container">
+    <section class="payment-methods">
+      <h2 class="section-title">Payment Methods</h2>
+      
+      <div class="method-card active" data-method="cash">
+        <div class="method-icon">💵</div>
+        <div class="method-info">
+          <div class="method-name">Cash</div>
+          <div class="method-details">Pay directly to driver</div>
+        </div>
+      </div>
+
+      <div class="method-card" data-method="upi">
+        <div class="method-icon">📱</div>
+        <div class="method-info">
+          <div class="method-name">UPI</div>
+          <div class="method-details">rapidride@upi • Default</div>
+        </div>
+        <div class="method-actions">
+          <button class="btn btn-icon btn-secondary" onclick="editPayment('upi')">✏️</button>
+          <button class="btn btn-icon btn-secondary" onclick="deletePayment('upi')">🗑️</button>
+        </div>
+      </div>
+
+      <div class="method-card" data-method="card">
+        <div class="method-icon">💳</div>
+        <div class="method-info">
+          <div class="method-name">Credit/Debit Card</div>
+          <div class="method-details">•••• •••• •••• 4242</div>
+        </div>
+        <div class="method-actions">
+          <button class="btn btn-icon btn-secondary" onclick="editPayment('card')">✏️</button>
+          <button class="btn btn-icon btn-secondary" onclick="deletePayment('card')">🗑️</button>
+        </div>
+      </div>
+
+      <div class="method-card" data-method="wallet">
+        <div class="method-icon">👛</div>
+        <div class="method-info">
+          <div class="method-name">RapidRide Wallet</div>
+          <div class="method-details" id="walletBalance">Balance: ₹0</div>
+        </div>
+        <div class="method-actions">
+          <button class="btn btn-primary btn-icon" onclick="addMoney()">+</button>
+        </div>
+      </div>
+
+      <button class="btn btn-primary w-full" onclick="openAddPaymentModal()">+ Add New Payment Method</button>
+    </section>
+
+    <section class="transaction-history">
+      <h2 class="section-title">Recent Transactions</h2>
+      
+      <div id="transactionList" class="transaction-list">
+        <div style="text-align: center; padding: 3rem; color: var(--text-muted);">
+          <div style="font-size: 3rem; margin-bottom: 1rem;">💳</div>
+          <p>No transactions yet.</p>
+          <p style="font-size: 0.9rem; margin-top: 0.5rem;">Your ride payments will appear here.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- Add Payment Modal -->
+  <div class="add-payment-modal" id="addPaymentModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Add Payment Method</h3>
+        <button class="close-modal" onclick="closeAddPaymentModal()">✖</button>
+      </div>
+
+      <div class="form-group">
+        <label>Payment Type</label>
+        <select id="paymentType" style="width: 100%; padding: 0.9rem; background: rgba(255, 255, 255, 0.05); border: 2px solid var(--glass-border); border-radius: 8px; color: var(--text); font-size: 1rem;">
+          <option value="card">Credit/Debit Card</option>
+          <option value="upi">UPI</option>
+          <option value="netbanking">Net Banking</option>
+        </select>
+      </div>
+
+      <div id="cardForm">
+        <div class="form-group">
+          <label>Card Number</label>
+          <input type="text" placeholder="1234 5678 9012 3456" maxlength="19">
+        </div>
+
+        <div class="form-group">
+          <label>Cardholder Name</label>
+          <input type="text" placeholder="John Doe">
+        </div>
+
+        <div class="card-input-row">
+          <div class="form-group">
+            <label>Expiry Date</label>
+            <input type="text" placeholder="MM/YY" maxlength="5">
+          </div>
+
+          <div class="form-group">
+            <label>CVV</label>
+            <input type="text" placeholder="123" maxlength="3">
+          </div>
+        </div>
+      </div>
+
+      <div class="flex-center gap-2 mt-4">
+        <button class="btn btn-secondary w-full" onclick="closeAddPaymentModal()">Cancel</button>
+        <button class="btn btn-primary w-full" onclick="savePaymentMethod()">Save</button>
+      </div>
+    </div>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="../common/js/firebase-config.js"></script>
+  <script src="../common/js/config.js"></script>
+  <script src="../common/js/auth.js"></script>
+  <script>
+    // Select payment method
+    document.querySelectorAll('.method-card').forEach(card => {
+      card.addEventListener('click', (e) => {
+        if (e.target.closest('.method-actions')) return;
+        
+        document.querySelectorAll('.method-card').forEach(c => c.classList.remove('active'));
+        card.classList.add('active');
+        
+        const method = card.dataset.method;
+        console.log('Selected payment method:', method);
+      });
+    });
+
+    function openAddPaymentModal() {
+      document.getElementById('addPaymentModal').classList.add('show');
+    }
+
+    function closeAddPaymentModal() {
+      document.getElementById('addPaymentModal').classList.remove('show');
+    }
+
+    function savePaymentMethod() {
+      alert('Payment method saved successfully!');
+      closeAddPaymentModal();
+    }
+
+    function editPayment(method) {
+      alert(`Edit ${method} payment method`);
+    }
+
+    function deletePayment(method) {
+      if (confirm(`Delete this ${method} payment method?`)) {
+        alert(`${method} payment method deleted`);
+      }
+    }
+
+    function addMoney() {
+      const amount = prompt('Enter amount to add to wallet:');
+      if (amount && !isNaN(amount) && amount > 0) {
+        alert(`Adding ₹${amount} to wallet...`);
+      }
+    }
+
+    // Close modal on outside click
+    document.getElementById('addPaymentModal').addEventListener('click', (e) => {
+      if (e.target.id === 'addPaymentModal') {
+        closeAddPaymentModal();
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,535 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>Ride Management — RapidRide Admin</title>
+  <link rel="stylesheet" href="../common/css/global.css">
+  <style>
+    body {
+      padding: 2rem;
+      min-height: 100vh;
+    }
+
+    .header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 2rem;
+    }
+
+    .header h1 {
+      font-size: 2rem;
+      font-weight: 700;
+      color: white;
+      margin: 0;
+    }
+
+    .back-btn {
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 0.75rem 1.5rem;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+      display: flex;
+      align-items: center;
+      gap: 0.5rem;
+    }
+
+    .back-btn:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: translateX(-4px);
+    }
+
+    .filter-tabs {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 2rem;
+    }
+
+    .filter-btn {
+      padding: 0.75rem 1.5rem;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      color: white;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .filter-btn.active {
+      background: var(--primary);
+      border-color: var(--primary);
+    }
+
+    .filter-btn:hover {
+      background: rgba(139, 92, 246, 0.2);
+    }
+
+    .rides-table {
+      width: 100%;
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--glass-border);
+      border-radius: 16px;
+      overflow: hidden;
+    }
+
+    .rides-table table {
+      width: 100%;
+      border-collapse: collapse;
+    }
+
+    .rides-table thead {
+      background: rgba(255, 255, 255, 0.05);
+    }
+
+    .rides-table th {
+      padding: 1rem;
+      text-align: left;
+      font-weight: 600;
+      color: var(--text-muted);
+      font-size: 0.9rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .rides-table td {
+      padding: 1rem;
+      color: white;
+      border-top: 1px solid var(--glass-border);
+    }
+
+    .rides-table tbody tr {
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .rides-table tbody tr:hover {
+      background: rgba(139, 92, 246, 0.1);
+    }
+
+    .badge {
+      padding: 0.25rem 0.75rem;
+      border-radius: 20px;
+      font-size: 0.85rem;
+      font-weight: 600;
+    }
+
+    .badge.success {
+      background: rgba(34, 197, 94, 0.2);
+      color: #22c55e;
+    }
+
+    .badge.warning {
+      background: rgba(245, 158, 11, 0.2);
+      color: #fbbf24;
+    }
+
+    .badge.info {
+      background: rgba(59, 130, 246, 0.2);
+      color: #3b82f6;
+    }
+
+    .badge.danger {
+      background: rgba(239, 68, 68, 0.2);
+      color: #ef4444;
+    }
+
+    .badge.muted {
+      background: rgba(156, 163, 175, 0.2);
+      color: #9ca3af;
+    }
+
+    .empty-state {
+      text-align: center;
+      padding: 3rem;
+      color: var(--text-muted);
+    }
+
+    /* Modal Styles */
+    .modal {
+      position: fixed;
+      inset: 0;
+      background: rgba(15, 23, 42, 0.9);
+      backdrop-filter: blur(8px);
+      display: none;
+      align-items: center;
+      justify-content: center;
+      z-index: 10000;
+      opacity: 0;
+      transition: opacity 0.3s ease;
+    }
+
+    .modal.active {
+      display: flex;
+      opacity: 1;
+    }
+
+    .modal-content {
+      background: var(--glass-bg);
+      border: 1px solid var(--glass-border);
+      border-radius: 20px;
+      width: 90%;
+      max-width: 600px;
+      max-height: 80vh;
+      overflow-y: auto;
+      position: relative;
+    }
+
+    .modal-header {
+      padding: 1.5rem 2rem;
+      border-bottom: 1px solid var(--glass-border);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+
+    .modal-header h3 {
+      font-size: 1.5rem;
+      font-weight: 700;
+      margin: 0;
+      color: white;
+    }
+
+    .modal-close {
+      width: 35px;
+      height: 35px;
+      border-radius: 50%;
+      background: rgba(255, 255, 255, 0.05);
+      border: 1px solid var(--glass-border);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.3s ease;
+    }
+
+    .modal-close:hover {
+      background: rgba(255, 255, 255, 0.1);
+      transform: scale(1.1);
+    }
+
+    .modal-body {
+      padding: 2rem;
+    }
+
+    .detail-group {
+      margin-bottom: 1.5rem;
+    }
+
+    .detail-label {
+      font-size: 0.85rem;
+      color: var(--text-muted);
+      margin-bottom: 0.5rem;
+      text-transform: uppercase;
+      letter-spacing: 0.5px;
+    }
+
+    .detail-value {
+      font-size: 1.1rem;
+      color: white;
+      font-weight: 600;
+    }
+
+    .location-card {
+      background: rgba(255, 255, 255, 0.03);
+      border: 1px solid var(--glass-border);
+      border-radius: 12px;
+      padding: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .location-card h4 {
+      margin: 0 0 0.5rem 0;
+      color: white;
+      font-size: 1rem;
+    }
+
+    .location-card p {
+      margin: 0;
+      color: var(--text-muted);
+      line-height: 1.6;
+    }
+  </style>
+</head>
+<body>
+  <div class="header">
+    <h1>🚗 Ride Management</h1>
+    <button class="back-btn" onclick="window.location.href='admin_dashboard.html'">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+        <path d="M19 12H5M12 19l-7-7 7-7"/>
+      </svg>
+      Back to Dashboard
+    </button>
+  </div>
+
+  <div class="filter-tabs">
+    <button class="filter-btn" id="allRidesBtn" onclick="filterRides('all')">All Rides</button>
+    <button class="filter-btn" onclick="filterRides('requested')">Requested</button>
+    <button class="filter-btn active" id="activeRidesBtn" onclick="filterRides('active')">Active</button>
+    <button class="filter-btn" onclick="filterRides('completed')">Completed</button>
+    <button class="filter-btn" onclick="filterRides('cancelled')">Cancelled</button>
+  </div>
+
+  <div class="rides-table">
+    <table>
+      <thead>
+        <tr>
+          <th>Ride ID</th>
+          <th>Captain Name</th>
+          <th>Rider Name</th>
+          <th>Distance</th>
+          <th>Status</th>
+          <th>Time</th>
+        </tr>
+      </thead>
+      <tbody id="ridesTableBody">
+        <tr>
+          <td colspan="6">
+            <div class="empty-state">Loading rides...</div>
+          </td>
+        </tr>
+      </tbody>
+    </table>
+  </div>
+
+  <!-- Ride Details Modal -->
+  <div class="modal" id="rideModal">
+    <div class="modal-content">
+      <div class="modal-header">
+        <h3>Ride Details</h3>
+        <div class="modal-close" onclick="closeModal()">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+            <line x1="18" y1="6" x2="6" y2="18"></line>
+            <line x1="6" y1="6" x2="18" y2="18"></line>
+          </svg>
+        </div>
+      </div>
+      <div class="modal-body" id="modalBody">
+        <!-- Dynamic content will be inserted here -->
+      </div>
+    </div>
+  </div>
+
+  <script src="../common/js/auth.js"></script>
+  <script>
+    let currentFilter = 'active';
+    let allRides = [];
+
+    // Check authentication
+    window.addEventListener('DOMContentLoaded', async () => {
+      const token = localStorage.getItem('token');
+      if (!token) {
+        window.location.href = '../common/signin.html';
+        return;
+      }
+
+      // Check if URL has hash for specific filter
+      const hash = window.location.hash;
+      if (hash === '#all-rides') {
+        currentFilter = 'all';
+        // Update button states
+        document.querySelectorAll('.filter-btn').forEach(btn => {
+          btn.classList.remove('active');
+          if (btn.textContent.trim() === 'All Rides') {
+            btn.classList.add('active');
+          }
+        });
+      }
+
+      await loadRides();
+    });
+
+    async function loadRides() {
+      try {
+        const token = localStorage.getItem('token');
+        
+        // Fetch all rides from backend
+        const response = await fetch(\${API_CONFIG.BASE_URL}/rides/admin/all', {
+          headers: { 'Authorization': `Bearer ${token}` }
+        });
+        
+        if (!response.ok) {
+          throw new Error('Failed to fetch rides');
+        }
+        
+        const data = await response.json();
+        
+        if (data.success) {
+          allRides = data.rides || [];
+        } else {
+          allRides = [];
+        }
+        
+        renderRides();
+      } catch (error) {
+        console.error('Failed to load rides:', error);
+        allRides = [];
+        renderRides();
+      }
+    }
+
+    function filterRides(filter) {
+      currentFilter = filter;
+      
+      // Update active button
+      document.querySelectorAll('.filter-btn').forEach(btn => {
+        btn.classList.remove('active');
+      });
+      event.target.classList.add('active');
+      
+      renderRides();
+    }
+
+    function renderRides() {
+      const tbody = document.getElementById('ridesTableBody');
+      
+      let filteredRides;
+      if (currentFilter === 'all') {
+        filteredRides = allRides;
+      } else if (currentFilter === 'requested') {
+        filteredRides = allRides.filter(ride => ride.status === 'requested');
+      } else if (currentFilter === 'active') {
+        filteredRides = allRides.filter(ride => 
+          ride.status !== 'completed' && ride.status !== 'cancelled' && ride.status !== 'requested'
+        );
+      } else if (currentFilter === 'completed') {
+        filteredRides = allRides.filter(ride => ride.status === 'completed');
+      } else if (currentFilter === 'cancelled') {
+        filteredRides = allRides.filter(ride => ride.status === 'cancelled');
+      } else {
+        filteredRides = allRides;
+      }
+      
+      if (filteredRides.length === 0) {
+        tbody.innerHTML = `
+          <tr>
+            <td colspan="6">
+              <div class="empty-state">
+                <p>No ${currentFilter === 'all' ? '' : currentFilter} rides found</p>
+                <p style="font-size: 0.9rem; margin-top: 0.5rem;">Rides will appear here once users start booking</p>
+              </div>
+            </td>
+          </tr>
+        `;
+        return;
+      }
+
+      tbody.innerHTML = filteredRides.map(ride => `
+        <tr onclick="openRideDetails('${ride._id}')" style="cursor: pointer;">
+          <td><strong>#${ride._id.slice(-6)}</strong></td>
+          <td>${ride.driver ? ride.driver.name : 'Not Assigned'}</td>
+          <td>${ride.rider ? ride.rider.name : 'Unknown'}</td>
+          <td>${ride.distance ? (ride.distance).toFixed(1) : 'N/A'} km</td>
+          <td><span class="badge ${getStatusBadge(ride.status)}">${ride.status}</span></td>
+          <td>${new Date(ride.createdAt).toLocaleString()}</td>
+        </tr>
+      `).join('');
+    }
+
+    function getStatusBadge(status) {
+      if (status === 'completed') return 'success';        // Green
+      if (status === 'cancelled') return 'danger';          // Red
+      if (status === 'requested') return 'info';            // Blue
+      if (status === 'accepted' || status === 'arrived' || status === 'started') return 'warning';  // Yellow (active rides)
+      return 'muted';
+    }
+
+    function openRideDetails(rideId) {
+      const ride = allRides.find(r => r._id === rideId);
+      if (!ride) return;
+
+      const modalBody = document.getElementById('modalBody');
+      modalBody.innerHTML = `
+        <div class="detail-group">
+          <div class="detail-label">Ride ID</div>
+          <div class="detail-value">#${ride._id}</div>
+        </div>
+
+        <div class="location-card">
+          <h4>📍 Pickup Location</h4>
+          <p>${ride.pickup?.address || 'N/A'}</p>
+          <p style="font-size: 0.85rem; margin-top: 0.5rem;">Lat: ${ride.pickup?.lat || 'N/A'}, Lon: ${ride.pickup?.lng || 'N/A'}</p>
+        </div>
+
+        <div class="location-card">
+          <h4>🎯 Drop Location</h4>
+          <p>${ride.dropoff?.address || ride.destination?.address || 'N/A'}</p>
+          <p style="font-size: 0.85rem; margin-top: 0.5rem;">Lat: ${ride.dropoff?.lat || ride.destination?.lat || 'N/A'}, Lon: ${ride.dropoff?.lng || ride.destination?.lng || 'N/A'}</p>
+        </div>
+
+        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem;">
+          <div class="detail-group">
+            <div class="detail-label">Captain</div>
+            <div class="detail-value">${ride.driver ? ride.driver.name : 'Not Assigned'}</div>
+          </div>
+
+          <div class="detail-group">
+            <div class="detail-label">Rider</div>
+            <div class="detail-value">${ride.rider ? ride.rider.name : 'Unknown'}</div>
+          </div>
+
+          <div class="detail-group">
+            <div class="detail-label">Distance</div>
+            <div class="detail-value">${ride.distance ? (ride.distance).toFixed(1) : 'N/A'} km</div>
+          </div>
+
+          <div class="detail-group">
+            <div class="detail-label">Fare</div>
+            <div class="detail-value">₹${ride.fare || 'N/A'}</div>
+          </div>
+
+          <div class="detail-group">
+            <div class="detail-label">Status</div>
+            <div class="detail-value"><span class="badge ${getStatusBadge(ride.status)}">${ride.status}</span></div>
+          </div>
+
+          <div class="detail-group">
+            <div class="detail-label">Booked At</div>
+            <div class="detail-value">${new Date(ride.createdAt).toLocaleString()}</div>
+          </div>
+          
+          ${ride.otp ? `
+          <div class="detail-group">
+            <div class="detail-label">OTP</div>
+            <div class="detail-value" style="font-weight: 700; color: var(--primary);">${ride.otp}</div>
+          </div>
+          ` : ''}
+        </div>
+        
+        ${ride.rating ? `
+        <div class="detail-group" style="margin-top: 1rem;">
+          <div class="detail-label">Rating</div>
+          <div class="detail-value">⭐ ${ride.rating}/5</div>
+          ${ride.feedback ? `<p style="margin-top: 0.5rem; font-size: 0.9rem; color: var(--text-muted);">"${ride.feedback}"</p>` : ''}
+        </div>
+        ` : ''}
+      `;
+
+      document.getElementById('rideModal').classList.add('active');
+    }
+
+    function closeModal() {
+      document.getElementById('rideModal').classList.remove('active');
+    }
+
+    // Close modal on Escape key
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') {
+        closeModal();
+      }
+    });
+
+    // Close modal on backdrop click
+    document.getElementById('rideModal').addEventListener('click', (e) => {
+      if (e.target.id === 'rideModal') {
+        closeModal();
+      }
+    });
+  </script>
+</body>
+</html>

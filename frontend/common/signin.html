@@ -1,0 +1,225 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Sign In — RapidRide</title>
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .error-msg, .success-msg, .info-msg {
+      padding: 0.75rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      display: none;
+    }
+    .error-msg {
+      background: rgba(239, 68, 68, 0.1);
+      border: 1px solid #ef4444;
+      color: #ef4444;
+    }
+    .success-msg {
+      background: rgba(16, 185, 129, 0.1);
+      border: 1px solid #10b981;
+      color: #10b981;
+    }
+    .info-msg {
+      background: rgba(59, 130, 246, 0.1);
+      border: 1px solid #3b82f6;
+      color: #3b82f6;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="glass-card slide-up" style="max-width: 500px; width: 100%; padding: 3rem;">
+      <div class="text-center mb-4">
+        <h2 style="margin-bottom: 0.5rem;">📧 Sign In with Email</h2>
+        <p style="color: var(--text-muted);">Email sign-in is available as a secondary option</p>
+        <p style="color: var(--primary); font-size: 0.9rem; margin-top: 0.5rem;">⚠️ Phone verification required after email sign-in</p>
+      </div>
+
+      <div id="errorMsg" class="error-msg"></div>
+      <div id="successMsg" class="success-msg"></div>
+      <div id="infoMsg" class="info-msg"></div>
+
+      <form id="emailForm">
+        <div class="input-group">
+          <label>Email Address</label>
+          <input type="email" id="email" class="input-field" placeholder="name@example.com" required autofocus>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full mt-4">Send Sign-In Link</button>
+      </form>
+
+      <div class="text-center mt-4">
+        <p class="text-sm" style="color: var(--text-muted);">
+          New to RapidRide? <a href="verify-phone.html" style="color: var(--primary); font-weight: 600;">Create an account</a>
+        </p>
+      </div>
+
+      <div class="text-center mt-3">
+        <a href="signin-phone.html" class="btn" style="display: inline-block; padding: 0.75rem 1.5rem; background: rgba(99, 102, 241, 0.1); border: 1px solid var(--primary); border-radius: 8px; color: var(--primary); text-decoration: none; font-weight: 600;">
+          📱 Sign in with Phone instead
+        </a>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  
+  <!-- Firebase Config -->
+  <script src="js/firebase-config.js"></script>
+
+  <script>
+    const errorMsg = document.getElementById('errorMsg');
+    const successMsg = document.getElementById('successMsg');
+    const infoMsg = document.getElementById('infoMsg');
+
+    function showError(message) {
+      errorMsg.textContent = message;
+      errorMsg.style.display = 'block';
+      successMsg.style.display = 'none';
+      infoMsg.style.display = 'none';
+    }
+
+    function showSuccess(message) {
+      successMsg.textContent = message;
+      successMsg.style.display = 'block';
+      errorMsg.style.display = 'none';
+      infoMsg.style.display = 'none';
+    }
+
+    function showInfo(message) {
+      infoMsg.textContent = message;
+      infoMsg.style.display = 'block';
+      errorMsg.style.display = 'none';
+      successMsg.style.display = 'none';
+    }
+
+    // Check if this is a sign-in link
+    window.addEventListener('load', () => {
+      if (window.firebaseAuth && window.firebaseAuth.isSignInWithEmailLink(window.location.href)) {
+        completeSignIn();
+      }
+    });
+
+    // Complete sign-in when user clicks the link
+    async function completeSignIn() {
+      showInfo('Completing sign-in...');
+      
+      // Get email from URL parameter
+      const urlParams = new URLSearchParams(window.location.search);
+      let email = urlParams.get('email');
+      
+      if (!email) {
+        // Ask user to provide email again
+        email = window.prompt('Please confirm your email for sign-in:');
+      }
+
+      if (!email) {
+        showError('Email is required to complete sign-in');
+        return;
+      }
+
+      try {
+        const result = await window.firebaseAuth.signInWithEmailLink(email, window.location.href);
+        
+        // Get ID token
+        const idToken = await result.user.getIdToken();
+        
+        showSuccess('Signed in successfully! Setting up your account...');
+
+        // Send to backend
+        const response = await fetch(`${API_CONFIG.BASE_URL}/auth/firebase-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            email: result.user.email,
+            idToken: idToken
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Store tokens in localStorage (not session) for persistence
+          localStorage.setItem('emailToken', data.token);
+          localStorage.setItem('emailFirebaseToken', idToken);
+          localStorage.setItem('emailUser', JSON.stringify(data.user));
+          sessionStorage.setItem('pendingEmailVerification', 'true');
+
+          // ALWAYS require phone verification after email sign-in
+          showSuccess('Email verified! Please verify your phone number...');
+          setTimeout(() => {
+            window.location.href = 'link-phone.html';
+          }, 1500);
+        } else {
+          showError(data.message || 'Failed to complete sign-in');
+        }
+
+      } catch (error) {
+        console.error('Sign-in error:', error);
+        showError(error.message || 'Failed to complete sign-in');
+      }
+    }
+
+    // Send sign-in link
+    document.getElementById('emailForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      
+      const btn = e.target.querySelector('button[type="submit"]');
+      const email = document.getElementById('email').value;
+
+      if (!window.firebaseConfigured) {
+        showError('Firebase is not configured. Please complete the setup first.');
+        return;
+      }
+
+      btn.textContent = 'Sending...';
+      btn.disabled = true;
+      errorMsg.style.display = 'none';
+      successMsg.style.display = 'none';
+
+      try {
+        const actionCodeSettings = {
+          // URL to redirect back to - must be in authorized domains
+          url: `http://localhost:3000/common/complete-email-signin.html?email=${encodeURIComponent(email)}`,
+          handleCodeInApp: true
+        };
+
+        await window.firebaseAuth.sendSignInLinkToEmail(email, actionCodeSettings);
+        
+        showSuccess(`✅ Sign-in link sent to ${email}! Check your inbox and click the link to continue.`);
+        
+        // Clear the form
+        document.getElementById('email').value = '';
+        
+      } catch (error) {
+        console.error('Error sending link:', error);
+        let errorMessage = 'Failed to send sign-in link. Please try again.';
+        
+        if (error.code === 'auth/invalid-email') {
+          errorMessage = 'Invalid email address.';
+        } else if (error.code === 'auth/unauthorized-continue-uri') {
+          errorMessage = 'Please add your domain to Firebase authorized domains in the console.';
+        }
+        
+        showError(errorMessage);
+      } finally {
+        btn.textContent = 'Send Sign-In Link';
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

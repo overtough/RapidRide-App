@@ -1,0 +1,202 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "title": "RapidRide FastAPI Integration Contract",
+  "version": "1.0.0",
+  "description": "API contract for integration between Node backend and FastAPI microservices",
+  "definitions": {
+    "LatLng": {
+      "type": "object",
+      "properties": {
+        "lat": {
+          "type": "number",
+          "minimum": -90,
+          "maximum": 90,
+          "description": "Latitude coordinate"
+        },
+        "lng": {
+          "type": "number",
+          "minimum": -180,
+          "maximum": 180,
+          "description": "Longitude coordinate"
+        }
+      },
+      "required": ["lat", "lng"]
+    },
+    "FareRequest": {
+      "type": "object",
+      "properties": {
+        "origin": { "$ref": "#/definitions/LatLng" },
+        "destination": { "$ref": "#/definitions/LatLng" },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO-8601 timestamp"
+        },
+        "traffic_level": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 3.0,
+          "description": "Traffic multiplier (1.0 = normal traffic)"
+        },
+        "user_id": {
+          "type": "string",
+          "description": "Optional user identifier"
+        }
+      },
+      "required": ["origin", "destination", "timestamp"]
+    },
+    "FareResponse": {
+      "type": "object",
+      "properties": {
+        "fare": {
+          "type": "number",
+          "description": "Total fare amount"
+        },
+        "distance_km": {
+          "type": "number",
+          "description": "Distance in kilometers (3 decimal precision)"
+        },
+        "currency": {
+          "type": "string",
+          "description": "Currency code (e.g., INR, USD)"
+        }
+      },
+      "required": ["fare", "distance_km", "currency"]
+    },
+    "ETARequest": {
+      "type": "object",
+      "properties": {
+        "origin": { "$ref": "#/definitions/LatLng" },
+        "destination": { "$ref": "#/definitions/LatLng" },
+        "timestamp": {
+          "type": "string",
+          "format": "date-time",
+          "description": "ISO-8601 timestamp"
+        },
+        "traffic_level": {
+          "type": "number",
+          "minimum": 0.5,
+          "maximum": 3.0,
+          "description": "Traffic multiplier"
+        },
+        "historical_mean_eta": {
+          "type": "number",
+          "description": "Optional historical average ETA in seconds"
+        },
+        "user_id": {
+          "type": "string"
+        }
+      },
+      "required": ["origin", "destination", "timestamp"]
+    },
+    "ETAResponse": {
+      "type": "object",
+      "properties": {
+        "eta_seconds": {
+          "type": "integer",
+          "description": "Estimated time of arrival in seconds"
+        },
+        "confidence": {
+          "type": "number",
+          "minimum": 0,
+          "maximum": 1,
+          "description": "Prediction confidence score"
+        }
+      },
+      "required": ["eta_seconds", "confidence"]
+    },
+    "ReverseGeoResponse": {
+      "type": "object",
+      "properties": {
+        "city": { "type": ["string", "null"] },
+        "locality": { "type": ["string", "null"] },
+        "state": { "type": ["string", "null"] },
+        "country": { "type": ["string", "null"] },
+        "postal_code": { "type": ["string", "null"] },
+        "formatted_address": { "type": ["string", "null"] }
+      }
+    },
+    "HealthResponse": {
+      "type": "object",
+      "properties": {
+        "status": { "type": "string" },
+        "model_loaded": { "type": "boolean" },
+        "queue_connected": { "type": "boolean" },
+        "version": { "type": "string" }
+      },
+      "required": ["status", "model_loaded", "queue_connected", "version"]
+    }
+  },
+  "endpoints": {
+    "health": {
+      "method": "GET",
+      "path": "/health",
+      "response": { "$ref": "#/definitions/HealthResponse" },
+      "example_response": {
+        "status": "ok",
+        "model_loaded": true,
+        "queue_connected": true,
+        "version": "1.0.0"
+      }
+    },
+    "fare_calc": {
+      "method": "POST",
+      "path": "/fare/calc",
+      "request": { "$ref": "#/definitions/FareRequest" },
+      "response": { "$ref": "#/definitions/FareResponse" },
+      "example_request": {
+        "origin": { "lat": 12.9716, "lng": 77.5946 },
+        "destination": { "lat": 12.9352, "lng": 77.6245 },
+        "timestamp": "2025-11-28T10:21:00+05:30",
+        "traffic_level": 1.2
+      },
+      "example_response": {
+        "fare": 145.50,
+        "distance_km": 7.134,
+        "currency": "INR"
+      }
+    },
+    "predict_eta": {
+      "method": "POST",
+      "path": "/predict/eta",
+      "request": { "$ref": "#/definitions/ETARequest" },
+      "response": { "$ref": "#/definitions/ETAResponse" },
+      "example_request": {
+        "origin": { "lat": 12.9716, "lng": 77.5946 },
+        "destination": { "lat": 12.9352, "lng": 77.6245 },
+        "timestamp": "2025-11-28T10:21:00+05:30",
+        "traffic_level": 1.2
+      },
+      "example_response": {
+        "eta_seconds": 630,
+        "confidence": 0.86
+      }
+    },
+    "reverse_geocode": {
+      "method": "GET",
+      "path": "/geo/reverse",
+      "parameters": {
+        "lat": { "type": "number", "required": true },
+        "lon": { "type": "number", "required": true }
+      },
+      "response": { "$ref": "#/definitions/ReverseGeoResponse" },
+      "example_request": "GET /geo/reverse?lat=12.9716&lon=77.5946",
+      "example_response": {
+        "city": "Bangalore",
+        "locality": "Koramangala",
+        "state": "Karnataka",
+        "country": "India",
+        "postal_code": "560034",
+        "formatted_address": "Koramangala, Bangalore, Karnataka 560034, India"
+      }
+    }
+  },
+  "conventions": {
+    "timestamps": "All timestamps must be in ISO-8601 format (e.g., 2025-11-28T10:21:00+05:30)",
+    "ids": "All IDs must be strings",
+    "coordinates": "Latitude: -90 to 90, Longitude: -180 to 180",
+    "currency": "3-letter currency codes (ISO 4217)",
+    "response_format": "All responses are JSON with Content-Type: application/json",
+    "error_format": "Errors follow FastAPI standard format with detail field"
+  }
+}

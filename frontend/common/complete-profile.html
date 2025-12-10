@@ -1,0 +1,295 @@
+<!doctype html>
+<html>
+<head>
+  <meta charset="utf-8"/>
+  <meta name="viewport" content="width=device-width,initial-scale=1"/>
+  <title>Complete Profile — RapidRide</title>
+  <link rel="stylesheet" href="css/global.css">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+    }
+    .avatar-selection {
+      display: flex;
+      gap: 1rem;
+      margin-bottom: 1rem;
+      flex-wrap: wrap;
+      justify-content: center;
+    }
+    .avatar-option {
+      width: 60px;
+      height: 60px;
+      border-radius: 50%;
+      cursor: pointer;
+      border: 2px solid transparent;
+      transition: all 0.2s;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: rgba(255,255,255,0.1);
+      overflow: hidden;
+    }
+    .avatar-option:hover {
+      border-color: var(--primary);
+      transform: scale(1.05);
+    }
+    .avatar-option.selected {
+      border-color: var(--primary);
+      box-shadow: 0 0 15px var(--primary-glow);
+    }
+    .avatar-option img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+    }
+    .driver-fields {
+      display: none;
+      border-top: 1px solid var(--glass-border);
+      padding-top: 1rem;
+      margin-top: 1rem;
+    }
+    .driver-fields.active {
+      display: block;
+    }
+  </style>
+</head>
+<body>
+  <div class="auth-container">
+    <div class="glass-card slide-up" style="max-width: 600px; width: 100%; padding: 3rem;">
+      <div class="text-center mb-4">
+        <h2 style="margin-bottom: 0.5rem;">✨ Complete Your Profile</h2>
+        <p style="color: var(--text-muted);">Tell us a bit about yourself</p>
+      </div>
+
+      <form id="profileForm">
+        <!-- Avatar Selection -->
+        <div class="mb-3">
+          <label class="block mb-2 text-sm text-center">Choose Avatar</label>
+          <div class="avatar-selection">
+            <div class="avatar-option selected" data-src="../assets/1.png"><img src="../assets/1.png"></div>
+            <div class="avatar-option" data-src="../assets/2.png"><img src="../assets/2.png"></div>
+            <div class="avatar-option" data-src="../assets/3.png"><img src="../assets/3.png"></div>
+            <div class="avatar-option" data-src="../assets/4.png"><img src="../assets/4.png"></div>
+          </div>
+          <input type="hidden" id="selectedAvatar" value="../assets/1.png">
+        </div>
+
+        <div class="input-group">
+          <label>Full Name</label>
+          <input type="text" id="name" class="input-field" placeholder="e.g. John Doe" required>
+        </div>
+
+        <div class="input-group">
+          <label>Phone Number (Optional)</label>
+          <input type="tel" id="phone" class="input-field" placeholder="+91 1234567890">
+        </div>
+
+        <div class="input-group">
+          <label>Gender</label>
+          <select id="gender" class="input-field" required>
+            <option value="" disabled selected>Select Gender</option>
+            <option value="Male">Male</option>
+            <option value="Female">Female</option>
+            <option value="Other">Other</option>
+          </select>
+        </div>
+
+        <div class="input-group">
+          <label>I want to be a</label>
+          <select id="role" class="input-field" required>
+            <option value="rider">Rider (Passenger)</option>
+            <option value="captain">Captain (Driver)</option>
+          </select>
+        </div>
+
+        <!-- Driver Specific Fields -->
+        <div id="driverFields" class="driver-fields">
+          <h4 class="mb-3" style="color: var(--accent);">Vehicle Details</h4>
+          <div class="input-group">
+            <label>Vehicle Type</label>
+            <select id="vehicleType" class="input-field">
+              <option value="Bike">Bike</option>
+              <option value="Auto">Auto</option>
+              <option value="Car">Car</option>
+              <option value="Premium">Premium Car</option>
+            </select>
+          </div>
+          <div class="input-group">
+            <label>Vehicle Model</label>
+            <input type="text" id="vehicleModel" class="input-field" placeholder="e.g. Honda City">
+          </div>
+          <div class="input-group">
+            <label>Vehicle Number</label>
+            <input type="text" id="vehicleNumber" class="input-field" placeholder="TS09 AB 1234">
+          </div>
+          <div class="input-group">
+            <label>License Number</label>
+            <input type="text" id="licenseNumber" class="input-field" placeholder="DL-1234567890">
+          </div>
+        </div>
+
+        <button type="submit" class="btn btn-primary w-full mt-4">Complete Profile</button>
+      </form>
+
+      <div class="text-center mt-4" style="padding-top: 1rem; border-top: 1px solid var(--glass-border);">
+        <p style="color: var(--text-muted); font-size: 0.9rem;">
+          Already have a profile? <a href="signin-phone.html" style="color: var(--primary); font-weight: 600;">Sign in instead</a>
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  
+  <script src="js/firebase-config.js"></script>
+  <script src="js/config.js"></script>
+
+  <script>
+    // Use centralized API config
+    const API_BASE = API_CONFIG.BASE_URL;
+    
+    // DEBUG: Log everything
+    console.log('=== COMPLETE PROFILE DEBUG ===');
+    console.log('1. Checking tokens...');
+    const token = localStorage.getItem('token');
+    const firebaseToken = localStorage.getItem('firebaseToken');
+    
+    console.log('2. Token status:', {
+      hasToken: !!token,
+      hasFirebaseToken: !!firebaseToken,
+      tokenPreview: token ? token.substring(0, 30) + '...' : 'NONE',
+      firebaseTokenPreview: firebaseToken ? firebaseToken.substring(0, 30) + '...' : 'NONE',
+      allLocalStorage: {...localStorage}
+    });
+    
+    if (!token && !firebaseToken) {
+      console.error('3. NO TOKENS FOUND - This is the problem!');
+      console.log('Check if tokens were saved after phone verification');
+      alert('No authentication token found. Did phone verification complete?\n\nCheck console for details.');
+      // Don't redirect immediately - let user see the error
+      // window.location.href = 'signin-phone.html';
+    } else {
+      console.log('3. ✅ Tokens found - proceeding with profile completion');
+    }
+
+    // Avatar Selection
+    const avatarOptions = document.querySelectorAll('.avatar-option');
+    const avatarInput = document.getElementById('selectedAvatar');
+
+    avatarOptions.forEach(opt => {
+      opt.addEventListener('click', () => {
+        document.querySelectorAll('.avatar-option').forEach(o => o.classList.remove('selected'));
+        opt.classList.add('selected');
+        avatarInput.value = opt.getAttribute('data-src');
+      });
+    });
+
+    // Role Selection
+    const roleSelect = document.getElementById('role');
+    const driverFields = document.getElementById('driverFields');
+
+    roleSelect.addEventListener('change', () => {
+      if (roleSelect.value === 'captain') {
+        driverFields.classList.add('active');
+      } else {
+        driverFields.classList.remove('active');
+      }
+    });
+
+    // Form Submission
+    document.getElementById('profileForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+      const btn = e.target.querySelector('button[type="submit"]');
+      btn.textContent = 'Saving...';
+      btn.disabled = true;
+
+      const role = roleSelect.value;
+      const profileData = {
+        name: document.getElementById('name').value,
+        phone: document.getElementById('phone').value || undefined,
+        gender: document.getElementById('gender').value,
+        role: role,
+        avatar: avatarInput.value
+      };
+
+      if (role === 'captain') {
+        profileData.vehicle = {
+          type: document.getElementById('vehicleType').value,
+          model: document.getElementById('vehicleModel').value,
+          number: document.getElementById('vehicleNumber').value
+        };
+        profileData.license = document.getElementById('licenseNumber').value;
+      }
+
+      try {
+        // Get fresh Firebase ID token from current user
+        let firebaseToken = localStorage.getItem('firebaseToken');
+        
+        // If not in localStorage, try to get from Firebase Auth current user
+        if (!firebaseToken && window.firebaseAuth && window.firebaseAuth.currentUser) {
+          firebaseToken = await window.firebaseAuth.currentUser.getIdToken();
+          localStorage.setItem('firebaseToken', firebaseToken);
+        }
+        
+        // Fallback to regular token if Firebase token not available
+        if (!firebaseToken) {
+          firebaseToken = token;
+        }
+        
+        const response = await fetch(`${API_BASE}/auth/complete-profile`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${firebaseToken}`
+          },
+          body: JSON.stringify(profileData)
+        });
+
+        const data = await response.json();
+
+        console.log('=== PROFILE COMPLETION RESPONSE ===');
+        console.log('Response:', data);
+
+        if (data.success) {
+          console.log('✅ Profile completed successfully!');
+          console.log('Profile saved successfully');
+          console.log('Full response:', data);
+          
+          // Token already stored during phone verification - no need to store JWT
+          // Firebase ID token is used for all requests
+          
+          // Wait a moment to ensure everything is saved
+          await new Promise(resolve => setTimeout(resolve, 500));
+          
+          console.log('Redirecting to dashboard...');
+          console.log('Firebase token in localStorage:', localStorage.getItem('firebaseToken') ? 'YES' : 'NO');
+
+          // Redirect based on role
+          if (role === 'admin') {
+            window.location.href = '../admin/admin_dashboard.html';
+          } else if (role === 'captain') {
+            window.location.href = '../driver/driver_home.html';
+          } else {
+            window.location.href = '../rider/rider_home.html';
+          }
+        } else {
+          console.error('❌ Profile completion failed:', data.message);
+          alert('Error: ' + data.message);
+          btn.textContent = 'Complete Profile';
+          btn.disabled = false;
+        }
+      } catch (error) {
+        console.error('Error:', error);
+        alert('Failed to complete profile. Please try again: ' + error.message);
+        btn.textContent = 'Complete Profile';
+        btn.disabled = false;
+      }
+    });
+  </script>
+</body>
+</html>

@@ -1,0 +1,32 @@
+/* rider/css/ride.css — Ride Status Screen Styling */
+.ride-status {
+  max-width:500px;
+  margin:40px auto;
+  padding:24px;
+  background:#ffffff;
+  border-radius:16px;
+  border:1px solid #e6e9ef;
+  box-shadow:0 12px 30px rgba(0,0,0,0.15);
+  text-align:center;
+}
+
+.ride-status h3 {
+  margin-top:0;
+  margin-bottom:10px;
+  font-size:20px;
+  color:var(--primary);
+}
+
+.ride-status p {
+  margin:4px 0;
+  font-size:14px;
+  color:var(--muted);
+}
+
+.controls {
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:center;
+  gap:12px;
+  margin-top:20px;
+}

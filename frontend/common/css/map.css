@@ -1,0 +1,16 @@
+/* common/css/map.css — Map Container Styling */
+.rr-map {
+  width: 100%;
+  height: 380px;
+  border-radius: 16px;
+  overflow: hidden;
+  border:1px solid #d1d5db;
+  box-shadow:0 12px 30px rgba(0,0,0,0.1);
+  position:relative;
+  margin-top:12px;
+}
+
+.rr-map .leaflet-container {
+  width: 100%;
+  height: 100%;
+}

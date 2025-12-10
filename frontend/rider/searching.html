@@ -1,0 +1,84 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <title>Searching — RapidRide</title>
+  <link rel="stylesheet" href="../common/css/global.css">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      text-align: center;
+    }
+    .status-card {
+      width: 100%;
+      max-width: 400px;
+      padding: 3rem 2rem;
+    }
+    .pulse-ring {
+      display: inline-block;
+      width: 80px;
+      height: 80px;
+      border-radius: 50%;
+      background: var(--primary);
+      position: relative;
+      margin-bottom: 2rem;
+    }
+    .pulse-ring::before, .pulse-ring::after {
+      content: '';
+      position: absolute;
+      top: 0; left: 0; right: 0; bottom: 0;
+      border-radius: 50%;
+      border: 2px solid var(--primary);
+      animation: ripple 2s infinite;
+    }
+    .pulse-ring::after {
+      animation-delay: 1s;
+    }
+    @keyframes ripple {
+      0% { transform: scale(1); opacity: 1; }
+      100% { transform: scale(2); opacity: 0; }
+    }
+    .search-icon {
+      position: absolute;
+      top: 50%; left: 50%;
+      transform: translate(-50%, -50%);
+      width: 40px;
+      height: 40px;
+      fill: white;
+      z-index: 10;
+    }
+  </style>
+  <script src="../../../../../../../common/js/config.js"></script>
+</head>
+<body>
+  
+  <div class="glass-card status-card slide-up">
+    <div class="pulse-ring">
+      <svg class="search-icon" viewBox="0 0 24 24">
+        <path d="M15.5 14h-.79l-.28-.27C15.41 12.59 16 11.11 16 9.5 16 5.91 13.09 3 9.5 3S3 5.91 3 9.5 5.91 16 9.5 16c1.61 0 3.09-.59 4.23-1.57l.27.28v.79l5 4.99L20.49 19l-4.99-5zm-6 0C7.01 14 5 11.99 5 9.5S7.01 5 9.5 5 14 7.01 14 9.5 11.99 14 9.5 14z"/>
+      </svg>
+    </div>
+    <h2 id="msg" style="margin-bottom: 1rem;">Searching for drivers...</h2>
+    <p>Please wait while we connect you with the nearest captain.</p>
+    <button class="btn btn-secondary mt-4" onclick="history.back()">Cancel Request</button>
+  </div>
+
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+  <script src="../common/js/firebase-config.js"></script>
+  <script src="../common/js/config.js"></script>
+  <script src="../common/js/auth.js"></script>
+  <script>
+    (async function(){
+      // attempt to poll server for assignment
+      try{
+        const res = await window.apiFetch('/rides/status', { method: 'GET' });
+        if(res.ok && res.data && res.data.status) document.getElementById('msg').textContent = res.data.status;
+      }catch(e){ /* ignore */ }
+    })();
+  </script>
+</body>
+</html>
