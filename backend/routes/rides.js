@@ -133,7 +133,7 @@ router.post('/location', firebaseAuthMiddleware, async (req, res) => {
     res.json({ message: 'Location updated successfully' });
   } catch (error) {
     console.error('Location update error:', error);
-    res.status(500).json({ message: 'Failed to update location' });
+    res.status(500).json({ message: 'Failed to update location', error: error.message, details: error.errors });
   }
 });
 
@@ -920,7 +920,7 @@ router.post('/:rideId/complete', firebaseAuthMiddleware, async (req, res) => {
     });
   } catch (error) {
     console.error('Error completing ride:', error);
-    res.status(500).json({ message: 'Failed to complete ride' });
+    res.status(500).json({ message: 'Failed to complete ride', error: error.message });
   }
 });
 
