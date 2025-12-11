@@ -59,9 +59,15 @@ window.debugClearActiveRides = async function () {
   }
 
   try {
+    // 1. Fix DB Dates (Auto-repair corrupted data)
+    try {
+      await apiFetch('/auth/fix-db-date', { method: 'POST' });
+    } catch (ignore) { console.warn('Fix date failed', ignore); }
+
+    // 2. Clear Rides
     const res = await apiFetch('/rides/clear-active', { method: 'POST' });
     if (res.ok) {
-      alert(`Success! Cleared ${res.data.count} rides.`);
+      alert(`Success! Cleared ${res.data.count} rides & Repaired DB.`);
       window.location.reload();
     } else {
       alert('Failed: ' + (res.data?.error || res.status));
