@@ -1,5 +1,6 @@
 <!doctype html>
 <html lang="en">
+
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width,initial-scale=1">
@@ -246,11 +247,11 @@
       border-radius: 50%;
     }
 
-    .toggle-switch input:checked + .toggle-slider {
+    .toggle-switch input:checked+.toggle-slider {
       background: var(--primary);
     }
 
-    .toggle-switch input:checked + .toggle-slider:before {
+    .toggle-switch input:checked+.toggle-slider:before {
       transform: translateX(22px);
     }
 
@@ -533,6 +534,7 @@
   </style>
   <script src="../../../../../../../common/js/config.js"></script>
 </head>
+
 <body>
   <header class="topbar">
     <div class="topbar-left">
@@ -545,7 +547,8 @@
     <div class="topbar-right">
       <button class="btn-logout logout" id="logoutBtn">
         <span>Logout</span>
-        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+        <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+          stroke-linecap="round" stroke-linejoin="round">
           <path d="M9 21H5a2 2 0 0 1-2-2V5a2 2 0 0 1 2-2h4"></path>
           <polyline points="16 17 21 12 16 7"></polyline>
           <line x1="21" y1="12" x2="9" y2="12"></line>
@@ -560,7 +563,8 @@
       <div class="avatar-container">
         <div class="profile-avatar" id="profileAvatar">?</div>
         <button class="avatar-edit-btn" onclick="showAvatarModal()" title="Change avatar">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+            stroke-linejoin="round">
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
           </svg>
@@ -589,14 +593,15 @@
     <!-- Personal Information -->
     <section class="section">
       <h2 class="section-title">Personal Information</h2>
-      
+
       <div class="info-grid">
         <div class="info-item">
           <span class="info-label">Full Name</span>
           <div class="info-value" id="nameContainer">
             <span id="infoName">—</span>
             <span class="edit-icon" onclick="toggleEdit('name')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
               </svg>
@@ -623,7 +628,8 @@
           <div class="info-value" id="licenseContainer">
             <span id="infoLicense">—</span>
             <span class="edit-icon" onclick="toggleEdit('license')">
-              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
+                stroke-linejoin="round">
                 <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
                 <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
               </svg>
@@ -642,15 +648,17 @@
     <section class="section">
       <h2 class="section-title">
         Vehicle Information
-        <button class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;" onclick="toggleEdit('vehicle')">
-          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" style="margin-right: 0.5rem;">
+        <button class="btn btn-primary" style="padding: 0.5rem 1rem; font-size: 0.9rem;"
+          onclick="toggleEdit('vehicle')">
+          <svg width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            style="margin-right: 0.5rem;">
             <path d="M11 4H4a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h14a2 2 0 0 0 2-2v-7"></path>
             <path d="M18.5 2.5a2.121 2.121 0 0 1 3 3L12 15l-4 1 1-4 9.5-9.5z"></path>
           </svg>
           Update Vehicle
         </button>
       </h2>
-      
+
       <div class="vehicle-card" id="vehicleCard">
         <div style="display: flex; align-items: center; gap: 1rem; margin-bottom: 1rem;">
           <span style="font-size: 2rem;">🚗</span>
@@ -676,7 +684,8 @@
     <section class="section">
       <div class="danger-zone">
         <h3 style="color: #ef4444; margin-bottom: 1rem;">Danger Zone</h3>
-        <p style="color: var(--text-muted); margin-bottom: 1rem;">Once you delete your account, there is no going back. Please be certain.</p>
+        <p style="color: var(--text-muted); margin-bottom: 1rem;">Once you delete your account, there is no going back.
+          Please be certain.</p>
         <button class="btn btn-danger" onclick="confirmDeleteAccount()">Delete Account</button>
       </div>
     </section>
@@ -784,31 +793,31 @@
     // Initialize page with Firebase auth
     firebase.auth().onAuthStateChanged(async (user) => {
       console.log('🔐 Profile auth state changed:', user ? user.uid : 'null');
-      
+
       if (!user) {
         console.warn('❌ No Firebase user, redirecting to signin');
         location.href = '../common/signin.html';
         return;
       }
-      
+
       try {
         console.log('📡 Fetching user data from backend...');
         // Fetch user data from backend
         const response = await apiFetch('/auth/me');
         console.log('📥 Backend response:', response);
-        
+
         if (!response.ok) {
           console.error('❌ Backend returned error:', response.status, response.data);
           location.href = '../common/signin.html';
           return;
         }
-        
+
         if (!response.data || !response.data.user) {
           console.error('❌ No user data in response:', response.data);
           location.href = '../common/signin.html';
           return;
         }
-        
+
         console.log('✅ User data loaded:', response.data.user.name);
         currentUser = response.data.user;
         updateUI(currentUser);
@@ -823,10 +832,10 @@
       // Profile header
       document.getElementById('profileName').textContent = user.name || 'Driver';
       document.getElementById('profileEmail').textContent = user.email || user.phone || '—';
-      
+
       // Fetch and display stats
       fetchUserStats();
-      
+
       // Avatar
       const avatarEl = document.getElementById('profileAvatar');
       if (user.avatar) {
@@ -835,19 +844,19 @@
       } else if (user.name) {
         avatarEl.textContent = user.name.charAt(0).toUpperCase();
       }
-      
+
       // Personal info
       document.getElementById('infoName').textContent = user.name || '—';
       document.getElementById('infoEmail').textContent = user.email || '—';
       document.getElementById('infoPhone').textContent = user.phone || '—';
       document.getElementById('infoLicense').textContent = user.license || '—';
-      
+
       // Member since
       if (user.createdAt) {
         const date = new Date(user.createdAt);
         document.getElementById('infoMemberSince').textContent = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
       }
-      
+
       // Vehicle info
       if (user.vehicle) {
         document.getElementById('vehicleModel').textContent = user.vehicle.model || '—';
@@ -865,13 +874,13 @@
           throw new Error('Failed to fetch stats');
         }
 
-        const data = await response.json();
+        const data = response.data;
         const stats = data.stats;
 
         // Update stats display
         document.getElementById('profileTotalRides').textContent = stats.completedRides || 0;
         document.getElementById('profileTotalEarnings').textContent = '₹' + (stats.totalEarnings || 0);
-        
+
         // Display rating (already calculated as average in backend)
         if (stats.totalRatings > 0 && stats.rating > 0) {
           const avgRating = stats.rating.toFixed(1);
@@ -928,7 +937,7 @@
         });
 
         const data = await response.json();
-        
+
         if (response.ok && data.user) {
           Auth.setCurrent(data.user);
           currentUser = data.user;
@@ -946,7 +955,7 @@
     // Edit modal functions
     function toggleEdit(field) {
       const modal = document.getElementById(`edit${field.charAt(0).toUpperCase() + field.slice(1)}Modal`);
-      
+
       if (field === 'name') {
         document.getElementById('editNameInput').value = currentUser.name || '';
       } else if (field === 'license') {
@@ -959,7 +968,7 @@
           document.getElementById('editVehicleColor').value = currentUser.vehicle.color || '';
         }
       }
-      
+
       modal.style.display = 'flex';
     }
 
@@ -970,7 +979,7 @@
 
     async function saveEdit(field) {
       let updateData = {};
-      
+
       if (field === 'name') {
         const newName = document.getElementById('editNameInput').value.trim();
         if (!newName) {
@@ -990,12 +999,12 @@
         const type = document.getElementById('editVehicleType').value;
         const number = document.getElementById('editVehicleNumber').value.trim();
         const color = document.getElementById('editVehicleColor').value.trim();
-        
+
         if (!model || !number) {
           alert('Please fill in all required vehicle fields');
           return;
         }
-        
+
         updateData.vehicle = { model, type, number, color };
       }
 
@@ -1011,7 +1020,7 @@
         });
 
         const data = await response.json();
-        
+
         if (response.ok && data.user) {
           Auth.setCurrent(data.user);
           currentUser = data.user;
@@ -1060,4 +1069,5 @@
     // Logout function is handled by confirm-logout.js
   </script>
 </body>
+
 </html>
