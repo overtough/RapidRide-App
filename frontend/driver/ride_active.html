@@ -800,11 +800,26 @@
         // Otherwise fetch from API
         const response = await apiFetch(`/rides/${rideId}`);
 
+        if (response.status === 404 || response.status === 400) {
+          console.warn('Ride not found or invalid, redirecting...');
+          showToast('Error', 'Ride not found', 'error');
+          setTimeout(() => window.location.href = 'driver_home.html', 1500);
+          return;
+        }
+
         if (!response.ok) {
           throw new Error('Failed to load ride details');
         }
 
         currentRide = response.data;
+
+        // Check if ride is already completed/cancelled
+        if (['completed', 'cancelled'].includes(currentRide.status)) {
+          showToast('Info', `Ride is ${currentRide.status}`, 'info');
+          setTimeout(() => window.location.href = 'driver_home.html', 1500);
+          return;
+        }
+
         console.log('Ride details:', currentRide);
 
         displayRideDetails();
