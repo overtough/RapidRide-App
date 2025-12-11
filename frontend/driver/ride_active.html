@@ -1098,24 +1098,33 @@
       }
     }
 
-    function initSocket() {
-      socket = io(API_CONFIG.WS_URL);
+    async function initSocket() {
+      try {
+        const user = firebase.auth().currentUser;
+        const token = user ? await user.getIdToken() : null;
 
-      socket.on('connect', () => {
-        console.log('✅ Socket connected');
-        if (currentRide) {
-          socket.emit('join-ride', currentRide._id);
-        }
-      });
+        socket = io(API_CONFIG.WS_URL, {
+          auth: { token }
+        });
 
-      socket.on('ride:cancelled', (data) => {
-        if (currentRide && data.rideId === currentRide._id) {
-          showToast('Ride Cancelled', 'Rider has cancelled this ride', 'error');
-          setTimeout(() => {
-            window.location.href = 'driver_home.html';
-          }, 2000);
-        }
-      });
+        socket.on('connect', () => {
+          console.log('✅ Socket connected');
+          if (currentRide) {
+            socket.emit('join-ride', currentRide._id);
+          }
+        });
+
+        socket.on('ride:cancelled', (data) => {
+          if (currentRide && data.rideId === currentRide._id) {
+            showToast('Ride Cancelled', 'Rider has cancelled this ride', 'error');
+            setTimeout(() => {
+              window.location.href = 'driver_home.html';
+            }, 2000);
+          }
+        });
+      } catch (err) {
+        console.error('Socket initialization failed:', err);
+      }
     }
 
     async function markArrived() {
