@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width,initial-scale=1" />
+    <title>Backend Sign In (Temporary) — RapidRide</title>
+    <link rel="stylesheet" href="css/global.css">
+    <style>
+        body {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+        }
+
+        .alert {
+            background: rgba(251, 146, 60, 0.1);
+            border-left: 4px solid #fb923c;
+            padding: 1rem;
+            margin-bottom: 1.5rem;
+            border-radius: 8px;
+            font-size: 0.9rem;
+            color: #fb923c;
+        }
+
+        .error-msg,
+        .success-msg {
+            padding: 0.75rem;
+            border-radius: 8px;
+            margin-bottom: 1rem;
+            display: none;
+        }
+
+        .error-msg {
+            background: rgba(239, 68, 68, 0.1);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+
+        .success-msg {
+            background: rgba(16, 185, 129, 0.1);
+            border: 1px solid #10b981;
+            color: #10b981;
+        }
+    </style>
+</head>
+
+<body>
+    <div class="auth-container">
+        <div class="glass-card slide-up" style="max-width: 500px; width: 100%; padding: 3rem;">
+            <div class="text-center mb-4">
+                <h2 style="margin-bottom: 0.5rem;">🔐 Backend Sign In</h2>
+                <p style="color: var(--text-muted);">Temporary workaround while Firebase is suspended</p>
+            </div>
+
+            <div class="alert">
+                <strong>⚠️ Temporary Auth:</strong> Using backend authentication instead of Firebase. This is a
+                workaround while Firebase project is suspended.
+            </div>
+
+            <div id="errorMsg" class="error-msg"></div>
+            <div id="successMsg" class="success-msg"></div>
+
+            <form id="signinForm">
+                <div class="form-group">
+                    <label for="email">Email</label>
+                    <input type="email" id="email" class="form-control" placeholder="your@email.com" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="password">Password</label>
+                    <input type="password" id="password" class="form-control" placeholder="Your password" required>
+                </div>
+
+                <div class="form-group">
+                    <label for="role">Sign in as</label>
+                    <select id="role" class="form-control" required>
+                        <option value="rider">Rider</option>
+                        <option value="driver">Driver</option>
+                    </select>
+                </div>
+
+                <button type="submit" id="signinBtn" class="btn btn-primary w-full">
+                    Sign In
+                </button>
+            </form>
+
+            <div class="auth-footer"
+                style="text-align: center; margin-top: 2rem; padding-top: 1.5rem; border-top: 1px solid var(--glass-border);">
+                <p style="font-size: 0.85rem; color: var(--text-muted);">
+                    Don't have an account? <a href="backend-signup.html"
+                        style="color: var(--primary); font-weight: 600;">Create one</a>
+                </p>
+                <p style="font-size: 0.85rem; color: var(--text-muted); margin-top: 1rem;">
+                    Once Firebase is reinstated, use <a href="signin.html" style="color: var(--primary);">normal
+                        sign-in</a>
+                </p>
+            </div>
+        </div>
+    </div>
+
+    <script src="js/config.js"></script>
+    <script>
+        const form = document.getElementById('signinForm');
+        const emailInput = document.getElementById('email');
+        const passwordInput = document.getElementById('password');
+        const roleSelect = document.getElementById('role');
+        const signinBtn = document.getElementById('signinBtn');
+        const errorMsg = document.getElementById('errorMsg');
+        const successMsg = document.getElementById('successMsg');
+
+        form.addEventListener('submit', async (e) => {
+            e.preventDefault();
+
+            const email = emailInput.value.trim();
+            const password = passwordInput.value;
+            const role = roleSelect.value;
+
+            signinBtn.disabled = true;
+            signinBtn.textContent = 'Signing in...';
+            hideMessages();
+
+            try {
+                // Determine API URL via config.js logic if available
+                const baseUrl = (window.API_CONFIG && window.API_CONFIG.BASE_URL)
+                    ? window.API_CONFIG.BASE_URL
+                    : 'http://localhost:3000/api';
+
+                // Call backend signin endpoint
+                const response = await fetch(`${baseUrl}/auth/signin`, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/json'
+                    },
+                    body: JSON.stringify({ email, password })
+                });
+
+                const data = await response.json();
+
+                if (!response.ok) {
+                    throw new Error(data.message || 'Sign in failed');
+                }
+
+                console.log('✅ Signed in:', data);
+
+                // Store token and user data
+                localStorage.setItem('rr_token', data.token);
+                localStorage.setItem('rr_user', JSON.stringify(data.user));
+
+                showSuccess('Sign in successful! Redirecting...');
+
+                // Redirect based on role
+                setTimeout(() => {
+                    if (role === 'driver') {
+                        window.location.href = '../driver/driver_home.html';
+                    } else {
+                        window.location.href = '../rider/rider_home.html';
+                    }
+                }, 1000);
+
+            } catch (error) {
+                console.error('❌ Sign in error:', error);
+                showError(error.message);
+                signinBtn.disabled = false;
+                signinBtn.textContent = 'Sign In';
+            }
+        });
+
+        function showError(message) {
+            errorMsg.textContent = message;
+            errorMsg.style.display = 'block';
+            successMsg.style.display = 'none';
+        }
+
+        function showSuccess(message) {
+            successMsg.textContent = message;
+            successMsg.style.display = 'block';
+            errorMsg.style.display = 'none';
+        }
+
+        function hideMessages() {
+            errorMsg.style.display = 'none';
+            successMsg.style.display = 'none';
+        }
+    </script>
+</body>
+
+</html>

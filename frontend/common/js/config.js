@@ -4,10 +4,9 @@
 if (!window.API_CONFIG) {
     window.API_CONFIG = {
         // Check if running locally
-        isLocal: window.location.hostname === 'localhost' ||
-            window.location.hostname === '127.0.0.1' ||
-            window.location.hostname.includes('192.168') ||
-            window.location.hostname.includes('10.'),
+        isLocal: ['localhost', '127.0.0.1'].includes(window.location.hostname) ||
+            window.location.hostname.startsWith('192.168.') ||
+            window.location.hostname.startsWith('10.'),
 
         // Backend IP (will be fetched dynamically for production)
         backendIP: null,
