@@ -10,6 +10,7 @@ class Settings(BaseSettings):
     fastapi_host: str = "0.0.0.0"
     fastapi_port: int = 8001
     log_level: str = "INFO"
+    environment: str = "production"
     
     # RabbitMQ Configuration
     rabbitmq_url: str = "amqp://guest:guest@localhost:5672//"
