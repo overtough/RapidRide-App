@@ -506,22 +506,29 @@ router.post('/geocode', firebaseAuthMiddleware, async (req, res) => {
     try {
       const { pickup, drop } = req.query; // Expecting "lon,lat" strings
 
+      console.log(`🗺️ Routing Request: ${pickup} -> ${drop}`);
+
       if (!pickup || !drop) {
         return res.status(400).json({ message: 'Pickup and drop coordinates required' });
       }
 
       const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickup};${drop}?overview=full&geometries=geojson`;
+      console.log(`🔗 OSRM URL: ${osrmUrl}`);
+      
       const response = await fetch(osrmUrl);
 
       if (!response.ok) {
-        throw new Error(`OSRM responded with ${response.status}`);
+        const errorText = await response.text();
+        console.error(`❌ OSRM Error (${response.status}):`, errorText);
+        throw new Error(`OSRM responded with ${response.status}: ${errorText}`);
       }
 
       const data = await response.json();
+      console.log(`✅ Route calculated successfully`);
       res.json(data);
     } catch (error) {
-      console.error('Routing error:', error);
-      res.status(500).json({ message: 'Failed to calculate route' });
+      console.error('❌ Routing Proxy Error:', error);
+      res.status(500).json({ message: 'Failed to calculate route', error: error.message });
     }
   });
 
