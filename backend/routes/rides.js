@@ -105,6 +105,16 @@ const VEHICLE_TYPE_MAPPING = {
   'shuttle': ['SUV', 'Van', 'Minibus']
 };
 
+// Pricing rates consistent with frontend (book_ride.html)
+const PRICING_RATES = {
+  'bike': { base: 15, perKm: 8 },
+  'auto': { base: 25, perKm: 12 },
+  'car': { base: 50, perKm: 18 },
+  'suv': { base: 80, perKm: 25 },
+  'carpool': { base: 30, perKm: 10 },
+  'shuttle': { base: 20, perKm: 6 }
+};
+
 // POST /api/driver/location - Update driver location
 router.post('/location', firebaseAuthMiddleware, async (req, res) => {
   try {
@@ -208,6 +218,13 @@ router.post('/request', firebaseAuthMiddleware, async (req, res) => {
       ]);
     }
 
+    // Calculate fare based on vehicle type (frontend logic consistency)
+    const vType = (vehicleType || 'car').toLowerCase();
+    const rates = PRICING_RATES[vType] || PRICING_RATES['car'];
+
+    // Explicitly use the distance for calculation
+    const calculatedFare = Math.round(rates.base + (fareData.distance_km * rates.perKm));
+
     // Create ride in MongoDB
     const ride = new Ride({
       riderId: user._id,
@@ -222,7 +239,7 @@ router.post('/request', firebaseAuthMiddleware, async (req, res) => {
         lng: destination.lng
       },
       vehicleType: vehicleType || 'Car',
-      fare: Math.round(fareData.fare),
+      fare: calculatedFare, // Use consistency-fixed fare
       distance: fareData.distance_km,
       duration: Math.round(etaData.eta_seconds / 60),
       paymentMethod: payment_method || 'cash',
