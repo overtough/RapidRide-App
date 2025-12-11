@@ -905,9 +905,15 @@
       const dropLon = dropMarker.getLatLng().lng;
 
       try {
-        // Use OSRM for routing
+        // Use Backend Proxy for routing (Avoids CORS)
+        const token = localStorage.getItem('token');
         const response = await fetch(
-          `https://router.project-osrm.org/route/v1/driving/${pickupLon},${pickupLat};${dropLon},${dropLat}?overview=full&geometries=geojson`
+          `${API_CONFIG.BASE_URL}/rides/route?pickup=${pickupLon},${pickupLat}&drop=${dropLon},${dropLat}`,
+          {
+            headers: {
+              'Authorization': `Bearer ${token}`
+            }
+          }
         );
         const data = await response.json();
 

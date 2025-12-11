@@ -15,20 +15,26 @@ async function findUserByFirebaseAuth(firebaseUser) {
     let user = await User.findOne({ firebaseUid: firebaseUser.uid });
     if (user) return user;
 
-    // 2. If not found, fallback to Email (Legacy/Migration support)
-    // Only if email is provided and confirmed
+    // 2. If not found, check Email (Legacy/Migration)
     if (firebaseUser.email) {
-        // Find user by email who DOES NOT have a conflicting UID
         user = await User.findOne({ email: firebaseUser.email });
 
-        // Safety check: If we found a user by email, strictly ensure we aren't 
-        // taking over an account that already has a DIFFERENT firebaseUid
         if (user && user.firebaseUid && user.firebaseUid !== firebaseUser.uid) {
-            console.warn(`[Identity] Prevented match: Email ${firebaseUser.email} matches user ${user._id}, but UID differs (${user.firebaseUid} vs ${firebaseUser.uid})`);
-            return null; // Treat as no match - force new account creation or handling
+            console.warn(`[Identity] Prevented match: Email ${firebaseUser.email} matches user ${user._id}, but UID differs`);
+            return null;
         }
+        if (user) return user;
+    }
 
-        return user;
+    // 3. Last Resort: Check Phone Number (for Phone Auth users)
+    if (firebaseUser.phone_number) {
+        user = await User.findOne({ phone: firebaseUser.phone_number });
+
+        if (user && user.firebaseUid && user.firebaseUid !== firebaseUser.uid) {
+            console.warn(`[Identity] Prevented match: Phone ${firebaseUser.phone_number} matches user ${user._id}, but UID differs`);
+            return null;
+        }
+        if (user) return user;
     }
 
     return null;
