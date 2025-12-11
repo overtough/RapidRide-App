@@ -798,8 +798,8 @@
           console.log('Loaded ride from session:', currentRide);
           sessionStorage.removeItem('acceptedRide');
           displayRideDetails();
-          return;
         }
+
 
         // Otherwise fetch from API
         const response = await apiFetch(`/rides/${rideId}`);
