@@ -477,719 +477,1059 @@
       opacity: 0.5;
     }
   </style>
+
+  <!-- Ride Request Modal (Vanilla CSS Replacement for Tailwind) -->
+  <style>
+    .ride-request-modal {
+      display: flex;
+      /* Default display for the class, will be overridden by .hidden */
+      position: fixed;
+      inset: 0;
+      z-index: 10000;
+      align-items: center;
+      justify-content: center;
+      background-color: rgba(0, 0, 0, 0.95);
+      backdrop-filter: blur(4px);
+      transition: opacity 0.3s ease;
+      opacity: 1;
+    }
+
+    .ride-request-modal.hidden {
+      display: none !important;
+      opacity: 0;
+      pointer-events: none;
+    }
+
+    .ride-request-card {
+      background-color: #111827;
+      width: 100%;
+      max-width: 550px;
+      /* max-w-xl approx */
+      margin: 0 1rem;
+      border-radius: 1.5rem;
+      /* rounded-3xl */
+      border: 2px solid #eab308;
+      /* yellow-500 */
+      box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.5);
+      overflow: hidden;
+      transform: scale(1);
+      transition: transform 0.3s ease;
+      position: relative;
+    }
+
+    /* Pulsing Background */
+    .pulse-bg {
+      position: absolute;
+      inset: 0;
+      background-color: #eab308;
+      opacity: 0.05;
+      animation: pulse-bg 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+      pointer-events: none;
+    }
+
+    @keyframes pulse-bg {
+
+      0%,
+      100% {
+        opacity: 0.05;
+      }
+
+      50% {
+        opacity: 0.15;
+      }
+    }
+
+    .modal-header {
+      background-color: #eab308;
+      padding: 1.5rem;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      position: relative;
+      z-index: 10;
+    }
+
+    .modal-title {
+      font-size: 1.875rem;
+      /* text-3xl */
+      font-weight: 900;
+      /* font-black */
+      color: black;
+      letter-spacing: -0.05em;
+      margin: 0;
+    }
+
+    .modal-rider-name {
+      font-size: 1.125rem;
+      /* text-lg */
+      font-weight: 700;
+      color: black;
+      opacity: 0.8;
+      margin: 0.25rem 0 0 0;
+    }
+
+    .timer-badge {
+      background-color: black;
+      color: #eab308;
+      padding: 0.5rem 1.25rem;
+      border-radius: 9999px;
+      font-family: monospace;
+      font-weight: 700;
+      font-size: 1.5rem;
+      /* text-2xl */
+      border: 1px solid #ca8a04;
+      animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+    }
+
+    .modal-body {
+      padding: 2rem;
+      position: relative;
+      z-index: 10;
+    }
+
+    .fare-display {
+      text-align: center;
+      padding: 0.5rem 0;
+    }
+
+    .fare-label {
+      color: #9ca3af;
+      /* gray-400 */
+      font-size: 0.75rem;
+      font-weight: 700;
+      text-transform: uppercase;
+      letter-spacing: 0.2em;
+      margin-bottom: 0.5rem;
+    }
+
+    .fare-amount {
+      font-size: 4.5rem;
+      /* text-7xl */
+      font-weight: 900;
+      color: #4ade80;
+      /* green-400 */
+      line-height: 1;
+      text-shadow: 0 4px 6px rgba(0, 0, 0, 0.3);
+    }
+
+    .stats-grid {
+      display: grid;
+      grid-template-columns: 1fr 1fr;
+      gap: 1rem;
+      margin-top: 1.5rem;
+    }
+
+    .stat-box {
+      background-color: rgba(31, 41, 55, 0.5);
+      /* gray-800/50 */
+      padding: 0.75rem;
+      border-radius: 0.75rem;
+      border: 1px solid #374151;
+      /* gray-700 */
+    }
+
+    .stat-label {
+      color: #6b7280;
+      /* gray-500 */
+      font-size: 0.75rem;
+      text-transform: uppercase;
+      margin: 0 0 0.25rem 0;
+    }
+
+    .stat-value {
+      font-size: 1.25rem;
+      /* text-xl */
+      font-weight: 700;
+      color: white;
+      margin: 0;
+    }
+
+    .route-details {
+      margin-top: 2rem;
+      padding: 1rem;
+      background-color: rgba(31, 41, 55, 0.3);
+      border-radius: 1rem;
+      border: 1px solid #1f2937;
+    }
+
+    .route-row {
+      display: flex;
+      align-items: flex-start;
+      gap: 1rem;
+      margin-bottom: 1rem;
+    }
+
+    .route-row:last-child {
+      margin-bottom: 0;
+    }
+
+    .route-dot {
+      width: 0.75rem;
+      height: 0.75rem;
+      border-radius: 50%;
+      margin-top: 0.375rem;
+      flex-shrink: 0;
+    }
+
+    .dot-green {
+      background-color: #22c55e;
+      box-shadow: 0 0 10px rgba(34, 197, 94, 0.8);
+    }
+
+    .dot-red {
+      background-color: #ef4444;
+      box-shadow: 0 0 10px rgba(239, 68, 68, 0.8);
+    }
+
+    .route-text-label {
+      font-size: 0.65rem;
+      color: #6b7280;
+      text-transform: uppercase;
+      font-weight: 700;
+      letter-spacing: 0.05em;
+      margin: 0 0 0.1rem 0;
+    }
+
+    .route-text-address {
+      font-size: 1.125rem;
+      font-weight: 700;
+      color: #e5e7eb;
+      /* gray-200 */
+      line-height: 1.25;
+      margin: 0;
+    }
+
+    .modal-actions {
+      display: grid;
+      grid-template-columns: 1fr 2fr;
+      border-top: 1px solid #374151;
+    }
+
+    .btn-decline {
+      padding: 1.5rem;
+      background-color: #1f2937;
+      /* gray-800 */
+      color: #9ca3af;
+      font-weight: 700;
+      font-size: 1.25rem;
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+
+    .btn-decline:hover {
+      background-color: #7f1d1d;
+      /* red-900/50 approx */
+      color: white;
+    }
+
+    .btn-accept {
+      padding: 1.5rem;
+      background-color: #eab308;
+      /* yellow-500 */
+      color: black;
+      font-weight: 900;
+      font-size: 1.875rem;
+      /* text-3xl */
+      text-transform: uppercase;
+      letter-spacing: 0.1em;
+      border: none;
+      cursor: pointer;
+      box-shadow: inset 0 0 20px rgba(0, 0, 0, 0.2);
+      transition: all 0.2s;
+    }
+
+    .btn-accept:hover {
+      background-color: #facc15;
+      /* yellow-400 */
+    }
+  </style>
   <script src="../../../../../../../common/js/config.js"></script>
 </head>
 
 <body>
-  <!-- Notification Modal -->
-  <div class="notification-modal" id="notificationModal">
-    <div class="notification-modal-content">
-      <div class="notification-header">
-        <h3>Notifications</h3>
-        <div class="notification-close" onclick="closeNotifications()">
-          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-            stroke-linejoin="round">
-            <line x1="18" y1="6" x2="6" y2="18"></line>
-            <line x1="6" y1="6" x2="18" y2="18"></line>
-          </svg>
+  < !-- Notification Modal -->
+    <div class="notification-modal" id="notificationModal">
+      <div class="notification-modal-content">
+        <div class="notification-header">
+          <h3>Notifications</h3>
+          <div class="notification-close" onclick="closeNotifications()"><svg viewBox="0 0 24 24" fill="none"
+              stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+              <line x1="18" y1="6" x2="6" y2="18"></line>
+              <line x1="6" y1="6" x2="18" y2="18"></line>
+            </svg></div>
         </div>
-      </div>
-      <div class="notification-list" id="notificationList">
-        <div class="notification-empty">
-          <div class="notification-empty-icon">🔔</div>
-          <p>No notifications yet</p>
-          <p style="font-size: 0.9rem; margin-top: 0.5rem;">We'll notify you about ride requests and earnings</p>
-        </div>
-      </div>
-    </div>
-  </div>
-
-  <header class="topbar">
-    <div class="topbar-left">
-      <img src="../assets/logo.png" alt="RapidRide" class="mini-logo" onerror="this.style.display='none'">
-      <span
-        style="background: linear-gradient(to right, #fff, #a5b4fc); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">RapidRide
-        Captain</span>
-    </div>
-    <div class="topbar-right">
-      <button class="notification-btn" id="notificationBtn" onclick="toggleNotifications()" title="Notifications">
-        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"
-          stroke-linejoin="round">
-          <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
-          <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
-        </svg>
-        <span class="notification-badge" id="notificationBadge" style="display: none;">0</span>
-      </button>
-      <button class="profile-btn" id="profileBtn" onclick="window.location.href='profile.html'">
-        D
-      </button>
-    </div>
-  </header>
-
-  <main class="container slide-up">
-    <div class="welcome-section" style="display: flex; justify-content: space-between; align-items: center; gap: 2rem;">
-      <div style="flex: 1;">
-        <h1>Welcome back, <span id="driverName" style="color: var(--accent);">Captain</span>!</h1>
-        <p>Ready to start earning? Go online to accept ride requests.</p>
-      </div>
-
-      <!-- Compact Status Control -->
-      <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem;">
-        <div id="statusContainer" class="status-container" style="padding: 0.5rem 1rem;">
-          <span class="status-indicator"></span>
-          <span id="driverStatus" class="status-text">Offline</span>
-        </div>
-        <div class="btn-group" style="display: flex; gap: 0.5rem; margin: 0;">
-          <button class="btn btn-primary" id="goOnline" style="padding: 0.5rem 1rem; font-size: 0.9rem;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" style="margin-right: 0.4rem;">
-              <circle cx="12" cy="12" r="10"></circle>
-              <path d="m9 12 2 2 4-4"></path>
-            </svg>
-            Go Online
-          </button>
-          <button class="btn btn-secondary" id="goOffline"
-            style="opacity: 0.5; padding: 0.5rem 1rem; font-size: 0.9rem;" disabled>
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" style="margin-right: 0.4rem;">
-              <circle cx="12" cy="12" r="10"></circle>
-              <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
-            </svg>
-            Go Offline
-          </button>
-        </div>
-        <div style="margin-top: 10px; width: 100%;">
-          <button class="btn" onclick="debugClearActiveRides()"
-            style="width: 100%; background: rgba(239, 68, 68, 0.1); border: 1px dashed #ef4444; color: #ef4444; padding: 0.4rem; font-size: 0.85rem; cursor: pointer;">
-            🧹 Debug: Clear Active Rides
-          </button>
-        </div>
-      </div>
-    </div>
-
-    <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem;">
-      <!-- Ride Requests Card (Left) -->
-      <div class="glass-card">
-        <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
-          <div>
-            <h3 style="margin: 0;">📋 Ride Requests</h3>
-            <p style="margin: 0.25rem 0 0 0;">Pending ride requests near you</p>
-          </div>
-          <span id="requestCount"
-            style="background: var(--primary); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 700; font-size: 0.9rem;">0</span>
-        </div>
-        <div id="rideRequestList" style="max-height: 200px; overflow-y: auto;">
-          <div style="text-align: center; color: var(--text-muted); padding: 2rem 1rem;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="1.5" style="margin-bottom: 0.75rem; opacity: 0.5;">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="9" y1="9" x2="15" y2="9"></line>
-              <line x1="9" y1="15" x2="15" y2="15"></line>
-            </svg>
-            <div>No pending requests</div>
-            <div style="font-size: 0.85rem; margin-top: 0.25rem;">Go online to receive ride requests</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Live Map Card (Right) -->
-      <div class="glass-card">
-        <h3>📍 Live Location</h3>
-        <p>Your current position updates in real-time</p>
-        <div id="driverMap" class="rr-map">
-          <button class="locate-btn" onclick="locateMe()" title="Show my location">
-            <svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2" stroke-linecap="round"
-              stroke-linejoin="round">
-              <circle cx="12" cy="12" r="10"></circle>
-              <circle cx="12" cy="12" r="3"></circle>
-              <line x1="12" y1="2" x2="12" y2="6"></line>
-              <line x1="12" y1="18" x2="12" y2="22"></line>
-              <line x1="2" y1="12" x2="6" y2="12"></line>
-              <line x1="18" y1="12" x2="22" y2="12"></line>
-            </svg>
-          </button>
-        </div>
-      </div>
-
-      <!-- Total Stats Card - Full Width -->
-      <div class="glass-card" style="grid-column: 1 / -1;">
-        <h3>📈 Total Stats</h3>
-        <p>Your overall performance</p>
-        <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem;">
-          <div style="text-align: center; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: 12px;">
-            <div id="totalRidesCount" style="font-size: 1.75rem; font-weight: 700; color: var(--accent);">0</div>
-            <div style="color: var(--text-muted); font-size: 0.85rem;">Total Rides</div>
-          </div>
-          <div style="text-align: center; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: 12px;">
-            <div id="totalRating" style="font-size: 1.75rem; font-weight: 700; color: var(--accent);">★ 0.0</div>
-            <div style="color: var(--text-muted); font-size: 0.85rem;">Rating</div>
-          </div>
-          <div style="text-align: center; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: 12px;">
-            <div id="totalEarnings" style="font-size: 1.75rem; font-weight: 700; color: var(--accent);">₹0</div>
-            <div style="color: var(--text-muted); font-size: 0.85rem;">Total Earnings</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Today's Stats Card - Full Width -->
-      <div class="glass-card" style="grid-column: 1 / -1;">
-        <h3>📊 Today's Stats</h3>
-        <p>Your performance summary for today</p>
-        <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
-          <div style="text-align: center; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: 12px;">
-            <div id="todayRidesCount" style="font-size: 1.75rem; font-weight: 700; color: var(--accent);">0</div>
-            <div style="color: var(--text-muted); font-size: 0.85rem;">Rides Completed</div>
-          </div>
-          <div style="text-align: center; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: 12px;">
-            <div id="todayDistance" style="font-size: 1.75rem; font-weight: 700; color: var(--accent);">0 km</div>
-            <div style="color: var(--text-muted); font-size: 0.85rem;">Distance Covered</div>
-          </div>
-        </div>
-      </div>
-
-      <!-- Quick Links Card - Full Width -->
-      <div class="glass-card" style="grid-column: 1 / -1;">
-        <h3>🔗 Quick Links</h3>
-        <p>Navigate to important sections</p>
-        <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 1rem;">
-          <button class="quick-link-btn" onclick="window.location.href='earnings.html'">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" style="margin-right: 0.75rem; flex-shrink: 0;">
-              <line x1="12" y1="1" x2="12" y2="23"></line>
-              <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
-            </svg>
-            <div style="text-align: left;">
-              <div style="font-weight: 700; font-size: 1rem;">View Earnings</div>
-              <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem;">Track your income and
-                payouts</div>
-            </div>
-          </button>
-          <button class="quick-link-btn" onclick="window.location.href='help.html'">
-            <svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
-              stroke="currentColor" stroke-width="2" style="margin-right: 0.75rem; flex-shrink: 0;">
-              <circle cx="12" cy="12" r="10"></circle>
-              <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
-              <line x1="12" y1="17" x2="12.01" y2="17"></line>
-            </svg>
-            <div style="text-align: left;">
-              <div style="font-weight: 700; font-size: 1rem;">Captain Support</div>
-              <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem;">Get help and support</div>
-            </div>
-          </button>
-        </div>
-      </div>
-    </div>
-  </main>
-
-  <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
-  <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
-  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
-  <script src="../common/js/firebase-config.js"></script>
-  <script src="../common/js/config.js"></script>
-  <script src="../common/js/auth.js"></script>
-  <script src="../common/js/map.js"></script>
-  <script src="js/driver_socket.js"></script>
-  <script src="js/driver.js"></script>
-
-  <script>
-    (async function () {
-      console.log('Driver home script starting...');
-
-      // Wait for Firebase auth to be ready (with timeout)
-      if (typeof firebase !== 'undefined' && firebase.auth) {
-        try {
-          const authUser = await Promise.race([
-            new Promise((resolve) => {
-              const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
-                unsubscribe();
-                if (user) {
-                  console.log('Firebase user authenticated:', user.uid);
-                } else {
-                  console.warn('No Firebase user authenticated');
-                }
-                resolve(user);
-              });
-            }),
-            new Promise((resolve) => setTimeout(() => resolve(null), 3000)) // 3 second timeout
-          ]);
-
-          // Only proceed with API calls if Firebase user is authenticated
-          if (authUser) {
-            console.log('Updating stats for authenticated user');
-
-            // Auto-Fix DB Corruption (Crucial for 500 errors)
-            apiFetch('/auth/fix-db-date', { method: 'POST' })
-              .then(() => console.log('✅ DB Integrity Verified'))
-              .catch(e => console.warn('DB Check Error (non-fatal):', e));
-
-            // Initialize Socket.IO now that Firebase auth is ready
-            if (typeof DriverSocket !== 'undefined') {
-              console.log('🔌 Initializing DriverSocket with Firebase auth...');
-              await DriverSocket.init();
-            }
-          } else {
-            console.warn('Cannot update stats - Firebase user not authenticated');
-          }
-        } catch (e) {
-          console.log('Firebase auth check failed:', e);
-        }
-      }
-
-      try { await Auth.populateFromServer().catch(() => { }); } catch (e) { }
-      const u = Auth.currentUser();
-      const nameSpan = document.getElementById('driverName');
-      if (nameSpan && u && u.name) nameSpan.textContent = u.name;
-
-      // Update profile button avatar
-      const profileBtn = document.getElementById('profileBtn');
-      if (profileBtn && u) {
-        if (u.avatar) {
-          const avatarSrc = u.avatar.includes('/') ? u.avatar : `../assets/${u.avatar}.png`;
-          profileBtn.innerHTML = `<img src="${avatarSrc}" alt="Avatar">`;
-        } else if (u.name) {
-          profileBtn.textContent = u.name.charAt(0).toUpperCase();
-        }
-      }
-
-      // Define stats update functions
-      async function updateTotalStats() {
-        try {
-          const response = await apiFetch('/auth/stats');
-
-          if (response.ok && response.data) {
-            const stats = response.data.stats;
-
-            // Update total stats UI
-            document.getElementById('totalRidesCount').textContent = stats.completedRides || 0;
-            document.getElementById('totalEarnings').textContent = `₹${stats.totalEarnings || 0}`;
-
-            // Display rating
-            if (stats.totalRatings > 0 && stats.rating > 0) {
-              document.getElementById('totalRating').textContent = `★ ${stats.rating.toFixed(1)}`;
-            } else {
-              document.getElementById('totalRating').textContent = '★ New';
-            }
-          }
-        } catch (error) {
-          console.log('Could not fetch total stats:', error);
-        }
-      }
-
-      // Fetch and update today's stats
-      async function updateTodayStats() {
-        try {
-          const response = await apiFetch('/auth/stats/today');
-
-          if (response.ok && response.data) {
-            const stats = response.data.todayStats;
-
-            // Update UI
-            document.getElementById('todayRidesCount').textContent = stats.completedRides || 0;
-            // Distance is already in km from backend, no need to divide
-            document.getElementById('todayDistance').textContent = `${(stats.distance || 0).toFixed(1)} km`;
-          }
-        } catch (error) {
-          console.log('Could not fetch today\'s stats:', error);
-          // Keep default values (0 and 0 km)
-        }
-      }
-
-      // Update stats on load (only if Firebase user exists)
-      if (firebase && firebase.auth && firebase.auth().currentUser) {
-        updateTotalStats();
-        updateTodayStats();
-
-        // Update stats every 5 minutes
-        setInterval(() => {
-          updateTotalStats();
-          updateTodayStats();
-        }, 5 * 60 * 1000);
-      } else {
-        console.warn('Skipping stats update - no Firebase user');
-      }
-
-      const statusEl = document.getElementById('driverStatus');
-      const statusContainer = document.getElementById('statusContainer');
-      const goOnlineBtn = document.getElementById('goOnline');
-      const goOfflineBtn = document.getElementById('goOffline');
-
-      let mapApi = null;
-      try {
-        console.log('Initializing map...');
-        mapApi = await RRMap.init('driverMap', { zoom: 13, locateZoom: 16 });
-        window.driverMapApi = mapApi; // Store globally for locateMe function
-        console.log('Map initialized successfully');
-      } catch (e) {
-        console.error('driver map init failed', e);
-        if (statusEl) statusEl.textContent = 'Map Error (not critical)';
-        // Don't return - continue with other functionality
-      }
-
-      // First location (only if map loaded)
-      if (mapApi) {
-        mapApi.locateOnce().catch(e => console.warn('initial locate failed', e));
-      }
-
-      let watching = false;
-
-      async function startBroadcast() {
-        if (watching) {
-          console.log('⚠️ Already online');
-          return;
-        }
-        watching = true;
-        if (statusEl) statusEl.textContent = 'Online';
-        if (statusContainer) statusContainer.classList.add('status-online');
-
-        goOnlineBtn.style.opacity = '0.5';
-        goOnlineBtn.disabled = true;
-        goOfflineBtn.style.opacity = '1';
-        goOfflineBtn.disabled = false;
-
-        // Connect to Socket.IO with driver's vehicle type
-        if (u && u.id) {
-          const vehicleType = u.vehicle?.type || 'Sedan';
-          console.log(`🟢 Going ONLINE - Vehicle Type: ${vehicleType}`);
-
-          try {
-            DriverSocket.goOnline(u.id, vehicleType);
-            // Request notification permission
-            DriverSocket.requestNotificationPermission();
-            console.log('✅ You are now ONLINE and will receive ride requests matching your vehicle type');
-          } catch (error) {
-            console.error('❌ Failed to go online:', error);
-            // Revert UI state on error
-            watching = false;
-            if (statusEl) statusEl.textContent = 'Offline';
-            if (statusContainer) statusContainer.classList.remove('status-online');
-            goOnlineBtn.style.opacity = '1';
-            goOnlineBtn.disabled = false;
-            goOfflineBtn.style.opacity = '0.5';
-            goOfflineBtn.disabled = true;
-          }
-        }
-
-        if (mapApi) {
-          mapApi.startWatch(async (pos) => {
-            const lat = pos.coords.latitude;
-            const lng = pos.coords.longitude;
-
-            // Update location via Socket.IO
-            try {
-              if (u && u.id) {
-                DriverSocket.updateLocation(u.id, { lat, lng });
-                // Track activity on location update
-                DriverSocket.updateActivity();
-              }
-            } catch (e) {
-              console.warn('Socket location update failed', e);
-            }
-
-            // OPTIONAL: send to backend REST API
-            try {
-              const res = await apiFetch('/driver/location', {
-                method: 'POST',
-                body: { lat, lng }
-              });
-              if (!res.ok) {
-                console.error('Frontend reported backend error:', res.data?.error || res.data?.message || res.status);
-              }
-            } catch (err) {
-              console.warn('backend location send failed', err);
-            }
-          });
-        }
-      }
-
-      function stopBroadcast() {
-        if (!watching) {
-          console.log('⚠️ Already offline');
-          return;
-        }
-        watching = false;
-        if (mapApi) mapApi.stopWatch();
-        if (statusEl) statusEl.textContent = 'Offline';
-        if (statusContainer) statusContainer.classList.remove('status-online');
-
-        goOnlineBtn.style.opacity = '1';
-        goOnlineBtn.disabled = false;
-        goOfflineBtn.style.opacity = '0.5';
-        goOfflineBtn.disabled = true;
-
-        // Disconnect from Socket.IO
-        if (u && u.id) {
-          try {
-            console.log('🔴 Going OFFLINE - you will NOT receive any ride requests');
-            DriverSocket.goOffline(u.id);
-            console.log('✅ You are now OFFLINE');
-          } catch (error) {
-            console.error('❌ Failed to go offline:', error);
-          }
-        }
-      }
-
-      if (goOnlineBtn) goOnlineBtn.addEventListener('click', startBroadcast);
-      if (goOfflineBtn) goOfflineBtn.addEventListener('click', stopBroadcast);
-
-      // Init state
-      if (goOfflineBtn) {
-        goOfflineBtn.style.opacity = '0.5';
-        goOfflineBtn.disabled = true;
-      }
-
-      // Check if driver was online before page reload
-      function checkPreviousOnlineState() {
-        try {
-          const savedState = localStorage.getItem('driver_online_state');
-          const lastActivity = localStorage.getItem('driver_last_activity');
-
-          if (savedState && lastActivity) {
-            const state = JSON.parse(savedState);
-            const timeSinceActivity = Date.now() - parseInt(lastActivity);
-            const ONE_HOUR = 60 * 60 * 1000;
-
-            // If less than 1 hour since last activity, restore online state
-            if (timeSinceActivity < ONE_HOUR && u && u.id === state.userId) {
-              console.log('🔄 Restoring online state from previous session...');
-              console.log(`⏰ ${Math.round(timeSinceActivity / 60000)} minutes since last activity`);
-
-              // Automatically go online
-              setTimeout(() => {
-                startBroadcast();
-              }, 1000);
-            } else if (timeSinceActivity >= ONE_HOUR) {
-              console.log('⏰ Previous session expired (>1 hour inactivity)');
-              localStorage.removeItem('driver_online_state');
-              localStorage.removeItem('driver_last_activity');
-            }
-          }
-        } catch (error) {
-          console.error('Error checking previous online state:', error);
-        }
-      }
-
-      // Check for previous online state after initialization
-      setTimeout(checkPreviousOnlineState, 500);
-
-      console.log('Driver home script completed successfully');
-    })().catch(err => {
-      console.error('Driver home initialization error:', err);
-    });
-
-    // Notification functions
-    function toggleNotifications() {
-      openNotifications();
-    }
-
-    function openNotifications() {
-      document.getElementById('notificationModal').style.display = 'flex';
-      loadNotifications();
-    }
-
-    function closeNotifications() {
-      document.getElementById('notificationModal').style.display = 'none';
-    }
-
-    async function loadNotifications() {
-      // TODO: Fetch notifications from API
-      const mockNotifications = [
-        // { id: 1, title: 'New Ride Request', message: 'Ride request from MG Road Metro', time: '2 minutes ago', read: false },
-        // { id: 2, title: 'Payment Received', message: 'Earnings of ₹450 credited', time: '1 hour ago', read: true },
-      ];
-
-      const container = document.getElementById('notificationList');
-
-      if (mockNotifications.length === 0) {
-        container.innerHTML = `
+        <div class="notification-list" id="notificationList">
           <div class="notification-empty">
             <div class="notification-empty-icon">🔔</div>
             <p>No notifications yet</p>
             <p style="font-size: 0.9rem; margin-top: 0.5rem;">We'll notify you about ride requests and earnings</p>
           </div>
-        `;
-        document.getElementById('notificationBadge').style.display = 'none';
-      } else {
-        container.innerHTML = mockNotifications.map(notif => `
-          <div class="notification-item ${notif.read ? '' : 'unread'}" onclick="markAsRead(${notif.id})">
-            <div class="notification-title">
-              ${notif.title}
-              ${!notif.read ? '<span style="width: 8px; height: 8px; background: var(--primary); border-radius: 50%;"></span>' : ''}
-            </div>
-            <div class="notification-message">${notif.message}</div>
-            <div class="notification-time">${notif.time}</div>
-          </div>
-        `).join('');
-
-        const unreadCount = mockNotifications.filter(n => !n.read).length;
-        updateNotificationBadge(unreadCount);
-      }
-    }
-
-    function markAsRead(notifId) {
-      // TODO: Mark notification as read via API
-      console.log('Marking notification as read:', notifId);
-    }
-
-    // Mock function to update notification badge (can be called when new notifications arrive)
-    function updateNotificationBadge(count) {
-      const badge = document.getElementById('notificationBadge');
-      if (badge) {
-        if (count > 0) {
-          badge.textContent = count > 9 ? '9+' : count;
-          badge.style.display = 'flex';
-        } else {
-          badge.style.display = 'none';
-        }
-      }
-    }
-
-    // Make updateRideRequests available globally for Socket callback
-    window.updateRideRequests = function (requests) {
-      renderRideRequests(requests);
-      // Update notification badge
-      updateNotificationBadge(requests.length);
-    };
-
-    // Function to render ride requests
-    function renderRideRequests(requests) {
-      const listContainer = document.getElementById('rideRequestList');
-      const countBadge = document.getElementById('requestCount');
-
-      if (!listContainer || !countBadge) return;
-
-      // Store requests globally
-      currentRideRequests = requests;
-
-      countBadge.textContent = requests.length;
-
-      if (requests.length === 0) {
-        listContainer.innerHTML = `
-          <div style="text-align: center; color: var(--text-muted); padding: 2rem 1rem;">
-            <svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 0.75rem; opacity: 0.5;">
-              <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
-              <line x1="9" y1="9" x2="15" y2="9"></line>
-              <line x1="9" y1="15" x2="15" y2="15"></line>
-            </svg>
-            <div>No pending requests</div>
-            <div style="font-size: 0.85rem; margin-top: 0.25rem;">Go online to receive ride requests</div>
-          </div>
-        `;
-        return;
-      }
-
-      listContainer.innerHTML = requests.map(request => `
-        <div class="ride-request-item" style="cursor: default;">
-          <div class="request-header">
-            <span style="font-weight: 600; color: #fff;">🚗 ${request.vehicleType || 'Ride'} Request</span>
-            <span class="request-distance">${request.distance ? request.distance.toFixed(1) : '0'} km</span>
-          </div>
-          <div class="request-location">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2">
-              <circle cx="12" cy="10" r="3"></circle>
-              <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 6.9 8 11.7z"></path>
-            </svg>
-            <div style="flex: 1;">
-              <div style="font-size: 0.85rem; color: var(--text-muted);">Pickup</div>
-              <div style="font-size: 0.95rem;">${request.pickup?.address || 'N/A'}</div>
-            </div>
-          </div>
-          <div class="request-location">
-            <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2">
-              <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z"></path>
-              <circle cx="12" cy="10" r="3"></circle>
-            </svg>
-            <div style="flex: 1;">
-              <div style="font-size: 0.85rem; color: var(--text-muted);">Dropoff</div>
-              <div style="font-size: 0.95rem;">${request.destination?.address || 'N/A'}</div>
-            </div>
-          </div>
-          <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1);">
-            <div style="font-size: 0.85rem; color: var(--text-muted);">Estimated Fare</div>
-            <div class="request-fare">₹${request.fare || 0}</div>
-          </div>
-          <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.75rem;">
-            <button onclick="viewRequestDetails('${request.rideId}')" style="padding: 0.6rem 1rem; background: rgba(139, 92, 246, 0.1); border: 1px solid var(--primary); border-radius: 8px; color: var(--primary); font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem;" onmouseover="this.style.background='rgba(139, 92, 246, 0.2)'" onmouseout="this.style.background='rgba(139, 92, 246, 0.1)'">
-              📋 View Details
-            </button>
-            <button onclick="acceptRideDirectly('${request.rideId}')" style="padding: 0.6rem 1rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(139, 92, 246, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'">
-              ✅ Accept Ride
-            </button>
-          </div>
         </div>
-      `).join('');
-    }
+      </div>
+    </div>
+    <header class="topbar">
+      <div class="topbar-left"><img src="../assets/logo.png" alt="RapidRide" class="mini-logo"
+          onerror="this.style.display='none'"><span
+          style="background: linear-gradient(to right, #fff, #a5b4fc); -webkit-background-clip: text; background-clip: text; -webkit-text-fill-color: transparent;">RapidRide
+          Captain</span></div>
+      <div class="topbar-right"><button class="notification-btn" id="notificationBtn" onclick="toggleNotifications()"
+          title="Notifications"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+            stroke-linecap="round" stroke-linejoin="round">
+            <path d="M18 8A6 6 0 0 0 6 8c0 7-3 9-3 9h18s-3-2-3-9"></path>
+            <path d="M13.73 21a2 2 0 0 1-3.46 0"></path>
+          </svg><span class="notification-badge" id="notificationBadge" style="display: none;">0</span></button><button
+          class="profile-btn" id="profileBtn" onclick="window.location.href='profile.html'">D </button></div>
+    </header>
+    <main class="container slide-up">
+      <div class="welcome-section"
+        style="display: flex; justify-content: space-between; align-items: center; gap: 2rem;">
+        <div style="flex: 1;">
+          <h1>Welcome back,
+            <span id="driverName" style="color: var(--accent);">Captain</span> !
+          </h1>
+          <p>Ready to start earning? Go online to accept ride requests.</p>
+        </div>
+        < !-- Compact Status Control -->
+          <div style="display: flex; flex-direction: column; align-items: flex-end; gap: 0.75rem;">
+            <div id="statusContainer" class="status-container" style="padding: 0.5rem 1rem;"><span
+                class="status-indicator"></span><span id="driverStatus" class="status-text">Offline</span></div>
+            <div class="btn-group" style="display: flex; gap: 0.5rem; margin: 0;"><button class="btn btn-primary"
+                id="goOnline" style="padding: 0.5rem 1rem; font-size: 0.9rem;"><svg xmlns="http://www.w3.org/2000/svg"
+                  width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"
+                  style="margin-right: 0.4rem;">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <path d="m9 12 2 2 4-4"></path>
+                </svg>Go Online </button><button class="btn btn-secondary" id="goOffline"
+                style="opacity: 0.5; padding: 0.5rem 1rem; font-size: 0.9rem;" disabled><svg
+                  xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="2" style="margin-right: 0.4rem;">
+                  <circle cx="12" cy="12" r="10"></circle>
+                  <line x1="4.93" y1="4.93" x2="19.07" y2="19.07"></line>
+                </svg>Go Offline </button></div>
+            <div style="margin-top: 10px; width: 100%;"><button class="btn" onclick="debugClearActiveRides()"
+                style="width: 100%; background: rgba(239, 68, 68, 0.1); border: 1px dashed #ef4444; color: #ef4444; padding: 0.4rem; font-size: 0.85rem; cursor: pointer;">🧹
+                Debug: Clear Active Rides </button></div>
+          </div>
+      </div>
+      <div class="dashboard-grid" style="grid-template-columns: 1fr 1fr; gap: 1.5rem; margin-top: 2rem;">
+        < !-- Ride Requests Card (Left) -->
+          <div class="glass-card">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 1rem;">
+              <div>
+                <h3 style="margin: 0;">📋 Ride Requests</h3>
+                <p style="margin: 0.25rem 0 0 0;">Pending ride requests near you</p>
+              </div><span id="requestCount"
+                style="background: var(--primary); color: white; padding: 0.25rem 0.75rem; border-radius: 20px; font-weight: 700; font-size: 0.9rem;">0</span>
+            </div>
+            <div id="rideRequestList" style="max-height: 200px; overflow-y: auto;">
+              <div style="text-align: center; color: var(--text-muted); padding: 2rem 1rem;"><svg
+                  xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none"
+                  stroke="currentColor" stroke-width="1.5" style="margin-bottom: 0.75rem; opacity: 0.5;">
+                  <rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect>
+                  <line x1="9" y1="9" x2="15" y2="9"></line>
+                  <line x1="9" y1="15" x2="15" y2="15"></line>
+                </svg>
+                <div>No pending requests</div>
+                <div style="font-size: 0.85rem; margin-top: 0.25rem;">Go online to receive ride requests</div>
+              </div>
+            </div>
+          </div>
+          < !-- Live Map Card (Right) -->
+            <div class="glass-card">
+              <h3>📍 Live Location</h3>
+              <p>Your current position updates in real-time</p>
+              <div id="driverMap" class="rr-map"><button class="locate-btn" onclick="locateMe()"
+                  title="Show my location"><svg viewBox="0 0 24 24" fill="none" stroke="#333" stroke-width="2"
+                    stroke-linecap="round" stroke-linejoin="round">
+                    <circle cx="12" cy="12" r="10"></circle>
+                    <circle cx="12" cy="12" r="3"></circle>
+                    <line x1="12" y1="2" x2="12" y2="6"></line>
+                    <line x1="12" y1="18" x2="12" y2="22"></line>
+                    <line x1="2" y1="12" x2="6" y2="12"></line>
+                    <line x1="18" y1="12" x2="22" y2="12"></line>
+                  </svg></button></div>
+            </div>
+            < !-- Total Stats Card - Full Width -->
+              <div class="glass-card" style="grid-column: 1 / -1;">
+                <h3>📈 Total Stats</h3>
+                <p>Your overall performance</p>
+                <div style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 1rem; margin-top: 1rem;">
+                  <div
+                    style="text-align: center; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: 12px;">
+                    <div id="totalRidesCount" style="font-size: 1.75rem; font-weight: 700; color: var(--accent);">0
+                    </div>
+                    <div style="color: var(--text-muted); font-size: 0.85rem;">Total Rides</div>
+                  </div>
+                  <div
+                    style="text-align: center; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: 12px;">
+                    <div id="totalRating" style="font-size: 1.75rem; font-weight: 700; color: var(--accent);">★ 0.0
+                    </div>
+                    <div style="color: var(--text-muted); font-size: 0.85rem;">Rating</div>
+                  </div>
+                  <div
+                    style="text-align: center; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: 12px;">
+                    <div id="totalEarnings" style="font-size: 1.75rem; font-weight: 700; color: var(--accent);">₹0</div>
+                    <div style="color: var(--text-muted); font-size: 0.85rem;">Total Earnings</div>
+                  </div>
+                </div>
+              </div>
+              < !-- Today's Stats Card - Full Width -->
+                <div class="glass-card" style="grid-column: 1 / -1;">
+                  <h3>📊 Today's Stats</h3>
+                  <p>Your performance summary for today</p>
+                  <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 1rem; margin-top: 1rem;">
+                    <div
+                      style="text-align: center; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: 12px;">
+                      <div id="todayRidesCount" style="font-size: 1.75rem; font-weight: 700; color: var(--accent);">0
+                      </div>
+                      <div style="color: var(--text-muted); font-size: 0.85rem;">Rides Completed</div>
+                    </div>
+                    <div
+                      style="text-align: center; padding: 1rem; background: rgba(255, 255, 255, 0.05); border-radius: 12px;">
+                      <div id="todayDistance" style="font-size: 1.75rem; font-weight: 700; color: var(--accent);">0 km
+                      </div>
+                      <div style="color: var(--text-muted); font-size: 0.85rem;">Distance Covered</div>
+                    </div>
+                  </div>
+                </div>
+                < !-- Quick Links Card - Full Width -->
+                  <div class="glass-card" style="grid-column: 1 / -1;">
+                    <h3>🔗 Quick Links</h3>
+                    <p>Navigate to important sections</p>
+                    <div style="display: grid; grid-template-columns: repeat(2, 1fr); gap: 1rem; margin-top: 1rem;">
+                      <button class="quick-link-btn" onclick="window.location.href='earnings.html'"><svg
+                          xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" style="margin-right: 0.75rem; flex-shrink: 0;">
+                          <line x1="12" y1="1" x2="12" y2="23"></line>
+                          <path d="M17 5H9.5a3.5 3.5 0 0 0 0 7h5a3.5 3.5 0 0 1 0 7H6"></path>
+                        </svg>
+                        <div style="text-align: left;">
+                          <div style="font-weight: 700; font-size: 1rem;">View Earnings</div>
+                          <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem;">Track your
+                            income and payouts</div>
+                        </div>
+                      </button><button class="quick-link-btn" onclick="window.location.href='help.html'"><svg
+                          xmlns="http://www.w3.org/2000/svg" width="20" height="20" viewBox="0 0 24 24" fill="none"
+                          stroke="currentColor" stroke-width="2" style="margin-right: 0.75rem; flex-shrink: 0;">
+                          <circle cx="12" cy="12" r="10"></circle>
+                          <path d="M9.09 9a3 3 0 0 1 5.83 1c0 2-3 3-3 3"></path>
+                          <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                        </svg>
+                        <div style="text-align: left;">
+                          <div style="font-weight: 700; font-size: 1rem;">Captain Support</div>
+                          <div style="font-size: 0.85rem; color: var(--text-muted); margin-top: 0.2rem;">Get help and
+                            support</div>
+                        </div>
+                      </button></div>
+                  </div>
+      </div>
+    </main>
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <script src="https://cdn.socket.io/4.6.0/socket.io.min.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+    <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+    <script src="../common/js/firebase-config.js"></script>
+    <script src="../common/js/config.js"></script>
+    <script src="../common/js/auth.js"></script>
+    <script src="../common/js/map.js"></script>
+    <script src="js/driver_socket.js"></script>
+    <script src="js/driver.js"></script>
+    <script>(async function () {
+        console.log('Driver home script starting...');
 
-    // Store current ride requests globally
-    let currentRideRequests = [];
+        // Wait for Firebase auth to be ready (with timeout)
+        if (typeof firebase !== 'undefined' && firebase.auth) {
+          try {
+            const authUser = await Promise.race([new Promise((resolve) => {
+              const unsubscribe = firebase.auth().onAuthStateChanged((user) => {
+                unsubscribe();
 
-    // Function to view request details (navigate to request page)
-    window.viewRequestDetails = function (requestId) {
-      // Find the request data
-      const request = currentRideRequests.find(r => r.rideId === requestId);
+                if (user) {
+                  console.log('Firebase user authenticated:', user.uid);
+                }
 
-      if (request) {
-        // Store requests in sessionStorage for the request page
-        sessionStorage.setItem('rideRequests', JSON.stringify(currentRideRequests));
-        window.location.href = `request.html?id=${requestId}`;
-      } else {
-        console.error('Request not found:', requestId);
-      }
-    };
+                else {
+                  console.warn('No Firebase user authenticated');
+                }
 
-    // Function to accept ride directly from list
-    window.acceptRideDirectly = async function (rideId) {
-      const request = currentRideRequests.find(r => r.rideId === rideId);
+                resolve(user);
+              });
+            }),
+            new Promise((resolve) => setTimeout(() => resolve(null), 3000)) // 3 second timeout
+            ]);
 
-      if (!request) {
-        alert('Ride request not found');
-        return;
-      }
+            // Only proceed with API calls if Firebase user is authenticated
+            if (authUser) {
+              console.log('Updating stats for authenticated user');
 
-      // Confirm acceptance
-      if (!confirm(`Accept ride for ₹${request.fare}?\n\nPickup: ${request.pickup?.address}\nDrop: ${request.destination?.address}`)) {
-        return;
-      }
+              // Auto-Fix DB Corruption (Crucial for 500 errors)
+              apiFetch('/auth/fix-db-date', {
+                method: 'POST'
+              }).then(() => console.log('✅ DB Integrity Verified')).catch(e => console.warn('DB Check Error (non-fatal):', e));
 
-      try {
-        // Use apiFetch with Firebase authentication
-        const response = await apiFetch(`/rides/${rideId}/accept`, {
-          method: 'POST',
-          headers: {
-            'Content-Type': 'application/json'
+              // Initialize Socket.IO now that Firebase auth is ready
+              if (typeof DriverSocket !== 'undefined') {
+                console.log('🔌 Initializing DriverSocket with Firebase auth...');
+                await DriverSocket.init();
+              }
+            }
+
+            else {
+              console.warn('Cannot update stats - Firebase user not authenticated');
+            }
           }
-        });
 
-        if (!response.ok) {
-          throw new Error(response.data?.message || 'Failed to accept ride');
+          catch (e) {
+            console.log('Firebase auth check failed:', e);
+          }
         }
 
-        // Store ride data in sessionStorage
-        sessionStorage.setItem('acceptedRide', JSON.stringify(response.data.ride));
+        try {
+          await Auth.populateFromServer().catch(() => { });
+        }
 
-        alert('Ride accepted successfully!');
+        catch (e) { }
 
-        // Redirect to active ride page
-        window.location.href = `ride_active.html?rideId=${rideId}`;
+        const u = Auth.currentUser();
+        const nameSpan = document.getElementById('driverName');
+        if (nameSpan && u && u.name) nameSpan.textContent = u.name;
 
-      } catch (error) {
-        console.error('Error accepting ride:', error);
-        alert('Failed to accept ride: ' + error.message);
+        // Update profile button avatar
+        const profileBtn = document.getElementById('profileBtn');
+
+        if (profileBtn && u) {
+          if (u.avatar) {
+            const avatarSrc = u.avatar.includes('/') ? u.avatar : `../assets/$ {
+            u.avatar
+          }
+
+          .png`;
+            profileBtn.innerHTML = `<img src="${avatarSrc}" alt="Avatar" >`;
+          }
+
+          else if (u.name) {
+            profileBtn.textContent = u.name.charAt(0).toUpperCase();
+          }
+        }
+
+        // Define stats update functions
+        async function updateTotalStats() {
+          try {
+            const response = await apiFetch('/auth/stats');
+
+            if (response.ok && response.data) {
+              const stats = response.data.stats;
+
+              // Update total stats UI
+              document.getElementById('totalRidesCount').textContent = stats.completedRides || 0;
+
+              document.getElementById('totalEarnings').textContent = `₹$ {
+              stats.totalEarnings || 0
+            }
+
+            `;
+
+              // Display rating
+              if (stats.totalRatings > 0 && stats.rating > 0) {
+                document.getElementById('totalRating').textContent = `★ $ {
+                stats.rating.toFixed(1)
+              }
+
+              `;
+              }
+
+              else {
+                document.getElementById('totalRating').textContent = '★ New';
+              }
+            }
+          }
+
+          catch (error) {
+            console.log('Could not fetch total stats:', error);
+          }
+        }
+
+        // Fetch and update today's stats
+        async function updateTodayStats() {
+          try {
+            const response = await apiFetch('/auth/stats/today');
+
+            if (response.ok && response.data) {
+              const stats = response.data.todayStats;
+
+              // Update UI
+              document.getElementById('todayRidesCount').textContent = stats.completedRides || 0;
+
+              // Distance is already in km from backend, no need to divide
+              document.getElementById('todayDistance').textContent = `$ {
+              (stats.distance || 0).toFixed(1)
+            }
+
+            km`;
+            }
+          }
+
+          catch (error) {
+            console.log('Could not fetch today\'s stats:', error);
+            // Keep default values (0 and 0 km)
+          }
+        }
+
+        // Update stats on load (only if Firebase user exists)
+        if (firebase && firebase.auth && firebase.auth().currentUser) {
+          updateTotalStats();
+          updateTodayStats();
+
+          // Update stats every 5 minutes
+          setInterval(() => {
+            updateTotalStats();
+            updateTodayStats();
+          }
+
+            , 5 * 60 * 1000);
+        }
+
+        else {
+          console.warn('Skipping stats update - no Firebase user');
+        }
+
+        const statusEl = document.getElementById('driverStatus');
+        const statusContainer = document.getElementById('statusContainer');
+        const goOnlineBtn = document.getElementById('goOnline');
+        const goOfflineBtn = document.getElementById('goOffline');
+
+        let mapApi = null;
+
+        try {
+          console.log('Initializing map...');
+
+          mapApi = await RRMap.init('driverMap', {
+            zoom: 13, locateZoom: 16
+          });
+          window.driverMapApi = mapApi; // Store globally for locateMe function
+          console.log('Map initialized successfully');
+        }
+
+        catch (e) {
+          console.error('driver map init failed', e);
+          if (statusEl) statusEl.textContent = 'Map Error (not critical)';
+          // Don't return - continue with other functionality
+        }
+
+        // First location (only if map loaded)
+        if (mapApi) {
+          mapApi.locateOnce().catch(e => console.warn('initial locate failed', e));
+        }
+
+        let watching = false;
+
+        async function startBroadcast() {
+          if (watching) {
+            console.log('⚠️ Already online');
+            return;
+          }
+
+          watching = true;
+          if (statusEl) statusEl.textContent = 'Online';
+          if (statusContainer) statusContainer.classList.add('status-online');
+
+          goOnlineBtn.style.opacity = '0.5';
+          goOnlineBtn.disabled = true;
+          goOfflineBtn.style.opacity = '1';
+          goOfflineBtn.disabled = false;
+
+          // Connect to Socket.IO with driver's vehicle type
+          if (u && u.id) {
+            const vehicleType = u.vehicle?.type || 'Sedan';
+
+            console.log(`🟢 Going ONLINE - Vehicle Type: $ {
+            vehicleType
+          }
+
+          `);
+
+            try {
+              DriverSocket.goOnline(u.id, vehicleType);
+              // Request notification permission
+              DriverSocket.requestNotificationPermission();
+              console.log('✅ You are now ONLINE and will receive ride requests matching your vehicle type');
+            }
+
+            catch (error) {
+              console.error('❌ Failed to go online:', error);
+              // Revert UI state on error
+              watching = false;
+              if (statusEl) statusEl.textContent = 'Offline';
+              if (statusContainer) statusContainer.classList.remove('status-online');
+              goOnlineBtn.style.opacity = '1';
+              goOnlineBtn.disabled = false;
+              goOfflineBtn.style.opacity = '0.5';
+              goOfflineBtn.disabled = true;
+            }
+          }
+
+          if (mapApi) {
+            mapApi.startWatch(async (pos) => {
+              const lat = pos.coords.latitude;
+              const lng = pos.coords.longitude;
+
+              // Update location via Socket.IO
+              try {
+                if (u && u.id) {
+                  DriverSocket.updateLocation(u.id, {
+                    lat, lng
+                  });
+                  // Track activity on location update
+                  DriverSocket.updateActivity();
+                }
+              }
+
+              catch (e) {
+                console.warn('Socket location update failed', e);
+              }
+
+              // OPTIONAL: send to backend REST API
+              try {
+                const res = await apiFetch('/driver/location', {
+
+                  method: 'POST',
+                  body: {
+                    lat, lng
+                  }
+                });
+
+                if (!res.ok) {
+                  console.error('Frontend reported backend error:', res.data?.error || res.data?.message || res.status);
+                }
+              }
+
+              catch (err) {
+                console.warn('backend location send failed', err);
+              }
+            });
+          }
+        }
+
+        function stopBroadcast() {
+          if (!watching) {
+            console.log('⚠️ Already offline');
+            return;
+          }
+
+          watching = false;
+          if (mapApi) mapApi.stopWatch();
+          if (statusEl) statusEl.textContent = 'Offline';
+          if (statusContainer) statusContainer.classList.remove('status-online');
+
+          goOnlineBtn.style.opacity = '1';
+          goOnlineBtn.disabled = false;
+          goOfflineBtn.style.opacity = '0.5';
+          goOfflineBtn.disabled = true;
+
+          // Disconnect from Socket.IO
+          if (u && u.id) {
+            try {
+              console.log('🔴 Going OFFLINE - you will NOT receive any ride requests');
+              DriverSocket.goOffline(u.id);
+              console.log('✅ You are now OFFLINE');
+            }
+
+            catch (error) {
+              console.error('❌ Failed to go offline:', error);
+            }
+          }
+        }
+
+        if (goOnlineBtn) goOnlineBtn.addEventListener('click', startBroadcast);
+        if (goOfflineBtn) goOfflineBtn.addEventListener('click', stopBroadcast);
+
+        // Init state
+        if (goOfflineBtn) {
+          goOfflineBtn.style.opacity = '0.5';
+          goOfflineBtn.disabled = true;
+        }
+
+        // Check if driver was online before page reload
+        function checkPreviousOnlineState() {
+          try {
+            const savedState = localStorage.getItem('driver_online_state');
+            const lastActivity = localStorage.getItem('driver_last_activity');
+
+            if (savedState && lastActivity) {
+              const state = JSON.parse(savedState);
+              const timeSinceActivity = Date.now() - parseInt(lastActivity);
+              const ONE_HOUR = 60 * 60 * 1000;
+
+              // If less than 1 hour since last activity, restore online state
+              if (timeSinceActivity < ONE_HOUR && u && u.id === state.userId) {
+                console.log('🔄 Restoring online state from previous session...');
+
+                console.log(`⏰ $ {
+                Math.round(timeSinceActivity / 60000)
+              }
+
+              minutes since last activity`);
+
+                // Automatically go online
+                setTimeout(() => {
+                  startBroadcast();
+                }
+
+                  , 1000);
+              }
+
+              else if (timeSinceActivity >= ONE_HOUR) {
+                console.log('⏰ Previous session expired (>1 hour inactivity)');
+                localStorage.removeItem('driver_online_state');
+                localStorage.removeItem('driver_last_activity');
+              }
+            }
+          }
+
+          catch (error) {
+            console.error('Error checking previous online state:', error);
+          }
+        }
+
+        // Check for previous online state after initialization
+        setTimeout(checkPreviousOnlineState, 500);
+
+        console.log('Driver home script completed successfully');
+
+      })().catch(err => {
+        console.error('Driver home initialization error:', err);
+      });
+
+      // Notification functions
+      function toggleNotifications() {
+        openNotifications();
       }
-    };
 
-    // Get API base URL
-    const API_BASE = API_CONFIG.BASE_URL;
+      function openNotifications() {
+        document.getElementById('notificationModal').style.display = 'flex';
+        loadNotifications();
+      }
 
-    // Sample ride requests (replace with real API data)
-    const sampleRequests = [
-      {
+      function closeNotifications() {
+        document.getElementById('notificationModal').style.display = 'none';
+      }
+
+      async function loadNotifications() {
+        // TODO: Fetch notifications from API
+        const mockNotifications = [ // { id: 1, title: 'New Ride Request', message: 'Ride request from MG Road Metro', time: '2 minutes ago', read: false },
+          // { id: 2, title: 'Payment Received', message: 'Earnings of ₹450 credited', time: '1 hour ago', read: true },
+        ];
+
+        const container = document.getElementById('notificationList');
+
+        if (mockNotifications.length === 0) {
+          container.innerHTML = ` <div class="notification-empty"><div class="notification-empty-icon">🔔</div><p>No notifications yet</p><p style="font-size: 0.9rem; margin-top: 0.5rem;">We'll notify you about ride requests and earnings</p>
+ </div>`;
+          document.getElementById('notificationBadge').style.display = 'none';
+        }
+
+        else {
+          container.innerHTML = mockNotifications.map(notif => ` <div class="notification-item ${notif.read ? '' : 'unread'}" onclick="markAsRead(${notif.id})" > <div class="notification-title" > $ {
+            notif.title
+          }
+
+          $ {
+            !notif.read ? '<span style="width: 8px; height: 8px; background: var(--primary); border-radius: 50%;"></span>' : ''
+          }
+
+          </div> <div class="notification-message" >$ {
+            notif.message
+          }
+
+          </div> <div class="notification-time" >$ {
+            notif.time
+          }
+
+          </div> </div> `).join('');
+
+          const unreadCount = mockNotifications.filter(n => !n.read).length;
+          updateNotificationBadge(unreadCount);
+        }
+      }
+
+      function markAsRead(notifId) {
+        // TODO: Mark notification as read via API
+        console.log('Marking notification as read:', notifId);
+      }
+
+      // Mock function to update notification badge (can be called when new notifications arrive)
+      function updateNotificationBadge(count) {
+        const badge = document.getElementById('notificationBadge');
+
+        if (badge) {
+          if (count > 0) {
+            badge.textContent = count > 9 ? '9+' : count;
+            badge.style.display = 'flex';
+          }
+
+          else {
+            badge.style.display = 'none';
+          }
+        }
+      }
+
+      // Make updateRideRequests available globally for Socket callback
+      window.updateRideRequests = function (requests) {
+        renderRideRequests(requests);
+        // Update notification badge
+        updateNotificationBadge(requests.length);
+      }
+
+        ;
+
+      // Function to render ride requests
+      function renderRideRequests(requests) {
+        const listContainer = document.getElementById('rideRequestList');
+        const countBadge = document.getElementById('requestCount');
+
+        if (!listContainer || !countBadge) return;
+
+        // Store requests globally
+        currentRideRequests = requests;
+
+        countBadge.textContent = requests.length;
+
+        if (requests.length === 0) {
+          listContainer.innerHTML = ` <div style="text-align: center; color: var(--text-muted); padding: 2rem 1rem;"><svg xmlns="http://www.w3.org/2000/svg" width="48" height="48" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" style="margin-bottom: 0.75rem; opacity: 0.5;"><rect x="3" y="3" width="18" height="18" rx="2" ry="2"></rect><line x1="9" y1="9" x2="15" y2="9"></line><line x1="9" y1="15" x2="15" y2="15"></line></svg><div>No pending requests</div><div style="font-size: 0.85rem; margin-top: 0.25rem;">Go online to receive ride requests</div></div>`;
+          return;
+        }
+
+        listContainer.innerHTML = requests.map(request => ` <div class="ride-request-item" style="cursor: default;" > <div class="request-header" > <span style="font-weight: 600; color: #fff;" >🚗 $ {
+          request.vehicleType || 'Ride'
+        }
+
+        Request</span> <span class="request-distance" >$ {
+          request.distance ? request.distance.toFixed(1) : '0'
+        }
+
+        km</span> </div> <div class="request-location" > <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--primary)" stroke-width="2" > <circle cx="12" cy="10" r="3" ></circle> <path d="M12 21.7C17.3 17 20 13 20 10a8 8 0 1 0-16 0c0 3 2.7 6.9 8 11.7z" ></path> </svg> <div style="flex: 1;" > <div style="font-size: 0.85rem; color: var(--text-muted);" >Pickup</div> <div style="font-size: 0.95rem;" >$ {
+          request.pickup?.address || 'N/A'
+        }
+
+        </div> </div> </div> <div class="request-location" > <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="var(--accent)" stroke-width="2" > <path d="M21 10c0 7-9 13-9 13s-9-6-9-13a9 9 0 0 1 18 0z" ></path> <circle cx="12" cy="10" r="3" ></circle> </svg> <div style="flex: 1;" > <div style="font-size: 0.85rem; color: var(--text-muted);" >Dropoff</div> <div style="font-size: 0.95rem;" >$ {
+          request.destination?.address || 'N/A'
+        }
+
+        </div> </div> </div> <div style="display: flex; justify-content: space-between; align-items: center; margin-top: 0.5rem; padding-top: 0.5rem; border-top: 1px solid rgba(255, 255, 255, 0.1);" > <div style="font-size: 0.85rem; color: var(--text-muted);" >Estimated Fare</div> <div class="request-fare" >₹$ {
+          request.fare || 0
+        }
+
+        </div> </div> <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.5rem; margin-top: 0.75rem;" > <button onclick="viewRequestDetails('${request.rideId}')" style="padding: 0.6rem 1rem; background: rgba(139, 92, 246, 0.1); border: 1px solid var(--primary); border-radius: 8px; color: var(--primary); font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem;" onmouseover="this.style.background='rgba(139, 92, 246, 0.2)'" onmouseout="this.style.background='rgba(139, 92, 246, 0.1)'" > 📋 View Details </button> <button onclick="acceptRideDirectly('${request.rideId}')" style="padding: 0.6rem 1rem; background: linear-gradient(135deg, var(--primary), var(--secondary)); border: none; border-radius: 8px; color: white; font-weight: 600; cursor: pointer; transition: all 0.3s ease; font-size: 0.9rem;" onmouseover="this.style.transform='translateY(-2px)'; this.style.boxShadow='0 4px 12px rgba(139, 92, 246, 0.4)'" onmouseout="this.style.transform='translateY(0)'; this.style.boxShadow='none'" > ✅ Accept Ride </button> </div> </div> `).join('');
+      }
+
+      // Store current ride requests globally
+      let currentRideRequests = [];
+
+      // Function to view request details (navigate to request page)
+      window.viewRequestDetails = function (requestId) {
+        // Find the request data
+        const request = currentRideRequests.find(r => r.rideId === requestId);
+
+        if (request) {
+          // Store requests in sessionStorage for the request page
+          sessionStorage.setItem('rideRequests', JSON.stringify(currentRideRequests));
+
+          window.location.href = `request.html?id=$ {
+          requestId
+        }
+
+        `;
+        }
+
+        else {
+          console.error('Request not found:', requestId);
+        }
+      }
+
+        ;
+
+      // Function to accept ride directly from list
+      window.acceptRideDirectly = async function (rideId) {
+        const request = currentRideRequests.find(r => r.rideId === rideId);
+
+        if (!request) {
+          alert('Ride request not found');
+          return;
+        }
+
+        // Confirm acceptance
+        if (!confirm(`Accept ride for ₹$ {
+            request.fare
+          }
+
+          ?\n\nPickup: $ {
+            request.pickup?.address
+          }
+
+          \nDrop: $ {
+            request.destination?.address
+          }
+
+          `)) {
+          return;
+        }
+
+        try {
+
+          // Use apiFetch with Firebase authentication
+          const response = await apiFetch(`/rides/$ {
+            rideId
+          }
+
+          /accept`, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json'
+            }
+          });
+
+          if (!response.ok) {
+            throw new Error(response.data?.message || 'Failed to accept ride');
+          }
+
+          // Store ride data in sessionStorage
+          sessionStorage.setItem('acceptedRide', JSON.stringify(response.data.ride));
+
+          alert('Ride accepted successfully!');
+
+          // Redirect to active ride page
+          window.location.href = `ride_active.html?rideId=$ {
+        rideId
+      }
+
+      `;
+
+        }
+
+        catch (error) {
+          console.error('Error accepting ride:', error);
+          alert('Failed to accept ride: ' + error.message);
+        }
+      }
+
+        ;
+
+      // Get API base URL
+      const API_BASE = API_CONFIG.BASE_URL;
+
+      // Sample ride requests (replace with real API data)
+      const sampleRequests = [{
         id: 'req001',
         pickup: 'MG Road Metro Station',
         dropoff: 'Indira Nagar',
         distance: 3.2,
         fare: 120
-      },
+      }
+
+        ,
       {
         id: 'req002',
         pickup: 'Koramangala 4th Block',
@@ -1197,164 +1537,163 @@
         distance: 12.5,
         fare: 450
       }
-    ];
 
-    // Initialize with sample data when going online
-    // renderRideRequests(sampleRequests);
+      ];
 
-    // Locate me function - center map on user's current location (expose globally)
-    window.locateMe = async function () {
-      const mapApi = window.driverMapApi; // Reference to map API
-      const btn = event?.target?.closest('.locate-btn');
+      // Initialize with sample data when going online
+      // renderRideRequests(sampleRequests);
 
-      if (mapApi) {
-        try {
-          // Add loading state
-          if (btn) {
-            btn.style.opacity = '0.6';
-            btn.style.pointerEvents = 'none';
+      // Locate me function - center map on user's current location (expose globally)
+      window.locateMe = async function () {
+        const mapApi = window.driverMapApi; // Reference to map API
+        const btn = event?.target?.closest('.locate-btn');
+
+        if (mapApi) {
+          try {
+
+            // Add loading state
+            if (btn) {
+              btn.style.opacity = '0.6';
+              btn.style.pointerEvents = 'none';
+            }
+
+            const result = await mapApi.locateOnce();
+
+            // Add smooth animation
+            if (result && result.lat && result.lng) {
+              mapApi.map.flyTo([result.lat, result.lng], 16, {
+                duration: 1.5,
+                easeLinearity: 0.25
+              });
+            }
+
+            // Reset button state
+            setTimeout(() => {
+              if (btn) {
+                btn.style.opacity = '1';
+                btn.style.pointerEvents = 'auto';
+              }
+            }
+
+              , 500);
           }
 
-          const result = await mapApi.locateOnce();
+          catch (e) {
+            console.warn('Failed to get location:', e);
+            alert('Unable to get your location. Please check location permissions.');
 
-          // Add smooth animation
-          if (result && result.lat && result.lng) {
-            mapApi.map.flyTo([result.lat, result.lng], 16, {
-              duration: 1.5,
-              easeLinearity: 0.25
-            });
-          }
-
-          // Reset button state
-          setTimeout(() => {
+            // Reset button state on error
             if (btn) {
               btn.style.opacity = '1';
               btn.style.pointerEvents = 'auto';
             }
-          }, 500);
-        } catch (e) {
-          console.warn('Failed to get location:', e);
-          alert('Unable to get your location. Please check location permissions.');
-
-          // Reset button state on error
-          if (btn) {
-            btn.style.opacity = '1';
-            btn.style.pointerEvents = 'auto';
           }
         }
       }
-    };
 
-    // Debug function attached to window (Global Scope)
-    window.debugClearActiveRides = async function () {
-      if (!confirm('DEBUG: Are you sure you want to clear ALL active rides? This will cancel existing rides.')) return;
+        ;
 
-      // Ensure event is captured safely
-      const btn = (window.event && window.event.target) || document.querySelector('button[onclick*="debugClearActiveRides"]');
-      const originalText = btn ? btn.innerHTML : 'Debug';
-      if (btn) {
-        btn.innerHTML = 'Clearing...';
-        btn.disabled = true;
-      }
+      // Debug function attached to window (Global Scope)
+      window.debugClearActiveRides = async function () {
+        if (!confirm('DEBUG: Are you sure you want to clear ALL active rides? This will cancel existing rides.')) return;
 
-      try {
-        const res = await apiFetch('/rides/clear-active', { method: 'POST' });
+        // Ensure event is captured safely
+        const btn = (window.event && window.event.target) || document.querySelector('button[onclick*="debugClearActiveRides"]');
+        const originalText = btn ? btn.innerHTML : 'Debug';
 
-        if (res.ok) {
-          alert(`Success! Cleared ${res.data.count} active rides.`);
-          window.location.reload();
-        } else {
-          alert('Failed: ' + (res.data?.error || res.status));
-        }
-      } catch (e) {
-        alert('Error: ' + e.message);
-      } finally {
         if (btn) {
-          btn.innerHTML = originalText;
-          btn.disabled = false;
+          btn.innerHTML = 'Clearing...';
+          btn.disabled = true;
+        }
+
+        try {
+          const res = await apiFetch('/rides/clear-active', {
+            method: 'POST'
+          });
+
+          if (res.ok) {
+            alert(`Success ! Cleared $ {
+            res.data.count
+          }
+
+          active rides.`);
+            window.location.reload();
+          }
+
+          else {
+            alert('Failed: ' + (res.data?.error || res.status));
+          }
+        }
+
+        catch (e) {
+          alert('Error: ' + e.message);
+        }
+
+        finally {
+          if (btn) {
+            btn.innerHTML = originalText;
+            btn.disabled = false;
+          }
         }
       }
-    };
-  </script>
-  <script src="../common/js/confirm-logout.js"></script>
-  <!-- Large Ride Request Modal -->
-  <div id="rideRequestModal"
-    class="hidden fixed inset-0 z-[60] flex items-center justify-center bg-black bg-opacity-95 backdrop-blur-sm transition-opacity duration-300">
-    <div
-      class="bg-gray-900 w-full max-w-xl mx-4 rounded-3xl border-2 border-yellow-500 shadow-2xl overflow-hidden transform transition-all scale-100 relative">
 
-      <!-- Pulsing Background Effect -->
-      <div class="absolute inset-0 bg-yellow-500 opacity-5 animate-pulse pointer-events-none"></div>
-
-      <!-- Header -->
-      <div class="bg-yellow-500 p-6 flex justify-between items-center relative z-10">
-        <div>
-          <h2 class="text-3xl font-black text-black tracking-tighter">NEW REQUEST</h2>
-          <p id="modal-rider-name" class="text-lg font-bold text-black opacity-80 mt-1">Rider: ...</p>
-        </div>
-        <div
-          class="bg-black text-yellow-500 px-5 py-2 rounded-full font-mono font-bold text-2xl animate-pulse border border-yellow-600">
-          <span id="modal-countdown">30</span>s
+        ;
+    </script>
+    <script src="../common/js/confirm-logout.js"></script>
+    < !-- Large Ride Request Modal (Vanilla CSS) -->
+      <div id="rideRequestModal" class="ride-request-modal hidden">
+        <div class="ride-request-card">
+          < !-- Pulsing Background Effect -->
+            <div class="pulse-bg"></div>
+            < !-- Header -->
+              <div class="modal-header">
+                <div>
+                  <h2 class="modal-title">NEW REQUEST</h2>
+                  <p id="modal-rider-name" class="modal-rider-name">Rider: ...</p>
+                </div>
+                <div class="timer-badge"><span id="modal-countdown">30</span>s </div>
+              </div>
+              < !-- Content -->
+                <div class="modal-body">
+                  < !-- Fare (Center Stage) -->
+                    <div class="fare-display">
+                      <p class="fare-label">Estimated Earnings</p>
+                      <div class="fare-amount">₹<span id="modal-fare">0</span></div>
+                      < !-- Meta Grid -->
+                        <div class="stats-grid">
+                          <div class="stat-box">
+                            <p class="stat-label">Distance</p>
+                            <p id="modal-distance" class="stat-value">0 km</p>
+                          </div>
+                          <div class="stat-box">
+                            <p class="stat-label">Est. Time</p>
+                            <p id="modal-duration" class="stat-value">0 min</p>
+                          </div>
+                        </div>
+                    </div>
+                    < !-- Route Details -->
+                      <div class="route-details">
+                        <div class="route-row">
+                          <div class="route-dot dot-green"></div>
+                          <div>
+                            <p class="route-text-label">Pickup</p>
+                            <p id="modal-pickup" class="route-text-address">...</p>
+                          </div>
+                        </div>
+                        <div class="route-row">
+                          <div class="route-dot dot-red"></div>
+                          <div>
+                            <p class="route-text-label">Dropoff</p>
+                            <p id="modal-drop" class="route-text-address">...</p>
+                          </div>
+                        </div>
+                      </div>
+                </div>
+                < !-- Actions -->
+                  <div class="modal-actions"><button onclick="rejectRide()" class="btn-decline">Decline </button><button
+                      onclick="acceptRide()" class="btn-accept">ACCEPT RIDE </button></div>
         </div>
       </div>
-
-      <!-- Content -->
-      <div class="p-8 space-y-8 relative z-10">
-
-        <!-- Fare (Center Stage) -->
-        <div class="text-center py-2">
-          <p class="text-gray-400 text-xs font-bold uppercase tracking-[0.2em] mb-2">Estimated Earnings</p>
-          <div class="text-7xl font-black text-green-400 drop-shadow-lg tracking-tight">
-            ₹<span id="modal-fare">0</span>
-          </div>
-
-          <!-- Meta Grid -->
-          <div class="grid grid-cols-2 gap-4 mt-6">
-            <div class="bg-gray-800/50 p-3 rounded-xl border border-gray-700">
-              <p class="text-gray-500 text-xs uppercase">Distance</p>
-              <p id="modal-distance" class="text-xl font-bold text-white">0 km</p>
-            </div>
-            <div class="bg-gray-800/50 p-3 rounded-xl border border-gray-700">
-              <p class="text-gray-500 text-xs uppercase">Est. Time</p>
-              <p id="modal-duration" class="text-xl font-bold text-white">0 min</p>
-            </div>
-          </div>
-        </div>
-
-        <!-- Route Details -->
-        <div class="space-y-4 bg-gray-800/30 p-4 rounded-2xl border border-gray-800">
-          <div class="flex items-start gap-4">
-            <div class="mt-1.5 w-3 h-3 rounded-full bg-green-500 shadow-[0_0_10px_rgba(34,197,94,0.8)] shrink-0"></div>
-            <div>
-              <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Pickup</p>
-              <p id="modal-pickup" class="text-lg font-bold text-gray-200 leading-tight">...</p>
-            </div>
-          </div>
-          <div class="flex items-start gap-4">
-            <div class="mt-1.5 w-3 h-3 rounded-full bg-red-500 shadow-[0_0_10px_rgba(239,68,68,0.8)] shrink-0"></div>
-            <div>
-              <p class="text-[10px] text-gray-500 uppercase font-bold tracking-wider">Dropoff</p>
-              <p id="modal-drop" class="text-lg font-bold text-gray-200 leading-tight">...</p>
-            </div>
-          </div>
-        </div>
-
-      </div>
-
-      <!-- Actions -->
-      <div class="grid grid-cols-3 gap-0 border-t border-gray-700">
-        <button onclick="rejectRide()"
-          class="col-span-1 py-6 bg-gray-800 hover:bg-red-900/50 text-gray-400 hover:text-white font-bold text-xl transition-colors uppercase tracking-widest">
-          Decline
-        </button>
-        <button onclick="acceptRide()"
-          class="col-span-2 py-6 bg-yellow-500 hover:bg-yellow-400 text-black font-black text-3xl transition-colors uppercase tracking-widest shadow-[inset_0_0_20px_rgba(0,0,0,0.2)]">
-          ACCEPT RIDE
-        </button>
-      </div>
-
-    </div>
-  </div>
 </body>
 
 </html>

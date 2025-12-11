@@ -24,7 +24,7 @@ router.post('/clear-active', firebaseAuthMiddleware, async (req, res) => {
       { status: { $in: ['requested', 'accepted', 'arrived', 'started'] } },
       { $set: { status: 'cancelled' } }
     );
-    console.log(`🧹 Debug: Cleared ${result.modifiedCount} active rides by ${req.user.email}`);
+
     res.json({ success: true, count: result.modifiedCount });
   } catch (error) {
     console.error('Failed to clear rides:', error);
@@ -58,7 +58,7 @@ router.post('/estimate', [
     const cacheKey = redis.estimateKey(pickup, destination, traffic);
     const cached = await redis.get(cacheKey);
     if (cached) {
-      console.log('✅ Estimate cache hit');
+
       return res.json(cached);
     }
 
@@ -131,7 +131,7 @@ router.post('/location', firebaseAuthMiddleware, async (req, res) => {
     };
     // Sanitize createdAt to fix "Cast to date failed"
     if (driver.createdAt && typeof driver.createdAt === 'object' && driver.createdAt.$date) {
-      console.log('Fixing corrupted createdAt for driver:', driver._id);
+
       driver.createdAt = new Date(driver.createdAt.$date);
     }
     await driver.save();
@@ -232,7 +232,7 @@ router.post('/request', firebaseAuthMiddleware, async (req, res) => {
     });
 
     await ride.save();
-    console.log('✅ Ride saved to MongoDB:', ride._id);
+
 
     // Store in memory for backward compatibility and quick access
     const rideData = {
@@ -342,8 +342,6 @@ router.get('/current', firebaseAuthMiddleware, async (req, res) => {
 
     // Include driver info if assigned
     if (ride.driverId) {
-      console.log('🚗 Driver Info - ID:', ride.driverId._id, 'Name:', ride.driverId.name);
-      console.log('👤 Rider Info - ID:', user._id, 'Name:', user.name);
 
       response.driver = {
         name: ride.driverId.name || 'RapidRide Driver',
@@ -366,14 +364,11 @@ router.get('/route', firebaseAuthMiddleware, async (req, res) => {
   try {
     const { pickup, drop } = req.query; // Expecting "lon,lat" strings
 
-    console.log(`🗺️ Routing Request: ${pickup} -> ${drop}`);
-
     if (!pickup || !drop) {
       return res.status(400).json({ message: 'Pickup and drop coordinates required' });
     }
 
     const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickup};${drop}?overview=full&geometries=geojson`;
-    console.log(`🔗 OSRM URL: ${osrmUrl}`);
 
     const response = await fetch(osrmUrl);
 
@@ -384,7 +379,6 @@ router.get('/route', firebaseAuthMiddleware, async (req, res) => {
     }
 
     const data = await response.json();
-    console.log(`✅ Route calculated successfully`);
     res.json(data);
   } catch (error) {
     console.error('❌ Routing Proxy Error:', error.message);

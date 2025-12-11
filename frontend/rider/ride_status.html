@@ -1102,7 +1102,7 @@
 
     // Initialize
     window.addEventListener('load', async () => {
-      console.log('Page loaded, checking for rides...');
+
 
       // Wait for Firebase auth
       if (typeof firebase !== 'undefined' && firebase.auth) {
@@ -1127,9 +1127,9 @@
       }
 
       // Ensure loading state is visible
+      //conloadingState = document.getElementById('loadingState');
       const loadingState = document.getElementById('loadingState');
       const container = document.querySelector('.container');
-      console.log('Initial state - Loading visible:', loadingState?.style.display, 'Container visible:', container?.style.display);
 
       await loadCurrentRide();
 
@@ -1155,7 +1155,7 @@
           response = await apiFetch('/rides/current');
         }
 
-        console.log('Response status:', response.status);
+
 
         if (response.status === 404) {
           // No active ride, show no ride state
@@ -1173,11 +1173,6 @@
         }
 
         currentRide = response.data;
-        console.log('Current ride loaded:', currentRide);
-        console.log('Ride status:', currentRide.status);
-        console.log('Ride ID:', currentRide._id);
-        console.log('Driver data:', currentRide.driver); // DEBUG: Check driver data
-        console.log('Ride created at:', new Date(currentRide.createdAt || Date.now()).toLocaleString());
 
         // Check if ride exists and has valid status
         if (!currentRide || !currentRide.status) {
@@ -1239,7 +1234,6 @@
     }
 
     function displayRideStatus(ride) {
-      console.log('Displaying ride status:', ride);
 
       // Hide loading state
       const loadingState = document.getElementById('loadingState');
@@ -1345,7 +1339,6 @@
       step1.classList.add('completed');
       currentProgress = 35;
       progressBarFill.style.width = currentProgress + '%';
-      console.log('Progress set to 35%');
 
       // Step 2: Drivers Alerted (after 1 second)
       setTimeout(() => {

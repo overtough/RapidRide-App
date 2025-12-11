@@ -701,20 +701,7 @@
       });
     }
 
-    // Locate user and center map on current location
-    function locateMe() {
-      if (!currentLocation) {
-        alert('Getting your location...');
-        getCurrentLocation();
-        return;
-      }
 
-      // Center map on current location with smooth animation
-      map.setView([currentLocation.lat, currentLocation.lon], 15, {
-        animate: true,
-        duration: 0.5
-      });
-    }
 
     // Initialize map
     function initMap() {
@@ -898,78 +885,79 @@
     // Calculate route
     async function calculateRoute() {
       if (!pickupMarker || !dropMarker) return;
-
-      const pickupLat = pickupMarker.getLatLng().lat;
-      const pickupLon = pickupMarker.getLatLng().lng;
-      const dropLat = dropMarker.getLatLng().lat;
-      const dropLon = dropMarker.getLatLng().lng;
-      // Strategy: Try Client-Side OSRM first (User's IP is likely not blocked)
-      // If that fails (CORS/Error), fall back to Backend Proxy
-
-      let data = null;
-      const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickupLon},${pickupLat};${dropLon},${dropLat}?overview=full&geometries=geojson`;
-
       try {
-        console.log('🗺️ Attempting Client-Side OSRM...');
-        const clientResponse = await fetch(osrmUrl);
-        if (clientResponse.ok) {
-          data = await clientResponse.json();
-          console.log('✅ Client-Side Routing Success');
-        } else {
-          throw new Error('OSRM Client Error: ' + clientResponse.status);
-        }
-      } catch (clientError) {
-        console.warn('⚠️ Client-side routing failed:', clientError);
-        console.log('🔄 Falling back to Backend Proxy...');
 
-        // Fallback to Backend Proxy
-        // Get fresh token from Firebase SDK to ensure validity
-        const user = firebase.auth().currentUser;
-        const token = user ? await user.getIdToken() : localStorage.getItem('token');
+        const pickupLat = pickupMarker.getLatLng().lat;
+        const pickupLon = pickupMarker.getLatLng().lng;
+        const dropLat = dropMarker.getLatLng().lat;
+        const dropLon = dropMarker.getLatLng().lng;
+        // Strategy: Try Client-Side OSRM first (User's IP is likely not blocked)
+        // If that fails (CORS/Error), fall back to Backend Proxy
 
-        if (!token) {
-          console.warn('No auth token available for route calculation');
-          return;
-        }
+        let data = null;
+        const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickupLon},${pickupLat};${dropLon},${dropLat}?overview=full&geometries=geojson`;
 
-        const response = await fetch(
-          `${API_CONFIG.BASE_URL}/rides/route?pickup=${pickupLon},${pickupLat}&drop=${dropLon},${dropLat}`,
-          {
-            headers: {
-              'Authorization': `Bearer ${token}`
+        try {
+          console.log('🗺️ Attempting Client-Side OSRM...');
+          const clientResponse = await fetch(osrmUrl);
+          if (clientResponse.ok) {
+            data = await clientResponse.json();
+            console.log('✅ Client-Side Routing Success');
+          } else {
+            throw new Error('OSRM Client Error: ' + clientResponse.status);
+          }
+        } catch (clientError) {
+          console.warn('⚠️ Client-side routing failed:', clientError);
+          console.log('🔄 Falling back to Backend Proxy...');
+
+          // Fallback to Backend Proxy
+          // Get fresh token from Firebase SDK to ensure validity
+          const user = firebase.auth().currentUser;
+          const token = user ? await user.getIdToken() : localStorage.getItem('token');
+
+          if (!token) {
+            console.warn('No auth token available for route calculation');
+            return;
+          }
+
+          const response = await fetch(
+            `${API_CONFIG.BASE_URL}/rides/route?pickup=${pickupLon},${pickupLat}&drop=${dropLon},${dropLat}`,
+            {
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
             }
-          }
-        );
-        data = await response.json();
+          );
+          data = await response.json();
+        }
+
+        if (data && data.routes && data.routes.length > 0) {
+          const route = data.routes[0];
+          const distance = (route.distance / 1000).toFixed(1); // km
+          const duration = Math.round(route.duration / 60); // minutes
+
+          // Draw route
+          if (routeLine) map.removeLayer(routeLine);
+          routeLine = L.geoJSON(route.geometry, {
+            style: {
+              color: '#6366f1',
+              weight: 4,
+              opacity: 0.7
+            }
+          }).addTo(map);
+
+          // Update UI
+          document.getElementById('distanceValue').textContent = distance + ' km';
+          document.getElementById('timeValue').textContent = duration + ' min';
+          document.getElementById('routeInfo').classList.add('show');
+
+          // Show vehicles
+          showVehicles(parseFloat(distance));
+        }
+      } catch (error) {
+        console.error('Route calculation error:', error);
+        showError('Could not calculate route. Please try again.');
       }
-
-      if (data && data.routes && data.routes.length > 0) {
-        const route = data.routes[0];
-        const distance = (route.distance / 1000).toFixed(1); // km
-        const duration = Math.round(route.duration / 60); // minutes
-
-        // Draw route
-        if (routeLine) map.removeLayer(routeLine);
-        routeLine = L.geoJSON(route.geometry, {
-          style: {
-            color: '#6366f1',
-            weight: 4,
-            opacity: 0.7
-          }
-        }).addTo(map);
-
-        // Update UI
-        document.getElementById('distanceValue').textContent = distance + ' km';
-        document.getElementById('timeValue').textContent = duration + ' min';
-        document.getElementById('routeInfo').classList.add('show');
-
-        // Show vehicles
-        showVehicles(parseFloat(distance));
-      }
-    } catch (error) {
-      console.error('Route calculation error:', error);
-      showError('Could not calculate route. Please try again.');
-    }
     }
 
     // Show available vehicles
