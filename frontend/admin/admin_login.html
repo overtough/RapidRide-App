@@ -1,16 +1,259 @@
 <!doctype html>
-<html lang="en">
+<html>
+
 <head>
-  <meta charset="utf-8">
-  <meta name="viewport" content="width=device-width,initial-scale=1">
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
   <title>Admin Access — RapidRide</title>
-  <script>
-    // Redirect to main signin page
-    // Admins now sign in like regular users with role-based access
-    window.location.href = '../common/signin.html';
-  </script>
+  <link rel="stylesheet" href="../common/css/global.css">
+  <style>
+    body {
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 100vh;
+      background: #0f172a;
+      /* Dark background for admin feel */
+    }
+
+    .auth-container {
+      width: 100%;
+      padding: 1rem;
+      display: flex;
+      justify-content: center;
+    }
+
+    .glass-card {
+      background: rgba(30, 41, 59, 0.7);
+      backdrop-filter: blur(12px);
+      border: 1px solid rgba(255, 255, 255, 0.1);
+      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
+    }
+
+    .error-msg,
+    .success-msg,
+    .info-msg {
+      padding: 0.75rem;
+      border-radius: 8px;
+      margin-bottom: 1rem;
+      display: none;
+      font-size: 0.9rem;
+    }
+
+    .error-msg {
+      background: rgba(239, 68, 68, 0.15);
+      border: 1px solid #ef4444;
+      color: #fca5a5;
+    }
+
+    .success-msg {
+      background: rgba(16, 185, 129, 0.15);
+      border: 1px solid #10b981;
+      color: #6ee7b7;
+    }
+
+    .info-msg {
+      background: rgba(59, 130, 246, 0.15);
+      border: 1px solid #3b82f6;
+      color: #93c5fd;
+    }
+
+    .admin-badge-icon {
+      font-size: 3rem;
+      margin-bottom: 1rem;
+      display: inline-block;
+      background: linear-gradient(135deg, #ef4444, #dc2626);
+      -webkit-background-clip: text;
+      -webkit-text-fill-color: transparent;
+    }
+  </style>
+  <script src="../common/js/config.js"></script>
 </head>
+
 <body>
-  <p style="text-align: center; margin-top: 2rem;">Redirecting to sign in page...</p>
+  <div class="auth-container">
+    <div class="glass-card slide-up"
+      style="max-width: 450px; width: 100%; padding: 2.5rem; border-top: 4px solid #ef4444;">
+      <div class="text-center mb-4">
+        <div class="admin-badge-icon">🔐</div>
+        <h2 style="margin-bottom: 0.5rem; color: white;">Admin Portal</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Restricted Access - Authorized Personnel Only</p>
+      </div>
+
+      <div id="errorMsg" class="error-msg"></div>
+      <div id="successMsg" class="success-msg"></div>
+      <div id="infoMsg" class="info-msg"></div>
+
+      <form id="emailForm">
+        <div class="input-group">
+          <label style="color: var(--text-muted);">Admin Email</label>
+          <input type="email" id="email" class="input-field" placeholder="admin@rapidride.com" required autofocus
+            style="background: rgba(0,0,0,0.2); border-color: rgba(255,255,255,0.1); color: white;">
+        </div>
+
+        <button type="submit" class="btn w-full mt-4"
+          style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; border: none; font-weight: 600; padding: 0.85rem;">
+          Send Login Link
+        </button>
+      </form>
+
+      <div class="text-center mt-4">
+        <p class="text-xs" style="color: var(--text-muted); opacity: 0.7;">
+          IP Address Logged • System Monitored
+        </p>
+      </div>
+    </div>
+  </div>
+
+  <!-- Firebase SDKs -->
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-app-compat.js"></script>
+  <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
+
+  <!-- Firebase Config -->
+  <script src="../common/js/firebase-config.js"></script>
+
+  <script>
+    const errorMsg = document.getElementById('errorMsg');
+    const successMsg = document.getElementById('successMsg');
+    const infoMsg = document.getElementById('infoMsg');
+
+    function showError(message) {
+      errorMsg.textContent = message;
+      errorMsg.style.display = 'block';
+      successMsg.style.display = 'none';
+      infoMsg.style.display = 'none';
+    }
+
+    function showSuccess(message) {
+      successMsg.textContent = message;
+      successMsg.style.display = 'block';
+      errorMsg.style.display = 'none';
+      infoMsg.style.display = 'none';
+    }
+
+    function showInfo(message) {
+      infoMsg.textContent = message;
+      infoMsg.style.display = 'block';
+      errorMsg.style.display = 'none';
+      successMsg.style.display = 'none';
+    }
+
+    // Check if this is a sign-in link
+    window.addEventListener('load', () => {
+      // Check for token first - if valid, go to dashboard
+      const token = localStorage.getItem('token');
+      if (token) {
+        // Simple check, real validation happens on dashboard
+        window.location.href = 'admin_dashboard.html';
+        return;
+      }
+
+      if (window.firebaseAuth && window.firebaseAuth.isSignInWithEmailLink(window.location.href)) {
+        completeSignIn();
+      }
+    });
+
+    // Complete sign-in when user clicks the link
+    async function completeSignIn() {
+      showInfo('Verifying credentials...');
+
+      // Get email from URL parameter (if passed back) or prompt/localStorage
+      let email = window.localStorage.getItem('emailForSignIn');
+
+      if (!email) {
+        email = window.prompt('Please confirm your admin email for security:');
+      }
+
+      if (!email) {
+        showError('Email is required to verify identity');
+        return;
+      }
+
+      try {
+        const result = await window.firebaseAuth.signInWithEmailLink(email, window.location.href);
+        window.localStorage.removeItem('emailForSignIn'); // Clean up
+
+        // Get ID token
+        const idToken = await result.user.getIdToken();
+
+        showSuccess('Authenticated! Redirecting to secure dashboard...');
+
+        // Send to backend to get standard JWT and role check
+        const response = await fetch(`${API_CONFIG.BASE_URL}/auth/firebase-email`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json'
+          },
+          body: JSON.stringify({
+            email: result.user.email,
+            idToken: idToken
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          if (data.user.role !== 'admin') {
+            showError('Access Denied: You do not have administrator privileges.');
+            await window.firebaseAuth.signOut();
+            return;
+          }
+
+          localStorage.setItem('token', data.token);
+          localStorage.setItem('user', JSON.stringify(data.user));
+
+          setTimeout(() => {
+            window.location.href = 'admin_dashboard.html';
+          }, 1000);
+        } else {
+          showError(data.message || 'Authentication failed');
+        }
+
+      } catch (error) {
+        console.error('Sign-in error:', error);
+        showError(error.message || 'Verification failed. Link may have expired.');
+      }
+    }
+
+    // Send sign-in link
+    document.getElementById('emailForm').addEventListener('submit', async (e) => {
+      e.preventDefault();
+
+      const btn = e.target.querySelector('button[type="submit"]');
+      const email = document.getElementById('email').value;
+
+      if (!window.firebaseConfigured) {
+        showError('System configuration error (Firebase). Contact support.');
+        return;
+      }
+
+      btn.textContent = 'Sending Secure Link...';
+      btn.disabled = true;
+      errorMsg.style.display = 'none';
+      successMsg.style.display = 'none';
+
+      try {
+        const actionCodeSettings = {
+          // Use current URL to return to this same page
+          url: window.location.href,
+          handleCodeInApp: true
+        };
+
+        await window.firebaseAuth.sendSignInLinkToEmail(email, actionCodeSettings);
+        window.localStorage.setItem('emailForSignIn', email);
+
+        showSuccess(`✅ Login link sent to ${email}. Check your inbox.`);
+        document.getElementById('email').value = '';
+
+      } catch (error) {
+        console.error('Error sending link:', error);
+        showError(error.message || 'Failed to send login link.');
+      } finally {
+        btn.textContent = 'Send Login Link';
+        btn.disabled = false;
+      }
+    });
+  </script>
 </body>
+
 </html>

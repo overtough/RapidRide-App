@@ -24,7 +24,7 @@ async function createAdmin() {
   try {
     console.log('\n🔐 CREATE ADMIN ACCOUNT\n');
     console.log('═'.repeat(50));
-    
+
     // Get email
     const email = await question('Enter admin email: ');
     if (!email) {
@@ -62,9 +62,19 @@ async function createAdmin() {
     await mongoose.connect(MONGODB_URI);
     console.log('✅ Connected to MongoDB');
 
+    // Check for ANY existing admin first (Singleton Policy)
+    const existingAdmin = await User.findOne({ role: 'admin' });
+    if (existingAdmin && existingAdmin.email !== email) {
+      console.error('\n❌ ACCESS DENIED: A Super Admin already exists!');
+      console.error(`   Current Admin: ${existingAdmin.email}`);
+      console.error('   security policy restricts the system to ONE admin account.');
+      await mongoose.connection.close();
+      process.exit(1);
+    }
+
     // Check if user already exists
     const existingUser = await User.findOne({ email });
-    
+
     if (existingUser) {
       if (existingUser.role === 'admin') {
         console.log('ℹ️  User already exists and is already an admin');

@@ -425,7 +425,9 @@ router.get('/route', firebaseAuthMiddleware, async (req, res) => {
       Math.cos(φ1) * Math.cos(φ2) *
       Math.sin(Δλ / 2) * Math.sin(Δλ / 2);
     const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
-    const distanceMeters = R * c; // in meters
+
+    // Tortuosity Factor: Multiply by 1.5 to estimate actual road distance
+    const distanceMeters = (R * c) * 1.5;
 
     // Estimate duration (assume 30km/h average speed in city)
     // 30 km/h = 8.33 m/s
