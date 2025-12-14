@@ -387,7 +387,11 @@ router.get('/route', firebaseAuthMiddleware, async (req, res) => {
 
     const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickup};${drop}?overview=full&geometries=geojson`;
 
-    const response = await fetch(osrmUrl);
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 3000); // 3s Timeout
+
+    const response = await fetch(osrmUrl, { signal: controller.signal });
+    clearTimeout(timeout);
 
     if (!response.ok) {
       const errorText = await response.text();

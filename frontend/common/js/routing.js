@@ -32,8 +32,12 @@
             for (const baseUrl of mirrors) {
                 const url = `${baseUrl}/${startLng},${startLat};${endLng},${endLat}?overview=full&geometries=geojson`;
                 try {
-                    // console.log(`🗺️ Routing via ${baseUrl}...`);
-                    const response = await fetch(url);
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 2000); // 2s Timeout
+
+                    const response = await fetch(url, { signal: controller.signal });
+                    clearTimeout(timeoutId);
+
                     if (response.ok) {
                         const data = await response.json();
                         if (data.routes && data.routes.length > 0) {
@@ -41,7 +45,7 @@
                         }
                     }
                 } catch (err) {
-                    console.warn(`⚠️ Routing failed on ${baseUrl}:`, err.message);
+                    console.warn(`⚠️ Routing failed on ${baseUrl}:`, err.name === 'AbortError' ? 'Timeout' : err.message);
                 }
             }
 
