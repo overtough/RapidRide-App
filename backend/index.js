@@ -84,8 +84,8 @@ app.use((req, res, next) => {
 // Rate limiter for auth endpoints
 const authLimiter = rateLimit({
   windowMs: 15 * 60 * 1000, // 15 minutes
-  max: 5, // 5 requests per window
-  message: 'Too many authentication attempts, please try again later',
+  max: 100, // Increased from 5 to 100 for testing
+  message: { message: 'Too many authentication attempts, please try again later' },
   standardHeaders: true,
   legacyHeaders: false,
   validate: { trustProxy: false }
@@ -94,8 +94,8 @@ const authLimiter = rateLimit({
 // Rate limiter for general API
 const apiLimiter = rateLimit({
   windowMs: 1 * 60 * 1000, // 1 minute
-  max: 100, // 100 requests per minute
-  message: 'Too many requests, please slow down',
+  max: 300, // Increased from 100 to 300
+  message: { message: 'Too many requests, please slow down' },
   standardHeaders: true,
   legacyHeaders: false,
   validate: { trustProxy: false }
