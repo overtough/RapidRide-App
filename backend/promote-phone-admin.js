@@ -21,8 +21,11 @@ async function promoteAdmin() {
         await mongoose.connect(MONGODB_URI);
         console.log('✅ Connected.');
 
-        console.log(`🔍 Looking for user with phone: ${TARGET_PHONE}`);
-        const user = await User.findOne({ phone: TARGET_PHONE });
+        // Search for phone with or without +91
+        const searchPhones = [TARGET_PHONE, `+91${TARGET_PHONE}`];
+        console.log(`🔍 Looking for user with phone: ${searchPhones.join(' or ')}`);
+
+        const user = await User.findOne({ phone: { $in: searchPhones } });
 
         if (!user) {
             console.error('❌ User not found! Please ensure they have signed up first.');
