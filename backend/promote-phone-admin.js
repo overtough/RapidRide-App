@@ -2,12 +2,13 @@
 const mongoose = require('mongoose');
 const User = require('./models/user');
 const bcrypt = require('bcryptjs');
+require('dotenv').config();
 
-// Use the environment variable from Railway
-const MONGODB_URI = process.env.MONGODB_URI;
+// Use the environment variable from Railway (MONGO_URI) or fallback
+const MONGODB_URI = process.env.MONGO_URI || process.env.MONGODB_URI;
 
 if (!MONGODB_URI) {
-    console.error('❌ MONGODB_URI is missing. Are you running this in Railway?');
+    console.error('❌ MONGODB_URI (or MONGO_URI) is missing. Are you running this in Railway?');
     process.exit(1);
 }
 
