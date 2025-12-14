@@ -24,9 +24,11 @@
             }
 
             // OSRM Public Servers (Mirrors for robustness)
+            // OSRM Public Servers (Mirrors for robustness)
+            // Prioritize openstreetmap.de (More stable) over project-osrm.org
             const mirrors = [
-                'https://router.project-osrm.org/route/v1/driving',
-                'https://routing.openstreetmap.de/routed-car/route/v1/driving'
+                'https://routing.openstreetmap.de/routed-car/route/v1/driving',
+                'https://router.project-osrm.org/route/v1/driving'
             ];
 
             for (const baseUrl of mirrors) {

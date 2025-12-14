@@ -385,7 +385,8 @@ router.get('/route', firebaseAuthMiddleware, async (req, res) => {
       return res.status(400).json({ message: 'Pickup and drop coordinates required' });
     }
 
-    const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickup};${drop}?overview=full&geometries=geojson`;
+    // Use stable German OSRM server instead of project-osrm.org
+    const osrmUrl = `https://routing.openstreetmap.de/routed-car/route/v1/driving/${pickup};${drop}?overview=full&geometries=geojson`;
 
     const controller = new AbortController();
     const timeout = setTimeout(() => controller.abort(), 3000); // 3s Timeout
