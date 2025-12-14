@@ -14,7 +14,7 @@
          */
         getRoute: async function (start, end) {
             const startLat = start.lat;
-            const startLng = start.lng || start.lon; // Handle both key names
+            const startLng = start.lng || start.lon;
             const endLat = end.lat;
             const endLng = end.lng || end.lon;
 
@@ -23,60 +23,29 @@
                 return null;
             }
 
-            // 1. Try Client-Side OSRM (Direct Browser Request)
-            // This is fastest and works for most users (unless their network scrapes/blocks it)
-            const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${startLng},${startLat};${endLng},${endLat}?overview=full&geometries=geojson`;
+            // OSRM Public Servers (Mirrors for robustness)
+            const mirrors = [
+                'https://router.project-osrm.org/route/v1/driving',
+                'https://routing.openstreetmap.de/routed-car/route/v1/driving'
+            ];
 
-            try {
-                // console.log('🗺️ Attempting Client-Side OSRM...');
-                const response = await fetch(osrmUrl);
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.routes && data.routes.length > 0) {
-                        // console.log('✅ Client-Side Routing Success');
-                        return data.routes[0];
-                    }
-                }
-                throw new Error('OSRM Client Error: ' + response.status);
-            } catch (clientError) {
-                console.warn('⚠️ Client-side routing failed, trying proxy...', clientError.message);
-            }
-
-            // 2. Fallback to Backend Proxy
-            // The backend handles CORS and has a "straight-line" mathematical fallback for 502s
-            try {
-                // Get Auth Token
-                let token = localStorage.getItem('token');
-                if (window.firebase && firebase.auth().currentUser) {
-                    token = await firebase.auth().currentUser.getIdToken();
-                }
-
-                if (!token) {
-                    console.warn('Routing: No auth token for proxy');
-                    return null;
-                }
-
-                // console.log('🔄 Asking Backend Proxy...');
-                const response = await fetch(
-                    `${API_CONFIG.BASE_URL}/rides/route?pickup=${startLng},${startLat}&drop=${endLng},${endLat}`,
-                    {
-                        headers: {
-                            'Authorization': `Bearer ${token}`
+            for (const baseUrl of mirrors) {
+                const url = `${baseUrl}/${startLng},${startLat};${endLng},${endLat}?overview=full&geometries=geojson`;
+                try {
+                    // console.log(`🗺️ Routing via ${baseUrl}...`);
+                    const response = await fetch(url);
+                    if (response.ok) {
+                        const data = await response.json();
+                        if (data.routes && data.routes.length > 0) {
+                            return data.routes[0];
                         }
                     }
-                );
-
-                if (response.ok) {
-                    const data = await response.json();
-                    if (data.routes && data.routes.length > 0) {
-                        // console.log('✅ Backend Proxy Routing Success');
-                        return data.routes[0];
-                    }
+                } catch (err) {
+                    console.warn(`⚠️ Routing failed on ${baseUrl}:`, err.message);
                 }
-            } catch (proxyError) {
-                console.error('❌ All routing attempts failed:', proxyError);
             }
 
+            console.error('❌ All client-side routing attempts failed.');
             return null;
         }
     };

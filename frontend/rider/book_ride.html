@@ -649,6 +649,7 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="../common/js/firebase-config.js"></script>
   <script src="../common/js/auth.js"></script>
+  <script src="../common/js/routing.js"></script>
   <script src="../common/js/location-autocomplete.js"></script>
   <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 
@@ -895,40 +896,21 @@
         // If that fails (CORS/Error), fall back to Backend Proxy
 
         let data = null;
-        const osrmUrl = `https://router.project-osrm.org/route/v1/driving/${pickupLon},${pickupLat};${dropLon},${dropLat}?overview=full&geometries=geojson`;
-
         try {
-          console.log('🗺️ Attempting Client-Side OSRM...');
-          const clientResponse = await fetch(osrmUrl);
-          if (clientResponse.ok) {
-            data = await clientResponse.json();
-            console.log('✅ Client-Side Routing Success');
+          const route = await RapidRideRouting.getRoute(
+            { lat: pickupLat, lng: pickupLon },
+            { lat: dropLat, lng: dropLon }
+          );
+
+          if (route) {
+            data = { routes: [route] };
+            console.log('✅ Routing Success');
           } else {
-            throw new Error('OSRM Client Error: ' + clientResponse.status);
+            throw new Error('Routing failed');
           }
         } catch (clientError) {
-          console.warn('⚠️ Client-side routing failed:', clientError);
-          console.log('🔄 Falling back to Backend Proxy...');
-
-          // Fallback to Backend Proxy
-          // Get fresh token from Firebase SDK to ensure validity
-          const user = firebase.auth().currentUser;
-          const token = user ? await user.getIdToken() : localStorage.getItem('token');
-
-          if (!token) {
-            console.warn('No auth token available for route calculation');
-            return;
-          }
-
-          const response = await fetch(
-            `${API_CONFIG.BASE_URL}/rides/route?pickup=${pickupLon},${pickupLat}&drop=${dropLon},${dropLat}`,
-            {
-              headers: {
-                'Authorization': `Bearer ${token}`
-              }
-            }
-          );
-          data = await response.json();
+          console.warn('⚠️ Routing failed:', clientError);
+          // Fallback to straight line handled outside or just fail gracefully
         }
 
         if (data && data.routes && data.routes.length > 0) {
