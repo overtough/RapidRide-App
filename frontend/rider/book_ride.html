@@ -937,15 +937,35 @@
           console.warn('⚠️ Client-side routing failed, trying backend proxy:', clientError);
 
           // 2. Fallback to Backend Proxy (Reliable, handles CORS/Secrets)
+          // Define these outside try-catch for error logging scope
+          const pickupStr = `${pickupLon},${pickupLat}`;
+          const dropStr = `${dropLon},${dropLat}`;
+
           try {
-            // Backend expects "lon,lat" format
-            const pickupStr = `${pickupLon},${pickupLat}`;
-            const dropStr = `${dropLon},${dropLat}`;
-            const token = localStorage.getItem('token');
+            // Get token - try multiple sources
+            let token = localStorage.getItem('rr_token') || localStorage.getItem('token');
+
+            // Try getting fresh token from Firebase if available
+            if (firebase.auth().currentUser) {
+              token = await firebase.auth().currentUser.getIdToken();
+            }
+
+            if (!token) {
+              console.warn('⚠️ No auth token found for routing request');
+              // Redirect to login if no token? For now just try without or fail
+            }
 
             const response = await fetch(`${API_CONFIG.BASE_URL}/rides/route?pickup=${pickupStr}&drop=${dropStr}`, {
-              headers: { 'Authorization': `Bearer ${token}` }
+              headers: {
+                'Authorization': `Bearer ${token}`
+              }
             });
+
+            if (response.status === 401) {
+              console.error('❌ Backend routing unauthorized (401). Token might be expired.');
+              // Optionally redirect to login: window.location.href = '../common/login.html';
+              throw new Error('Authentication failed');
+            }
 
             if (!response.ok) throw new Error('Backend routing failed');
 
