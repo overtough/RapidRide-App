@@ -23,8 +23,47 @@
                 return null;
             }
 
-            // OSRM Public Servers (Mirrors for robustness)
-            // OSRM Public Servers (Mirrors for robustness)
+            // 1. OpenRouteService (High Quality, requires Key)
+            // ----------------------------------------------------
+            // 🔴 IMPORTANT: PASTE YOUR API KEY HERE
+            const ORS_API_KEY = '5b3ce3597851110001cf6248cc94b595213645cb972166663f730c45';
+            // ----------------------------------------------------
+
+            if (ORS_API_KEY && ORS_API_KEY !== 'YOUR_API_KEY_HERE') {
+                try {
+                    const orsUrl = `https://api.openrouteservice.org/v2/directions/driving-car?start=${startLng},${startLat}&end=${endLng},${endLat}`;
+
+                    const controller = new AbortController();
+                    const timeoutId = setTimeout(() => controller.abort(), 3000);
+
+                    const response = await fetch(orsUrl, {
+                        headers: { 'Authorization': ORS_API_KEY },
+                        signal: controller.signal
+                    });
+                    clearTimeout(timeoutId);
+
+                    if (response.ok) {
+                        const data = await response.json();
+                        // ORS returns GeoJSON FeatureCollection. Convert to OSRM format for compatibility.
+                        if (data.features && data.features.length > 0) {
+                            const feature = data.features[0];
+                            return {
+                                geometry: feature.geometry,
+                                distance: feature.properties.summary.distance,
+                                duration: feature.properties.summary.duration,
+                                weight_name: 'ors',
+                                weight: feature.properties.summary.duration
+                            };
+                        }
+                    } else {
+                        console.warn('⚠️ ORS Failed:', response.status);
+                    }
+                } catch (err) {
+                    console.warn('⚠️ ORS Error:', err.message);
+                }
+            }
+
+            // 2. OSRM Public Servers (Mirrors for robustness)
             // Prioritize openstreetmap.de (More stable) over project-osrm.org
             const mirrors = [
                 'https://routing.openstreetmap.de/routed-car/route/v1/driving',
