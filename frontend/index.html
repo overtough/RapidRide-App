@@ -1,163 +1,211 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="en">
+
 <head>
-  <meta charset="utf-8" />
-  <meta name="viewport" content="width=device-width,initial-scale=1" />
-  <title>RapidRide | Next Gen Mobility</title>
-  <link rel="stylesheet" href="common/css/global.css">
-  
-  <!-- Config: change the api-base meta or override window.APP_API_BASE at runtime -->
-  <style>
-    /* Landing Page Specific Styles */
-    .hero-section {
-      min-height: 100vh;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      padding: 2rem;
-      position: relative;
-    }
-    
-    .hero-content {
-      max-width: 500px;
-      text-align: center;
-    }
-    
-    .logo-container {
-      margin-bottom: 2rem;
-    }
-    
-    .logo-container img {
-      height: 80px;
-    }
-    
-    .action-grid {
-      display: grid;
-      gap: 1rem;
-      width: 100%;
-    }
-    
-    .status-bar {
-      margin-top: 2rem;
-      padding-top: 1rem;
-      border-top: 1px solid var(--glass-border);
-      font-size: 0.875rem;
-      color: var(--text-muted);
-      display: flex;
-      justify-content: center;
-      gap: 0.5rem;
-    }
-    
-    .status-dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 50%;
-      background: #22c55e;
-      box-shadow: 0 0 10px #22c55e;
-    }
-  </style>
-  <script src="../../../../../../common/js/config.js"></script>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <title>RapidRide | Simple. Fast. Safe.</title>
+
+  <!-- Clean Beige Theme -->
+  <link rel="stylesheet" href="common/css/landing.css">
+  <script src="common/js/config.js"></script>
 </head>
+
 <body>
 
-  <main class="hero-section">
-    <div class="glass-card hero-content slide-up">
-      <div class="logo-container">
-        <!-- Placeholder for logo if missing, or use existing -->
+  <!-- Navbar -->
+  <nav class="navbar">
+    <div class="container">
+      <a href="#" class="brand">
         <img src="assets/logo.png" alt="RapidRide" onerror="this.style.display='none'">
-        <h1 class="brand-title">RapidRide</h1>
-      </div>
-      
-      <p class="brand-subtitle">Fast, secure, and reliable rides at your fingertips.</p><br>
+        RapidRide
+      </a>
 
-      <div class="action-grid">
-        <a href="common/signin-phone.html" class="btn btn-primary">🔥 Sign In with Phone</a>
-        <a href="common/verify-phone.html" class="btn btn-secondary">📱 Create Account</a>
-        <a href="common/signin.html" class="btn" style="background: rgba(99, 102, 241, 0.05); border: 1px solid rgba(99, 102, 241, 0.2);">📧 Email (Secondary)</a>
+      <div class="nav-links">
+        <a href="#services" class="nav-link">Fleets</a>
+        <a href="#features" class="nav-link">Features</a>
+        <a href="#about" class="nav-link">About</a>
       </div>
 
-      <!-- <div class="status-bar">
-        <div id="statusIndicator" class="status-dot" style="background: var(--text-muted); box-shadow: none;"></div>
-        <span id="status">System Ready</span>
-      </div> -->
+      <div class="nav-actions">
+        <a href="common/signin-phone.html" class="btn btn-secondary">Login</a>
+        <a href="common/verify-phone.html" class="btn btn-primary">Sign Up</a>
+      </div>
     </div>
-  </main>
+  </nav>
 
-  <script>
-    // Application configuration and helpers to make it easy to wire a backend later.
-    (function () {
-      // Read default from meta tag
-      function readMeta(name) {
-        var el = document.querySelector('meta[name="' + name + '"]');
-        return el ? el.getAttribute('content') : null;
-      }
+  <!-- Hero Section -->
+  <section class="hero-section">
+    <div class="container hero-grid">
 
-      var defaultApiBase = readMeta('api-base') || '`${API_CONFIG.BASE_URL}';
+      <div class="hero-content">
+        <h1>Rides that feel<br><span style="color: #D4AF37;">effortless.</span></h1>
+        <p>From quick bike rides to premium cabs, getting around the city has never been smoother. Book a ride in
+          seconds.</p>
+        <div>
+          <a href="common/verify-phone.html" class="btn btn-primary" style="padding: 1rem 2rem; font-size: 1.1rem;">Get
+            Started</a>
+        </div>
+      </div>
 
-      // Allow overriding via global BEFORE this script runs: window.APP_API_BASE
-      var apiBase = (window.APP_API_BASE && String(window.APP_API_BASE).trim()) || defaultApiBase;
+      <!-- Clean, minimal hero image (Abstract or 3D Render) -->
+      <img
+        src="https://images.pexels.com/photos/315938/pexels-photo-315938.jpeg?auto=compress&cs=tinysrgb&w=1260&h=750&dpr=1"
+        class="hero-image" alt="Minimal Ride">
+    </div>
+  </section>
 
-      // Expose a simple appConfig
-      window.appConfig = {
-        apiBase: apiBase,
-        setApiBase: function (b) { this.apiBase = b; }
-      };
+  <!-- Services / Ways to Ride (Carousel) -->
+  <section id="services" class="section services-section">
+    <div class="container">
+      <div class="text-center mb-4">
+        <h2>Ways to Ride</h2>
+        <p>Choose the perfect ride for your journey.</p>
+      </div>
 
-      // Basic API fetch wrapper: prepends base, sends/receives JSON and attaches auth token if present
-      window.apiFetch = async function (path, options) {
-        var base = window.appConfig.apiBase.replace(/\/$/, '');
-        var url = path.indexOf('http') === 0 ? path : base + (path.indexOf('/') === 0 ? path : '/' + path);
-        options = options || {};
-        options.headers = options.headers || {};
-        if (options.body && !(options.body instanceof FormData)) {
-          options.headers['Content-Type'] = 'application/json';
-          options.body = JSON.stringify(options.body);
-        }
-        var token = localStorage.getItem('rr_token');
-        if (token) options.headers['Authorization'] = 'Bearer ' + token;
+      <!-- Unified Carousel -->
+      <div class="carousel-container">
+        <!-- Rapid Bike -->
+        <div class="carousel-card">
+          <span class="carousel-icon">🏍️</span>
+          <h3>Rapid Bike</h3>
+          <p>Beat the traffic with our fastest two-wheeler options.</p>
+        </div>
+        <!-- Rapid Auto -->
+        <div class="carousel-card">
+          <span class="carousel-icon">🛺</span>
+          <h3>Rapid Auto</h3>
+          <p>Affordable daily commuting. No haggling, just book and go.</p>
+        </div>
+        <!-- Comfort Cab -->
+        <div class="carousel-card">
+          <span class="carousel-icon">🚕</span>
+          <h3>Comfort Cab</h3>
+          <p>Air-conditioned sedans for top-tier comfort and style.</p>
+        </div>
+        <!-- Intercity -->
+        <div class="carousel-card">
+          <span class="carousel-icon">🏙️</span>
+          <h3>Intercity</h3>
+          <p>Comfortable rides to nearby cities. Travel anytime.</p>
+        </div>
+        <!-- Shuttle -->
+        <div class="carousel-card">
+          <span class="carousel-icon">🚐</span>
+          <h3>Shuttle</h3>
+          <p>Daily commute made easy. Fixed routes, fixed prices.</p>
+        </div>
+        <!-- Pooling -->
+        <div class="carousel-card">
+          <span class="carousel-icon">👥</span>
+          <h3>Pooling</h3>
+          <p>Share your ride, save money, and make new connections.</p>
+        </div>
+        <!-- Rentals -->
+        <div class="carousel-card">
+          <span class="carousel-icon">⏳</span>
+          <h3>Rentals</h3>
+          <p>Book a car for the whole day. Multiple stops, no stress.</p>
+        </div>
+        <!-- Lux -->
+        <div class="carousel-card">
+          <span class="carousel-icon">✨</span>
+          <h3>Lux</h3>
+          <p>Top-of-the-line luxury cars for your special occasions.</p>
+        </div>
+      </div>
+    </div>
+  </section>
 
-        var res = await fetch(url, options);
-        var text = await res.text();
-        try { return { ok: res.ok, status: res.status, data: text ? JSON.parse(text) : null }; }
-        catch (e) { return { ok: res.ok, status: res.status, data: text }; }
-      };
+  <!-- Use Cases / Value Props -->
+  <section id="features" class="section">
+    <div class="container">
+      <div class="text-center mb-4">
+        <h2>There's a RapidRide for everyone</h2>
+        <p>Mobility solutions tailored to your needs.</p>
+      </div>
 
-      // Simple auth helpers
-      window.auth = {
-        saveToken: function (t) { localStorage.setItem('rr_token', t); },
-        getToken: function () { return localStorage.getItem('rr_token'); },
-        clear: function () { localStorage.removeItem('rr_token'); }
-      };
+      <div class="services-grid">
+        <!-- Budget -->
+        <div class="service-card" style="background: white; border: 1px solid var(--glass-border);">
+          <div class="service-icon" style="background: var(--bg-sand);">💰</div>
+          <h3>For any budget</h3>
+          <p>From Bikes and Autos to Prime Sedans and Prime SUVs, you will find a ride in your budget at your
+            convenience any time.</p>
+        </div>
 
-      // Test backend button - will call `${apiBase}/health` then show result. Backend should implement a health route.
-      // document.getElementById('testBackend').addEventListener('click', async function () {
-      //   var el = document.getElementById('status');
-      //   var dot = document.getElementById('statusIndicator');
-        
-      //   el.textContent = 'Pinging backend...';
-      //   dot.style.background = '#eab308'; // yellow
-      //   dot.style.boxShadow = '0 0 10px #eab308';
-        
-      //   try {
-      //     var r = await window.apiFetch('/health', { method: 'GET' });
-      //     if (r.ok) {
-      //       el.textContent = 'Online: ' + (r.data ? JSON.stringify(r.data) : 'OK');
-      //       dot.style.background = '#22c55e'; // green
-      //       dot.style.boxShadow = '0 0 10px #22c55e';
-      //     } else {
-      //       el.textContent = 'Backend Error: ' + r.status;
-      //       dot.style.background = '#ef4444'; // red
-      //       dot.style.boxShadow = '0 0 10px #ef4444';
-      //     }
-      //   } catch (err) {
-      //     el.textContent = 'Connection Failed';
-      //     dot.style.background = '#ef4444'; // red
-      //     dot.style.boxShadow = '0 0 10px #ef4444';
-      //   }
-      // });
+        <!-- Distance -->
+        <div class="service-card" style="background: white; border: 1px solid var(--glass-border);">
+          <div class="service-icon" style="background: var(--bg-sand);">🛣️</div>
+          <h3>For any distance</h3>
+          <p>Book rides within the city with Daily, or take a trip to your favourite destinations outside the city with
+            Outstation.</p>
+        </div>
 
-    })();
-  </script>
-  <script src="common/js/auth.js"></script>
+        <!-- Duration -->
+        <div class="service-card" style="background: white; border: 1px solid var(--glass-border);">
+          <div class="service-icon" style="background: var(--bg-sand);">⏱️</div>
+          <h3>For any duration</h3>
+          <p>Easily plan a day out without having to worry about conveyance with an hour-based package from Rental.</p>
+        </div>
+      </div>
+
+      <!-- Keep Hyderabad Section below as a separate block since it was a specific request -->
+      <div id="about" class="feature-row reverse" style="margin-top: 6rem;">
+        <img src="assets/charminar.jpg" class="feature-image" alt="Hyderabad Charminar">
+        <div class="feature-content">
+          <h2>Born in <span style="color: #D4AF37;">Hyderabad.</span></h2>
+          <p>RapidRide is proud to be built for the City of Pearls. Connecting Hitech City to the Old City with safe,
+            reliable rides.</p>
+          <a href="#" class="btn btn-secondary" style="margin-top: 1rem;">Our Story</a>
+        </div>
+      </div>
+
+      <!-- More Ways to Ride (Carousel) -->
+
+
+    </div>
+  </section>
+
+  <!-- Footer -->
+  <footer>
+    <div class="container">
+      <div class="footer-grid">
+        <div class="footer-brand">
+          <h3>RapidRide</h3>
+          <p>Simplifying urban mobility for everyone.</p>
+        </div>
+        <div>
+          <h4>Company</h4>
+          <ul>
+            <li><a href="#">About</a></li>
+            <li><a href="#">Careers</a></li>
+            <li><a href="#">Blog</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Product</h4>
+          <ul>
+            <li><a href="#">Ride</a></li>
+            <li><a href="#">Drive</a></li>
+            <li><a href="#">Deliver</a></li>
+          </ul>
+        </div>
+        <div>
+          <h4>Support</h4>
+          <ul>
+            <li><a href="#">Help Center</a></li>
+            <li><a href="#">Terms of Service</a></li>
+            <li><a href="#">Privacy Policy</a></li>
+          </ul>
+        </div>
+      </div>
+      <div class="text-center" style="margin-top: 3rem; color: var(--text-secondary); font-size: 0.9rem;">
+        &copy; 2025 RapidRide.
+      </div>
+    </div>
+  </footer>
+
 </body>
+
 </html>

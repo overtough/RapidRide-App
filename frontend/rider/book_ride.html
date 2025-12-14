@@ -70,10 +70,32 @@
     @media (max-width: 1024px) {
       .booking-grid {
         grid-template-columns: 1fr;
+        gap: 1rem;
       }
 
+      .container {
+        padding: 1rem;
+      }
+
+      .topbar {
+        padding: 0.8rem 1rem;
+      }
+
+      /* On mobile, map should be visible but not take full height */
       #map {
-        height: 400px !important;
+        height: 40vh !important;
+        min-height: 300px;
+        order: -1;
+        /* Show map first on mobile */
+      }
+
+      .map-container {
+        margin-bottom: 1rem;
+      }
+
+      .booking-panel {
+        border-radius: var(--radius-lg) var(--radius-lg) 0 0;
+        box-shadow: 0 -4px 20px rgba(0, 0, 0, 0.2);
       }
     }
 
@@ -649,8 +671,8 @@
   <script src="https://www.gstatic.com/firebasejs/9.23.0/firebase-auth-compat.js"></script>
   <script src="../common/js/firebase-config.js"></script>
   <script src="../common/js/auth.js"></script>
-  <script src="../common/js/routing.js"></script>
-  <script src="../common/js/location-autocomplete.js"></script>
+  <script src="../common/js/routing.js?v=2"></script>
+  <script src="../common/js/location-autocomplete.js?v=2"></script>
   <script src="https://cdn.socket.io/4.5.4/socket.io.min.js"></script>
 
   <script>
@@ -905,9 +927,10 @@
           );
 
           if (route) {
-            console.log('✅ Client-side routing success');
+            console.log('✅ Client-side routing success', route);
             data = { routes: [route] };
           } else {
+            console.warn('⚠️ Client-side routing returned null');
             throw new Error('Client-side routing failed');
           }
         } catch (clientError) {
@@ -927,9 +950,10 @@
             if (!response.ok) throw new Error('Backend routing failed');
 
             data = await response.json();
-            console.log('✅ Backend routing success');
+            console.log('✅ Backend routing success', data);
           } catch (backendError) {
             console.error('❌ All routing attempts failed:', backendError);
+            console.error('Backend fallback URL used:', `${API_CONFIG.BASE_URL}/rides/route?pickup=${pickupStr}&drop=${dropStr}`);
             showError('Could not calculate route. Please try again.');
             return;
           }
