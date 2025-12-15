@@ -239,9 +239,10 @@ router.post('/request', firebaseAuthMiddleware, async (req, res) => {
         lng: destination.lng
       },
       vehicleType: vehicleType || 'Car',
-      fare: calculatedFare, // Use consistency-fixed fare
+      vehicleType: vehicleType || 'Car',
+      fare: fareData.fare, // Use ML-predicted fare
       distance: fareData.distance_km,
-      duration: Math.round(etaData.eta_seconds / 60),
+      duration: Math.round(etaData.eta_seconds / 60), // Use ML-predicted ETA
       paymentMethod: payment_method || 'cash',
       scheduled: scheduled || false,
       scheduledTime: scheduledTime || null,
