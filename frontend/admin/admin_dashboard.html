@@ -787,8 +787,8 @@
           } catch (e) { console.warn('Firebase signout error', e); }
         }
 
-        // 4. Redirect to ADMIN login
-        window.location.href = 'admin_login.html';
+        // 4. Redirect to ADMIN login with logout flag
+        window.location.href = 'admin_login.html?logout=true';
       }
     }
 
