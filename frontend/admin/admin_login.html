@@ -261,13 +261,17 @@
       }
     }
 
-    // Default to email login since that's what we just set up
-    switchTab('email');
+    // Default to phone login
+    switchTab('phone');
 
     // Initialize Recaptcha (only needed for phone flow)
     window.onload = function () {
-      localStorage.removeItem('token');
-      localStorage.removeItem('user');
+      // Don't clear tokens - this was causing refresh loop!
+      // Only clear if explicitly coming from a logout
+      if (window.location.search.includes('logout=true')) {
+        localStorage.removeItem('token');
+        localStorage.removeItem('user');
+      }
 
       window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
         'size': 'normal',
