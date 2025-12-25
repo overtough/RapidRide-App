@@ -39,4 +39,4 @@ HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 \
 # RUN python generate_training_data.py
 
 # Run the application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8001"]
+CMD python -c "import os; os.system(f'uvicorn app.main:app --host 0.0.0.0 --port {os.getenv(\"PORT\", \"8001\")}')"
