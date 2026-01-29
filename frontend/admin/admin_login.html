@@ -189,11 +189,14 @@
     const successMsg = document.getElementById('successMsg');
     let confirmationResult = null;
 
-    function showError(msg) {
-      errorMsg.textContent = msg;
+    function showError(msg, details = '') {
+      errorMsg.innerHTML = `<strong>Error:</strong> ${msg}`;
+      if (details) {
+        errorMsg.innerHTML += `<br><small style="opacity:0.8; font-size:0.8em; margin-top:4px; display:block;">${details}</small>`;
+      }
       errorMsg.style.display = 'block';
       successMsg.style.display = 'none';
-      setTimeout(() => errorMsg.style.display = 'none', 5000);
+      // Removed auto-hide to allow debugging
     }
 
     function showSuccess(msg) {
@@ -334,14 +337,13 @@
         }
 
       } catch (error) {
-        console.error(error);
-        showError(error.message || 'Verification Failed');
+        console.error('Login Error:', error);
+        showError('Verification Failed', error.message || error);
         btn.disabled = false;
         btn.textContent = 'Verify & Login';
 
-        // Clear inputs on failure
-        inputs.forEach(i => i.value = '');
-        inputs[0].focus();
+        // DO NOT reload page
+        // DO NOT clear inputs automatically so user can see what they typed
       }
     }
   </script>
