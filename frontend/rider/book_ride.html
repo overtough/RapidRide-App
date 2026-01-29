@@ -287,18 +287,22 @@
           createMarker: function () { return null; } // Don't create default markers
         }).addTo(map);
 
-        // Fit map to show both markers
-        const bounds = L.latLngBounds([
-          [pickupLocation.lat, pickupLocation.lng],
-          [dropLocation.lat, dropLocation.lng]
-        ]);
-        map.fitBounds(bounds, { padding: [50, 50] });
+        // Hide the directions panel
+        setTimeout(() => {
+          const routingContainer = document.querySelector('.leaflet-routing-container');
+          if (routingContainer) routingContainer.style.display = 'none';
+        }, 100);
+
+        // Calculate midpoint and center at zoom 17
+        const midLat = (pickupLocation.lat + dropLocation.lat) / 2;
+        const midLng = (pickupLocation.lng + dropLocation.lng) / 2;
+        map.setView([midLat, midLng], 17);
       } else if (pickupLocation) {
-        // Only pickup set, center on it
-        map.setView([pickupLocation.lat, pickupLocation.lng], 14);
+        // Only pickup set, center at zoom 17
+        map.setView([pickupLocation.lat, pickupLocation.lng], 17);
       } else if (dropLocation) {
-        // Only drop set, center on it
-        map.setView([dropLocation.lat, dropLocation.lng], 14);
+        // Only drop set, center at zoom 17
+        map.setView([dropLocation.lat, dropLocation.lng], 17);
       }
     }
 
