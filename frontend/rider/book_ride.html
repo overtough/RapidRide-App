@@ -207,6 +207,7 @@
 
   <!-- Location Autocomplete (Re-using existing logic) -->
   <script src="../common/js/location-autocomplete.js"></script>
+  <script src="../common/js/config.js"></script>
 
   <script>
     // Initialize Map
@@ -215,37 +216,109 @@
       attribution: '&copy; OpenStreetMap &copy; CARTO'
     }).addTo(map);
 
-    // --- Simple Frontend Logic to mimic existing book_ride.html but with new UI ---
-    // (Simplified for visual update - logic hooks can be re-connected)
+    // Store locations
+    let pickupLocation = null;
+    let dropLocation = null;
+    let fareEstimates = {};
 
     const VEHICLES = [
-      { type: 'bike', name: 'Rapid Bike', icon: '🏍️', baseRate: 20, perKm: 5, capacity: 1 },
-      { type: 'auto', name: 'Auto', icon: '🛺', baseRate: 30, perKm: 10, capacity: 3 },
-      { type: 'car', name: 'Mini Cab', icon: '🚗', baseRate: 50, perKm: 12, capacity: 4 },
-      { type: 'suv', name: 'Prime SUV', icon: '🚙', baseRate: 80, perKm: 18, capacity: 6 },
+      { type: 'bike', name: 'Rapid Bike', icon: '🏍️' },
+      { type: 'auto', name: 'Auto', icon: '🛺' },
+      { type: 'car', name: 'Mini Cab', icon: '🚗' },
+      { type: 'suv', name: 'Prime SUV', icon: '🚙' },
     ];
 
-    // Re-implement showVehicles to populate new grid
-    // (This function will be called by autocomplete logic)
-    function showVehicles(distance) {
+    // Call backend API for fare estimate
+    async function getFareEstimate(pickup, destination) {
+      try {
+        const firebaseToken = localStorage.getItem('firebaseToken');
+        if (!firebaseToken) {
+          console.error('No authentication token');
+          return null;
+        }
+
+        const response = await fetch(`${API_CONFIG.BASE_URL}/rides/estimate`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${firebaseToken}`
+          },
+          body: JSON.stringify({
+            pickup: { lat: pickup.lat, lng: pickup.lng },
+            destination: { lat: destination.lat, lng: destination.lng }
+          })
+        });
+
+        const data = await response.json();
+        if (data.fare !== undefined) {
+          return {
+            distance: data.distance_km,
+            fare: data.fare,
+            eta_minutes: data.eta_minutes,
+            currency: data.currency || 'INR'
+          };
+        }
+        return null;
+      } catch (error) {
+        console.error('Fare estimate error:', error);
+        return null;
+      }
+    }
+
+    // Show vehicles with REAL backend estimates
+    async function showVehicles(distance) {
       const grid = document.getElementById('vehicleGrid');
       document.getElementById('vehicleSection').style.display = 'block';
 
-      grid.innerHTML = VEHICLES.map(v => {
-        // Static calc for demo (ML integration hooks here)
-        const price = Math.round(v.baseRate + (distance * v.perKm));
-        return `
-                <div class="vehicle-option" onclick="selectVehicle(this, '${v.type}', ${price})">
-                    <div class="vehicle-left">
-                        <span class="vehicle-emoji">${v.icon}</span>
-                        <div>
-                            <div style="font-weight: 700;">${v.name}</div>
-                            <div style="font-size: 0.8rem; color: var(--text-muted);">2 mins away • ${v.capacity} seats</div>
-                        </div>
+      if (!pickupLocation || !dropLocation) {
+        console.error('Locations not set');
+        return;
+      }
+
+      // Get fare estimate from backend
+      const estimate = await getFareEstimate(pickupLocation, dropLocation);
+
+      if (!estimate) {
+        console.warn('Could not get fare estimate, using fallback');
+        // Fallback to static calculation
+        grid.innerHTML = VEHICLES.map(v => {
+          const price = Math.round(50 + (distance * 12)); // Fallback
+          return `
+            <div class="vehicle-option" onclick="selectVehicle(this, '${v.type}', ${price})">
+                <div class="vehicle-left">
+                    <span class="vehicle-emoji">${v.icon}</span>
+                    <div>
+                        <div style="font-weight: 700;">${v.name}</div>
+                        <div style="font-size: 0.8rem; color: var(--text-muted);">~${estimate?.eta_minutes || 5} mins away</div>
                     </div>
-                    <div class="price-tag">₹${price}</div>
                 </div>
-              `;
+                <div class="price-tag">₹${price}</div>
+            </div>
+          `;
+        }).join('');
+        return;
+      }
+
+      // Use backend estimates
+      fareEstimates = estimate;
+
+      grid.innerHTML = VEHICLES.map(v => {
+        // Backend returns base fare, adjust for vehicle type
+        const multipliers = { bike: 0.7, auto: 1.0, car: 1.4, suv: 2.0 };
+        const price = Math.round(estimate.fare * (multipliers[v.type] || 1.0));
+
+        return `
+          <div class="vehicle-option" onclick="selectVehicle(this, '${v.type}', ${price})">
+              <div class="vehicle-left">
+                  <span class="vehicle-emoji">${v.icon}</span>
+                  <div>
+                      <div style="font-weight: 700;">${v.name}</div>
+                      <div style="font-size: 0.8rem; color: var(--text-muted);">${estimate.distance.toFixed(1)} km • ${estimate.eta_minutes} mins</div>
+                  </div>
+              </div>
+              <div class="price-tag">₹${price}</div>
+          </div>
+        `;
       }).join('');
     }
 
@@ -256,10 +329,71 @@
       const btn = document.getElementById('bookRideBtn');
       btn.disabled = false;
       btn.innerHTML = `Book ${type.toUpperCase()} - ₹${price}`;
+      btn.dataset.vehicleType = type;
+      btn.dataset.fare = price;
+    }
+
+    // Request ride function
+    async function requestRide() {
+      const btn = document.getElementById('bookRideBtn');
+      const vehicleType = btn.dataset.vehicleType;
+      const fare = btn.dataset.fare;
+
+      if (!vehicleType || !pickupLocation || !dropLocation) {
+        alert('Please select pickup, drop, and vehicle type');
+        return;
+      }
+
+      try {
+        btn.disabled = true;
+        btn.textContent = 'Requesting...';
+
+        const firebaseToken = localStorage.getItem('firebaseToken');
+        const response = await fetch(`${API_CONFIG.BASE_URL}/rides/request`, {
+          method: 'POST',
+          headers: {
+            'Content-Type': 'application/json',
+            'Authorization': `Bearer ${firebaseToken}`
+          },
+          body: JSON.stringify({
+            pickup: {
+              address: pickupLocation.address || `${pickupLocation.lat}, ${pickupLocation.lng}`,
+              lat: pickupLocation.lat,
+              lng: pickupLocation.lng
+            },
+            destination: {
+              address: dropLocation.address || `${dropLocation.lat}, ${dropLocation.lng}`,
+              lat: dropLocation.lat,
+              lng: dropLocation.lng
+            },
+            vehicleType: vehicleType,
+            payment_method: 'cash'
+          })
+        });
+
+        const data = await response.json();
+
+        if (data.success) {
+          // Redirect to ride status page
+          window.location.href = `ride_status.html?rideId=${data.rideId}`;
+        } else {
+          alert('Failed to request ride: ' + (data.message || 'Unknown error'));
+          btn.disabled = false;
+          btn.textContent = 'Try Again';
+        }
+      } catch (error) {
+        console.error('Request error:', error);
+        alert('Network error. Please try again.');
+        btn.disabled = false;
+        btn.textContent = 'Try Again';
+      }
     }
 
     // Auto-focus pickup
     document.getElementById('pickupInput').focus();
+  </script>
+  // Auto-focus pickup
+  document.getElementById('pickupInput').focus();
   </script>
 </body>
 
