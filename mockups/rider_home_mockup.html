@@ -1,0 +1,370 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Rider Home - RapidRide</title>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" />
+    <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js"></script>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #FDFCF6;
+            color: #1C1917;
+            min-height: 100vh;
+        }
+
+        /* Navbar */
+        .navbar {
+            background: white;
+            border-bottom: 1px solid #E5E5E5;
+            padding: 1rem 3rem;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .brand {
+            font-size: 1.25rem;
+            font-weight: 700;
+            color: #1C1917;
+        }
+
+        .nav-links {
+            display: flex;
+            gap: 2rem;
+            align-items: center;
+        }
+
+        .nav-link {
+            color: #57534E;
+            text-decoration: none;
+            font-weight: 500;
+            font-size: 0.9rem;
+        }
+
+        .profile-btn {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: #F5F5F5;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+        }
+
+        /* Container */
+        .container {
+            max-width: 1400px;
+            margin: 0 auto;
+            padding: 2rem 3rem;
+        }
+
+        /* Hero */
+        .hero {
+            margin-bottom: 2rem;
+        }
+
+        .hero h1 {
+            font-size: 2rem;
+            font-weight: 600;
+            margin-bottom: 0.5rem;
+        }
+
+        .hero p {
+            font-size: 1rem;
+            color: #78716C;
+        }
+
+        /* Layout */
+        .page-layout {
+            display: grid;
+            grid-template-columns: 400px 1fr;
+            gap: 2rem;
+            height: calc(100vh - 200px);
+        }
+
+        /* Sidebar */
+        .sidebar {
+            display: flex;
+            flex-direction: column;
+            gap: 1.5rem;
+        }
+
+        .card {
+            background: white;
+            border: 1px solid #E5E5E5;
+            border-radius: 20px;
+            padding: 1.5rem;
+        }
+
+        .card h3 {
+            font-size: 1rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .input-group {
+            margin-bottom: 1rem;
+        }
+
+        .input-group label {
+            display: block;
+            font-size: 0.85rem;
+            color: #78716C;
+            margin-bottom: 0.5rem;
+        }
+
+        .input-field {
+            width: 100%;
+            padding: 0.75rem 1rem;
+            background: #FDFCF6;
+            border: 1px solid #E5E5E5;
+            border-radius: 14px;
+            font-size: 0.9rem;
+            font-family: 'Inter', sans-serif;
+        }
+
+        .input-field:focus {
+            outline: none;
+            border-color: #D4AF37;
+        }
+
+        .btn-primary {
+            width: 100%;
+            padding: 0.875rem;
+            background: #1C1917;
+            color: white;
+            border: none;
+            border-radius: 14px;
+            font-weight: 600;
+            font-size: 0.9rem;
+            cursor: pointer;
+        }
+
+        .stats {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 1rem;
+        }
+
+        .stat {
+            text-align: center;
+            padding: 1rem;
+            background: #FDFCF6;
+            border-radius: 12px;
+        }
+
+        .stat-value {
+            font-size: 1.5rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .stat-label {
+            font-size: 0.8rem;
+            color: #78716C;
+        }
+
+        .hidden {
+            display: none;
+        }
+
+        .ride-types {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .ride-option {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 1rem;
+            background: #FDFCF6;
+            border-radius: 12px;
+            cursor: pointer;
+        }
+
+        .ride-option:hover {
+            background: #F5F5F5;
+        }
+
+        .ride-info {
+            display: flex;
+            align-items: center;
+            gap: 1rem;
+        }
+
+        .ride-icon {
+            font-size: 1.5rem;
+        }
+
+        .ride-details h4 {
+            font-size: 0.9rem;
+            font-weight: 600;
+            margin-bottom: 0.25rem;
+        }
+
+        .ride-details p {
+            font-size: 0.75rem;
+            color: #78716C;
+        }
+
+        .ride-price {
+            font-size: 0.9rem;
+            font-weight: 600;
+            color: #D4AF37;
+        }
+
+        /* Map */
+        .map-container {
+            background: white;
+            border: 1px solid #E5E5E5;
+            border-radius: 16px;
+            overflow: hidden;
+            height: 100%;
+            position: relative;
+        }
+
+        #map {
+            width: 100%;
+            height: 100%;
+        }
+
+        .map-controls {
+            position: absolute;
+            top: 1rem;
+            left: 1rem;
+            z-index: 1000;
+            background: white;
+            padding: 0.75rem 1rem;
+            border-radius: 12px;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            font-size: 0.85rem;
+            font-weight: 500;
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Navbar -->
+    <nav class="navbar">
+        <div class="brand">RapidRide</div>
+        <div class="nav-links">
+            <a href="#" class="nav-link">My Rides</a>
+            <a href="#" class="nav-link">Wallet</a>
+            <a href="#" class="nav-link">Support</a>
+            <div class="profile-btn">👤</div>
+        </div>
+    </nav>
+
+    <!-- Main -->
+    <div class="container">
+        <div class="hero">
+            <h1>Welcome back, Anurag</h1>
+            <p>Book your next ride</p>
+        </div>
+
+        <div class="page-layout">
+            <!-- Sidebar -->
+            <div class="sidebar">
+                <!-- Booking -->
+                <div class="card">
+                    <h3>Book a Ride</h3>
+                    <div class="input-group">
+                        <label>Pickup</label>
+                        <input type="text" class="input-field" value="Hitech City Metro">
+                    </div>
+                    <div class="input-group">
+                        <label>Drop-off</label>
+                        <input type="text" class="input-field" placeholder="Where to?">
+                    </div>
+                    <button class="btn-primary" onclick="showRideOptions()">Find Rides</button>
+                </div>
+
+                <!-- Stats -->
+                <div class="card">
+                    <h3>Your Stats</h3>
+                    <div class="stats">
+                        <div class="stat">
+                            <div class="stat-value">47</div>
+                            <div class="stat-label">Rides</div>
+                        </div>
+                        <div class="stat">
+                            <div class="stat-value">4.9★</div>
+                            <div class="stat-label">Rating</div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Ride Types -->
+                <div class="card hidden" id="rideOptionsCard">
+                    <h3>Available Rides</h3>
+                    <div class="ride-types">
+                        <div class="ride-option">
+                            <div class="ride-info">
+                                <div class="ride-icon">🏍️</div>
+                                <div class="ride-details">
+                                    <h4>Rapid Bike</h4>
+                                    <p>2 mins away</p>
+                                </div>
+                            </div>
+                            <div class="ride-price">₹40</div>
+                        </div>
+                        <div class="ride-option">
+                            <div class="ride-info">
+                                <div class="ride-icon">🛺</div>
+                                <div class="ride-details">
+                                    <h4>Rapid Auto</h4>
+                                    <p>3 mins away</p>
+                                </div>
+                            </div>
+                            <div class="ride-price">₹60</div>
+                        </div>
+                        <div class="ride-option">
+                            <div class="ride-info">
+                                <div class="ride-icon">🚕</div>
+                                <div class="ride-details">
+                                    <h4>Comfort Cab</h4>
+                                    <p>5 mins away</p>
+                                </div>
+                            </div>
+                            <div class="ride-price">₹120</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Map -->
+            <div class="map-container">
+                <div class="map-controls">
+                    📍 Hitech City, Hyderabad
+                </div>
+                <div id="map"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        function showRideOptions() {
+            document.getElementById('rideOptionsCard').classList.remove('hidden');
+        }
+
+        const map = L.map('map').setView([17.4485, 78.3908], 13);
+        L.tileLayer('https://{s}.basemaps.cartocdn.com/light_all/{z}/{x}/{y}{r}.png').addTo(map);
+        L.marker([17.4485, 78.3908]).addTo(map).bindPopup('You are here').openPopup();
+        map.zoomControl.setPosition('bottomright');
+    </script>
+</body>
+
+</html>

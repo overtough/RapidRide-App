@@ -61,7 +61,7 @@ app.use(cors({
       /^https?:\/\/10\.\d+\.\d+\.\d+:\d+$/,
       'https://rapidrideonline.web.app',
       'https://rapidrideonline.firebaseapp.com',
-      'https://rapidride-app-production.up.railway.app'
+      'https://rapidride-app-production-1806.up.railway.app'
     ];
 
     const isAllowed = allowedOrigins.some(pattern =>
@@ -216,7 +216,7 @@ const socketCorsConfig = {
       /^https?:\/\/10\.\d+\.\d+\.\d+:\d+$/,
       'https://rapidrideonline.web.app',
       'https://rapidrideonline.firebaseapp.com',
-      'https://rapidride-app-production.up.railway.app'
+      'https://rapidride-app-production-1806.up.railway.app'
     ];
 
     const isAllowed = allowedOrigins.some(pattern =>

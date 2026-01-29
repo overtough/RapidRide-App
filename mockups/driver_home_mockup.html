@@ -1,0 +1,265 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Driver Home - RapidRide</title>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;500;600;700;800&display=swap"
+        rel="stylesheet">
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Outfit', sans-serif;
+            background: linear-gradient(135deg, #0f172a 0%, #1e293b 50%, #334155 100%);
+            min-height: 100vh;
+            color: white;
+            padding: 2rem;
+        }
+
+        .container {
+            max-width: 420px;
+            margin: 0 auto;
+        }
+
+        .header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 2rem;
+        }
+
+        .logo {
+            font-size: 1.5rem;
+            font-weight: 800;
+            background: linear-gradient(135deg, #D4AF37, #F4D0D0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .badge {
+            padding: 0.5rem 1rem;
+            background: rgba(212, 175, 55, 0.2);
+            border: 1px solid #D4AF37;
+            border-radius: 999px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            color: #D4AF37;
+        }
+
+        .card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 24px;
+            padding: 2rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .status-card {
+            text-align: center;
+        }
+
+        .toggle-container {
+            margin: 1.5rem 0;
+        }
+
+        .toggle {
+            position: relative;
+            width: 100%;
+            height: 60px;
+            background: rgba(255, 255, 255, 0.05);
+            border-radius: 999px;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+            border: 2px solid rgba(255, 255, 255, 0.1);
+        }
+
+        .toggle.active {
+            background: linear-gradient(135deg, #D4AF37, #F4D0D0);
+            border-color: #D4AF37;
+        }
+
+        .toggle span {
+            font-weight: 700;
+            font-size: 1.1rem;
+            color: white;
+        }
+
+        .toggle.active span {
+            color: #0f172a;
+        }
+
+        .earnings {
+            margin-top: 1.5rem;
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #D4AF37, #F4D0D0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 1rem;
+            margin-bottom: 2rem;
+        }
+
+        .stat-card {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 16px;
+            padding: 1.5rem 1rem;
+            text-align: center;
+        }
+
+        .stat-value {
+            font-size: 2rem;
+            font-weight: 700;
+            margin-bottom: 0.5rem;
+            background: linear-gradient(135deg, #D4AF37, #F4D0D0);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+
+        .stat-label {
+            font-size: 0.85rem;
+            color: rgba(255, 255, 255, 0.6);
+        }
+
+        .section-title {
+            font-size: 1.25rem;
+            font-weight: 600;
+            margin-bottom: 1rem;
+        }
+
+        .ride-request {
+            background: rgba(255, 255, 255, 0.08);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 255, 255, 0.1);
+            border-radius: 20px;
+            padding: 1.5rem;
+            margin-bottom: 1rem;
+        }
+
+        .ride-request-info {
+            margin-bottom: 1rem;
+        }
+
+        .ride-request-info p {
+            margin-bottom: 0.5rem;
+            font-size: 0.95rem;
+        }
+
+        .ride-request-info .fare {
+            color: #D4AF37;
+            font-weight: 700;
+            font-size: 1.1rem;
+        }
+
+        .button-group {
+            display: flex;
+            gap: 1rem;
+        }
+
+        .btn {
+            flex: 1;
+            padding: 0.75rem;
+            border: none;
+            border-radius: 999px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            font-family: 'Outfit', sans-serif;
+        }
+
+        .btn-accept {
+            background: linear-gradient(135deg, #10b981, #059669);
+            color: white;
+        }
+
+        .btn-decline {
+            background: rgba(239, 68, 68, 0.2);
+            border: 1px solid #ef4444;
+            color: #ef4444;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <div class="header">
+            <div class="logo">RapidRide</div>
+            <div class="badge">Captain Mode</div>
+        </div>
+
+        <div class="card status-card">
+            <h2 style="margin-bottom: 1rem;">You're Offline</h2>
+            <div class="toggle-container">
+                <div class="toggle" onclick="this.classList.toggle('active')">
+                    <span>●</span>
+                    <span>Go Online</span>
+                    <span>○</span>
+                </div>
+            </div>
+            <div class="earnings">Today's Earnings: ₹0</div>
+        </div>
+
+        <h3 class="section-title">Today's Stats</h3>
+        <div class="stats-grid">
+            <div class="stat-card">
+                <div class="stat-value">12</div>
+                <div class="stat-label">Rides</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">4.8★</div>
+                <div class="stat-label">Rating</div>
+            </div>
+            <div class="stat-card">
+                <div class="stat-value">₹840</div>
+                <div class="stat-label">Earned</div>
+            </div>
+        </div>
+
+        <h3 class="section-title">Nearby Ride Requests</h3>
+        <div class="ride-request">
+            <div class="ride-request-info">
+                <p>📍 <strong>Pickup:</strong> Hitech City</p>
+                <p>📍 <strong>Drop:</strong> Gachibowli</p>
+                <p class="fare">💰 ₹120 • 4.2 km</p>
+            </div>
+            <div class="button-group">
+                <button class="btn btn-accept">Accept</button>
+                <button class="btn btn-decline">Decline</button>
+            </div>
+        </div>
+
+        <div class="ride-request">
+            <div class="ride-request-info">
+                <p>📍 <strong>Pickup:</strong> Madhapur</p>
+                <p>📍 <strong>Drop:</strong> Kondapur</p>
+                <p class="fare">💰 ₹95 • 3.8 km</p>
+            </div>
+            <div class="button-group">
+                <button class="btn btn-accept">Accept</button>
+                <button class="btn btn-decline">Decline</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

@@ -1,6 +1,6 @@
 const fetch = require('node-fetch');
 
-const BASE_URL = 'https://rapidride-app-production.up.railway.app/api';
+const BASE_URL = 'https://rapidride-app-production-1806.up.railway.app/api';
 const EMAIL = 'admin_9705637783@rapidride.com';
 const PASSWORD = 'admin123';
 
