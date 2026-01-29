@@ -898,18 +898,18 @@
                 <td>${driver.phone || 'N/A'}</td>
                 <td>N/A</td>
                 <td><span class="badge ${driver.emailVerified ? 'success' : 'muted'}">${driver.emailVerified ? 'Active' : 'Pending'}</span></td>
-              </tr >
+              </tr>
           `).join('');
           } else {
             driversBody.innerHTML = `
-          < tr >
+          <tr>
           <td colspan="5">
             <div class="empty-state">
               <p>No drivers registered yet</p>
               <p style="font-size: 0.9rem; margin-top: 0.5rem;">Drivers will appear here once they register</p>
             </div>
           </td>
-              </tr >
+              </tr>
           `;
           }
         }
@@ -943,21 +943,21 @@
         } else {
           console.error('Failed to load chats:', data.message);
           document.getElementById('ticketsTableBody').innerHTML = `
-        < tr >
+        <tr>
         <td colspan="7">
           <div class="empty-state">${data.message || 'Failed to load tickets'}</div>
         </td>
-            </tr >
+            </tr>
           `;
         }
       } catch (error) {
         console.error('Failed to load support tickets:', error);
         document.getElementById('ticketsTableBody').innerHTML = `
-          < tr >
+          <tr>
           <td colspan="7">
             <div class="empty-state">Failed to load tickets. Please refresh.</div>
           </td>
-          </tr >
+          </tr>
           `;
       }
     }
@@ -985,17 +985,17 @@
 
       if (filteredChats.length === 0) {
         tbody.innerHTML = `
-          < tr >
+          <tr>
           <td colspan="7">
             <div class="empty-state">No ${currentFilter === 'all' ? '' : currentFilter} tickets found</div>
           </td>
-          </tr >
+          </tr>
           `;
         return;
       }
 
       tbody.innerHTML = filteredChats.map(chat => `
-          < tr class="ticket-row" onclick = "openChatModal('${chat.chatId}')" >
+          <tr class="ticket-row" onclick="openChatModal('${chat.chatId}')">
           <td><strong>${chat.ticketNumber}</strong></td>
           <td>${chat.userName}</td>
           <td><span class="badge ${chat.userType === 'captain' ? 'warning' : chat.userType === 'rider' ? 'info' : 'muted'}">${chat.userType}</span></td>
@@ -1009,7 +1009,7 @@
               View
             </button>
           </td>
-        </tr >
+        </tr>
           `).join('');
     }
 
