@@ -542,7 +542,7 @@ function initLocationAutocomplete(inputId, callback) {
 
       // Try Photon first (faster)
       try {
-        let url = `${PHOTON_API}?q=${encodeURIComponent(query)}&limit=12&lang=en`;
+        let url = `${PHOTON_API}?q=${encodeURIComponent(query)}&limit=8&lang=en`;
         if (userLocation) {
           // Add location bias with tighter radius for better local results
           url += `&lat=${userLocation.lat}&lon=${userLocation.lon}&location_bias_scale=0.5`;
