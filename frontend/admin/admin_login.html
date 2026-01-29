@@ -12,7 +12,10 @@
       align-items: center;
       justify-content: center;
       min-height: 100vh;
-      background: #0f172a;
+      background-color: var(--bg-sand);
+      background-image:
+        radial-gradient(circle at 10% 20%, rgba(250, 225, 221, 0.4), transparent 40%),
+        radial-gradient(circle at 90% 80%, rgba(212, 175, 55, 0.15), transparent 40%);
     }
 
     .auth-container {
@@ -23,41 +26,25 @@
     }
 
     .glass-card {
-      background: rgba(30, 41, 59, 0.7);
-      backdrop-filter: blur(12px);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      box-shadow: 0 8px 32px rgba(0, 0, 0, 0.4);
-    }
-
-    .error-msg,
-    .success-msg {
-      padding: 0.75rem;
-      border-radius: 8px;
-      margin-bottom: 1rem;
-      display: none;
-      font-size: 0.9rem;
-    }
-
-    .error-msg {
-      background: rgba(239, 68, 68, 0.15);
-      border: 1px solid #ef4444;
-      color: #fca5a5;
-    }
-
-    .success-msg {
-      background: rgba(16, 185, 129, 0.15);
-      border: 1px solid #10b981;
-      color: #6ee7b7;
+      background: rgba(255, 255, 255, 0.9);
+      backdrop-filter: blur(20px);
+      -webkit-backdrop-filter: blur(20px);
+      border: 1px solid white;
+      box-shadow: 0 20px 40px rgba(0, 0, 0, 0.05);
+      border-radius: var(--radius-lg);
     }
 
     .admin-badge-icon {
       font-size: 3rem;
       margin-bottom: 1rem;
       display: inline-block;
-      background: linear-gradient(135deg, #ef4444, #dc2626);
-      background-clip: text;
-      -webkit-background-clip: text;
-      -webkit-text-fill-color: transparent;
+      text-shadow: 0 10px 20px rgba(0, 0, 0, 0.1);
+    }
+
+    .admin-title {
+      color: var(--primary);
+      font-weight: 800;
+      letter-spacing: -0.02em;
     }
 
     .otp-inputs {
@@ -71,54 +58,20 @@
       width: 45px;
       height: 55px;
       border-radius: 12px;
-      border: 1px solid rgba(255, 255, 255, 0.2);
-      background: rgba(0, 0, 0, 0.2);
-      color: white;
+      border: 2px solid #e5e5e5;
+      background: white;
+      color: var(--primary);
       font-size: 1.5rem;
       text-align: center;
       font-weight: 700;
-    }
-
-    .otp-input:focus {
-      border-color: #ef4444;
-      outline: none;
-      background: rgba(239, 68, 68, 0.1);
-    }
-
-    /* Tabs */
-    .auth-tabs {
-      display: flex;
-      background: rgba(0, 0, 0, 0.2);
-      border-radius: 8px;
-      padding: 4px;
-      margin-bottom: 20px;
-    }
-
-    .auth-tab {
-      flex: 1;
-      padding: 10px;
-      text-align: center;
-      cursor: pointer;
-      color: #888;
-      font-size: 0.9rem;
-      border-radius: 6px;
       transition: all 0.2s;
     }
 
-    .auth-tab.active {
-      background: rgba(255, 255, 255, 0.1);
-      color: white;
-      font-weight: 500;
-    }
-
-    .input-field {
-      width: 100%;
-      background: rgba(0, 0, 0, 0.2);
-      border: 1px solid rgba(255, 255, 255, 0.1);
-      padding: 12px;
-      border-radius: 8px;
-      color: white;
-      margin-bottom: 15px;
+    .otp-input:focus {
+      border-color: var(--secondary);
+      outline: none;
+      transform: translateY(-2px);
+      box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
     }
 
     /* reCAPTCHA styling */
@@ -129,14 +82,19 @@
     }
 
     #recaptcha-container>div {
-      transform: scale(0.95);
-      transform-origin: center;
+      transform: scale(1);
     }
 
-    /* Dark theme for reCAPTCHA iframe */
-    iframe[src*="recaptcha"] {
-      border-radius: 8px !important;
-      filter: brightness(0.9) contrast(1.1);
+    .input-field {
+      background: white;
+      border: 1px solid #e5e5e5;
+      color: var(--text-main);
+    }
+
+    .input-field:disabled {
+      background: #f5f5f5;
+      color: #888;
+      cursor: not-allowed;
     }
   </style>
   <script src="../common/js/config.js"></script>
@@ -145,54 +103,38 @@
 <body>
   <div class="auth-container">
     <div class="glass-card slide-up"
-      style="max-width: 450px; width: 100%; padding: 2.5rem; border-top: 4px solid #ef4444;">
+      style="max-width: 420px; width: 100%; padding: 2.5rem; border-top: 5px solid var(--secondary);">
       <div class="text-center mb-4">
-        <div class="admin-badge-icon">🔐</div>
-        <h2 style="margin-bottom: 0.5rem; color: white;">Admin Portal</h2>
-        <p style="color: var(--text-muted); font-size: 0.9rem;">Restricted Access: Authorized Personnel Only</p>
-      </div>
-
-      <div class="auth-tabs">
-        <div class="auth-tab" id="tabEmail" onclick="switchTab('email')">Email Login</div>
-        <div class="auth-tab active" id="tabPhone" onclick="switchTab('phone')">Phone Login</div>
+        <div class="admin-badge-icon">🛡️</div>
+        <h2 class="admin-title" style="margin-bottom: 0.5rem;">Admin Portal</h2>
+        <p style="color: var(--text-muted); font-size: 0.9rem;">Secure Access Gateway</p>
       </div>
 
       <div id="errorMsg" class="error-msg"></div>
       <div id="successMsg" class="success-msg"></div>
 
-      <!-- Email Login Form -->
-      <div id="emailStep" style="display: none;">
-        <form id="emailForm">
-          <input type="email" id="adminEmail" class="input-field" placeholder="Admin Email" required>
-          <input type="password" id="adminPassword" class="input-field" placeholder="Password" required>
-
-          <button type="submit" id="emailLoginBtn" class="btn w-full mt-2"
-            style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; border: none; font-weight: 600; padding: 0.85rem;">
-            Login
-          </button>
-        </form>
-      </div>
-
       <!-- Phone Login Flow -->
       <div id="phoneFlow">
-        <!-- Step 1: Phone Number -->
+        <!-- Step 1: Initiate Login -->
         <div id="phoneStep">
           <form id="phoneForm">
-            <div class="input-group">
-              <label style="color: var(--text-muted);">Admin Phone Number</label>
-              <div style="display: flex; gap: 0.5rem; margin-bottom: 1rem;">
+            <div class="input-group" style="margin-bottom: 1rem;">
+              <label
+                style="color: var(--text-secondary); font-size: 0.85rem; font-weight: 600; text-transform: uppercase;">Authenticated
+                Admin ID</label>
+              <div style="display: flex; gap: 0.5rem;">
                 <input type="text" value="+91" disabled
-                  style="width: 60px; background: rgba(0,0,0,0.3); border-color: rgba(255,255,255,0.1); color: #888; text-align: center; border-radius: 8px; border: 1px solid rgba(255,255,255,0.1);">
-                <input type="tel" id="phoneNumber" class="input-field" placeholder="9705637783" required
-                  style="margin-bottom: 0; letter-spacing: 1px;">
+                  style="width: 60px; text-align: center; border-radius: 12px; border: 1px solid #e5e5e5; background: #f9fafb; color: #6b7280; font-weight: 600;">
+                <input type="tel" id="phoneNumber" class="input-field" value="9705637783" readonly
+                  style="margin-bottom: 0; letter-spacing: 1px; font-weight: 600; text-align: center; border: 1px solid #e5e5e5; background: #f9fafb;">
               </div>
             </div>
 
-            <div id="recaptcha-container" style="margin-top: 1rem; display: flex; justify-content: center;"></div>
+            <div id="recaptcha-container"></div>
 
-            <button type="submit" id="sendOtpBtn" class="btn w-full mt-4"
-              style="background: linear-gradient(135deg, #ef4444, #b91c1c); color: white; border: none; font-weight: 600; padding: 0.85rem;">
-              Send OTP
+            <button type="submit" id="sendOtpBtn" class="btn w-full mt-2"
+              style="background: var(--primary); color: white; border: none; font-weight: 700; padding: 1rem; box-shadow: 0 4px 15px rgba(0,0,0,0.1);">
+              Generate Access Code (OTP)
             </button>
           </form>
         </div>
@@ -200,11 +142,12 @@
         <!-- Step 2: OTP Verification -->
         <div id="otpStep" style="display: none;">
           <div class="text-center mb-4">
-            <p style="color: #ccc;">Enter the 6-digit code sent to your number</p>
+            <p style="color: var(--text-secondary); font-size: 0.95rem;">Enter the verification code sent to your device
+            </p>
           </div>
           <form id="otpForm">
             <div class="otp-inputs">
-              <input type="text" class="otp-input" maxlength="1" pattern="\d*">
+              <input type="text" class="otp-input" maxlength="1" pattern="\d*" autofocus>
               <input type="text" class="otp-input" maxlength="1" pattern="\d*">
               <input type="text" class="otp-input" maxlength="1" pattern="\d*">
               <input type="text" class="otp-input" maxlength="1" pattern="\d*">
@@ -213,21 +156,21 @@
             </div>
 
             <button type="submit" id="verifyOtpBtn" class="btn w-full mt-2"
-              style="background: linear-gradient(135deg, #22c55e, #16a34a); color: white; border: none; font-weight: 600; padding: 0.85rem;">
+              style="background: var(--secondary); color: var(--text-main); border: none; font-weight: 700; padding: 1rem;">
               Verify & Login
             </button>
 
             <button type="button" onclick="location.reload()" class="btn w-full mt-3"
-              style="background: transparent; border: 1px solid rgba(255,255,255,0.1); color: #888; padding: 0.5rem;">
-              Go Back
+              style="background: transparent; color: var(--text-muted); font-size: 0.9rem; padding: 0.5rem;">
+              Cancel
             </button>
           </form>
         </div>
       </div>
 
-      <div class="text-center mt-4">
-        <p class="text-xs" style="color: var(--text-muted); opacity: 0.7;">
-          IP Address Logged • System Monitored
+      <div class="text-center mt-4" style="margin-top: 2rem;">
+        <p class="text-xs" style="color: var(--text-muted); opacity: 0.6; font-size: 0.75rem;">
+          Restricted Area • IP Logged • System Monitored
         </p>
       </div>
     </div>
@@ -239,15 +182,11 @@
   <script src="../common/js/firebase-config.js"></script>
 
   <script>
-    const ALLOWED_ADMIN_PHONE = '9705637783'; // Hardcoded restriction
-
+    const ALLOWED_ADMIN_PHONE = '9705637783';
     const phoneStep = document.getElementById('phoneStep');
     const otpStep = document.getElementById('otpStep');
-    const emailStep = document.getElementById('emailStep');
-    const phoneFlow = document.getElementById('phoneFlow');
     const errorMsg = document.getElementById('errorMsg');
     const successMsg = document.getElementById('successMsg');
-
     let confirmationResult = null;
 
     function showError(msg) {
@@ -263,83 +202,23 @@
       errorMsg.style.display = 'none';
     }
 
-    function switchTab(tab) {
-      errorMsg.style.display = 'none';
-      successMsg.style.display = 'none';
-
-      if (tab === 'email') {
-        document.getElementById('tabEmail').classList.add('active');
-        document.getElementById('tabPhone').classList.remove('active');
-        emailStep.style.display = 'block';
-        phoneFlow.style.display = 'none';
-      } else {
-        document.getElementById('tabPhone').classList.add('active');
-        document.getElementById('tabEmail').classList.remove('active');
-        emailStep.style.display = 'none';
-        phoneFlow.style.display = 'block';
-      }
-    }
-
-    // Default to phone login
-    switchTab('phone');
-
-    // Initialize Recaptcha (only needed for phone flow)
+    // Initialize Recaptcha
     window.onload = function () {
-      // Don't clear tokens - this was causing refresh loop!
-      // Only clear if explicitly coming from a logout
       if (window.location.search.includes('logout=true')) {
         localStorage.removeItem('token');
         localStorage.removeItem('user');
+        window.history.replaceState({}, document.title, window.location.pathname);
       }
 
       window.recaptchaVerifier = new firebase.auth.RecaptchaVerifier('recaptcha-container', {
         'size': 'normal',
         'callback': (response) => {
-          // reCAPTCHA solved
+          // Auto-trigger send if clear (optional, but waiting for user click is safer for rate limits)
+          // document.getElementById('sendOtpBtn').click();
         }
       });
       window.recaptchaVerifier.render();
     };
-
-    // --- EMAIL LOGIN HANDLER ---
-    document.getElementById('emailForm').addEventListener('submit', async (e) => {
-      e.preventDefault();
-      const email = document.getElementById('adminEmail').value;
-      const password = document.getElementById('adminPassword').value;
-      const btn = document.getElementById('emailLoginBtn');
-
-      btn.disabled = true;
-      btn.textContent = 'Authenticating...';
-
-      try {
-        const response = await fetch(`${API_CONFIG.BASE_URL}/auth/signin`, {
-          method: 'POST',
-          headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ email, password })
-        });
-
-        const data = await response.json();
-
-        if (response.ok && data.success) {
-          if (data.user.role === 'admin') {
-            showSuccess('✅ Access Granted. Redirecting...');
-            localStorage.setItem('token', data.token);
-            localStorage.setItem('user', JSON.stringify(data.user));
-            setTimeout(() => window.location.href = 'admin_dashboard.html', 1500);
-          } else {
-            throw new Error('Access Denied: Admin privileges required.');
-          }
-        } else {
-          throw new Error(data.message || 'Login failed');
-        }
-      } catch (error) {
-        console.error(error);
-        showError(error.message || 'Authentication Failed');
-      } finally {
-        btn.disabled = false;
-        btn.textContent = 'Login';
-      }
-    });
 
     // --- PHONE LOGIN HANDLER ---
     document.getElementById('phoneForm').addEventListener('submit', async (e) => {
@@ -347,72 +226,91 @@
       const phoneInput = document.getElementById('phoneNumber').value.trim();
       const btn = document.getElementById('sendOtpBtn');
 
-      // Strict Access Control Check
       if (phoneInput !== ALLOWED_ADMIN_PHONE) {
-        showError('🚫 ACCESS DENIED: This number is not authorized for Admin access.');
+        showError('🚫 Access restricted to authorized numbers only.');
         return;
       }
 
       const fullPhoneNumber = '+91' + phoneInput;
-
       btn.disabled = true;
-      btn.textContent = 'Sending...';
+      btn.innerHTML = '<span class="spin">↻</span> Sending Code...';
 
       try {
         confirmationResult = await window.firebaseAuth.signInWithPhoneNumber(fullPhoneNumber, window.recaptchaVerifier);
-        showSuccess(`OTP sent to ${fullPhoneNumber}`);
+        showSuccess(`Code sent to ••••• •${phoneInput.slice(-4)}`);
         phoneStep.style.display = 'none';
         otpStep.style.display = 'block';
-        document.querySelector('.otp-input').focus();
+
+        // Auto-focus first OTP input
+        setTimeout(() => document.querySelector('.otp-input').focus(), 100);
       } catch (error) {
         console.error(error);
-        showError(error.message || 'Failed to send OTP. Try again.');
+        showError('Request failed. Please complete the security check.');
         window.recaptchaVerifier.reset();
       } finally {
         btn.disabled = false;
-        btn.textContent = 'Send OTP';
+        btn.textContent = 'Generate Access Code (OTP)';
       }
     });
 
-    // Handle OTP Input Auto-focus
+    // Handle OTP Input
     const inputs = document.querySelectorAll('.otp-input');
     inputs.forEach((input, index) => {
       input.addEventListener('input', (e) => {
+        // Move to next input if number entered
         if (e.target.value.length === 1 && index < inputs.length - 1) {
           inputs[index + 1].focus();
         }
+
+        // Check for auto-submit
+        let otpCode = '';
+        inputs.forEach(i => otpCode += i.value);
+        if (otpCode.length === 6) {
+          verifyOtp(otpCode);
+        }
       });
+
       input.addEventListener('keydown', (e) => {
         if (e.key === 'Backspace' && !e.target.value && index > 0) {
           inputs[index - 1].focus();
         }
       });
+
+      // Paste handler
+      input.addEventListener('paste', (e) => {
+        e.preventDefault();
+        const pasteData = e.clipboardData.getData('text').slice(0, 6).split('');
+        if (pasteData.length > 0) {
+          pasteData.forEach((char, i) => {
+            if (inputs[i]) inputs[i].value = char;
+          });
+          // Submit if full
+          if (pasteData.length === 6) verifyOtp(pasteData.join(''));
+          else if (inputs[pasteData.length]) inputs[pasteData.length].focus();
+        }
+      });
     });
 
-    // Handle verification
-    document.getElementById('otpForm').addEventListener('submit', async (e) => {
+    document.getElementById('otpForm').addEventListener('submit', (e) => {
       e.preventDefault();
-      const btn = document.getElementById('verifyOtpBtn');
-
       let otpCode = '';
       inputs.forEach(input => otpCode += input.value);
+      verifyOtp(otpCode);
+    });
 
-      if (otpCode.length !== 6) {
-        showError('Please enter the full 6-digit code');
-        return;
-      }
+    async function verifyOtp(otpCode) {
+      if (otpCode.length !== 6) return;
 
+      const btn = document.getElementById('verifyOtpBtn');
       btn.disabled = true;
-      btn.textContent = 'Verifying...';
+      btn.innerHTML = 'Verifying...';
 
       try {
         const result = await confirmationResult.confirm(otpCode);
         const user = result.user;
         const idToken = await user.getIdToken();
 
-        showSuccess('OTP Verified! Checking Admin Permissions...');
-
-        // Server-side Role Check
+        // Check Admin Role
         const response = await fetch(`${API_CONFIG.BASE_URL}/auth/firebase-phone`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
@@ -426,28 +324,26 @@
         const data = await response.json();
 
         if (data.success && data.user.role === 'admin') {
-          showSuccess('✅ Welcome, Admin! Redirecting...');
-          localStorage.setItem('token', idToken); // Use Firebase ID token as session token
+          showSuccess('✅ Verified. Opening Dashboard...');
+          localStorage.setItem('token', idToken);
           localStorage.setItem('user', JSON.stringify(data.user));
-
-          setTimeout(() => window.location.href = 'admin_dashboard.html', 1500);
+          // Small delay for UX
+          setTimeout(() => window.location.href = 'admin_dashboard.html', 500);
         } else {
-          throw new Error('Access Denied: Your account does not have Admin privileges.');
+          throw new Error('Access Denied: Not an Administrator');
         }
 
       } catch (error) {
         console.error(error);
         showError(error.message || 'Verification Failed');
-
-        if (error.message.includes('Access Denied')) {
-          await window.firebaseAuth.signOut();
-          setTimeout(() => location.reload(), 2000);
-        }
-      } finally {
         btn.disabled = false;
         btn.textContent = 'Verify & Login';
+
+        // Clear inputs on failure
+        inputs.forEach(i => i.value = '');
+        inputs[0].focus();
       }
-    });
+    }
   </script>
 </body>
 
