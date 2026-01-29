@@ -459,8 +459,8 @@ function initLocationAutocomplete(inputId, callback) {
 
     await getUserLocation();
 
-    if (!query || query.length < 2) {
-      // Show nearby + popular
+    if (!query || query.length < 3) {
+      // Show nearby + popular (need at least 3 characters)
       const items = [];
 
       // Saved places from new storage
@@ -544,7 +544,8 @@ function initLocationAutocomplete(inputId, callback) {
       try {
         let url = `${PHOTON_API}?q=${encodeURIComponent(query)}&limit=12&lang=en`;
         if (userLocation) {
-          url += `&lat=${userLocation.lat}&lon=${userLocation.lon}`;
+          // Add location bias with tighter radius for better local results
+          url += `&lat=${userLocation.lat}&lon=${userLocation.lon}&location_bias_scale=0.5`;
         }
 
         const photonData = await fetchWithRetry(url);
