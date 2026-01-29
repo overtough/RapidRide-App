@@ -55,6 +55,7 @@
       margin-bottom: 1rem;
       display: inline-block;
       background: linear-gradient(135deg, #ef4444, #dc2626);
+      background-clip: text;
       -webkit-background-clip: text;
       -webkit-text-fill-color: transparent;
     }
@@ -118,6 +119,24 @@
       border-radius: 8px;
       color: white;
       margin-bottom: 15px;
+    }
+
+    /* reCAPTCHA styling */
+    #recaptcha-container {
+      display: flex;
+      justify-content: center;
+      margin: 1rem 0;
+    }
+
+    #recaptcha-container>div {
+      transform: scale(0.95);
+      transform-origin: center;
+    }
+
+    /* Dark theme for reCAPTCHA iframe */
+    iframe[src*="recaptcha"] {
+      border-radius: 8px !important;
+      filter: brightness(0.9) contrast(1.1);
     }
   </style>
   <script src="../common/js/config.js"></script>
