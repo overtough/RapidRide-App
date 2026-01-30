@@ -12,7 +12,7 @@
 
     --accent-blush: #F4D0D0;
     /* Slightly cooler pink */
-    --accent-gold: #D4AF37;
+    --accent-charcoal: #2E2E2E;
     --accent-dark: #1C1917;
 
     --glass-border: rgba(0, 0, 20, 0.08);
@@ -97,7 +97,7 @@ a {
 }
 
 a:hover {
-    color: var(--accent-gold);
+    color: var(--accent-charcoal);
 }
 
 .container {
