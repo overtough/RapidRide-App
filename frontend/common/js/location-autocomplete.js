@@ -18,7 +18,7 @@ async function getUserLocation(retries = 3) {
     const tryGetLocation = () => {
       if (!navigator.geolocation) {
         console.warn('⚠️ Geolocation not supported');
-        userLocation = { lat: 28.6139, lon: 77.2090 };
+        userLocation = { lat: 28.6139, lng: 77.2090 };
         resolve(userLocation);
         return;
       }
@@ -27,7 +27,7 @@ async function getUserLocation(retries = 3) {
         (pos) => {
           userLocation = {
             lat: pos.coords.latitude,
-            lon: pos.coords.longitude,
+            lng: pos.coords.longitude,
             accuracy: pos.coords.accuracy
           };
           console.log('📍 Location obtained:', userLocation);
@@ -52,7 +52,7 @@ async function getUserLocation(retries = 3) {
                 const data = JSON.parse(cached);
                 // Use if less than 1 hour old
                 if (Date.now() - data.timestamp < 3600000) {
-                  userLocation = { lat: data.lat, lon: data.lon };
+                  userLocation = { lat: data.lat, lng: data.lng };
                   console.log('📍 Using cached location');
                   resolve(userLocation);
                   return;
@@ -61,7 +61,7 @@ async function getUserLocation(retries = 3) {
             } catch (e) { }
 
             // Fallback to Delhi
-            userLocation = { lat: 28.6139, lon: 77.2090 };
+            userLocation = { lat: 28.6139, lng: 77.2090 };
             console.log('📍 Using default location (Delhi)');
             resolve(userLocation);
           }
@@ -178,7 +178,7 @@ function initLocationAutocomplete(inputId, callback) {
         name: item.name,
         address: item.address || item.city || '',
         lat: item.lat,
-        lon: item.lon
+        lng: item.lng
       };
 
       // Save to backend database
@@ -247,7 +247,7 @@ function initLocationAutocomplete(inputId, callback) {
             'Content-Type': 'application/json',
             'Authorization': `Bearer ${token}`
           },
-          body: JSON.stringify({ lat: item.lat, lon: item.lon })
+          body: JSON.stringify({ lat: item.lat, lng: item.lng })
         });
 
         if (response.ok) {
@@ -442,7 +442,7 @@ function initLocationAutocomplete(inputId, callback) {
     try {
       const recent = JSON.parse(localStorage.getItem('rr_recent_searches') || '[]');
       const newRecent = [
-        { name: item.name, address: item.address || item.city, lat: item.lat, lon: item.lon },
+        { name: item.name, address: item.address || item.city, lat: item.lat, lng: item.lng },
         ...recent.filter(r => r.name !== item.name)
       ].slice(0, 10);
       localStorage.setItem('rr_recent_searches', JSON.stringify(newRecent));
@@ -450,7 +450,7 @@ function initLocationAutocomplete(inputId, callback) {
       console.warn('Could not save to recent:', e);
     }
 
-    if (callback) callback({ name: item.name, lat: item.lat, lon: item.lon });
+    if (callback) callback({ name: item.name, lat: item.lat, lng: item.lng });
   }
 
   // Search function with caching and fallback
@@ -502,7 +502,7 @@ function initLocationAutocomplete(inputId, callback) {
         ...p,
         popular: true,
         address: p.city,
-        distance: userLocation ? getDistance(userLocation.lat, userLocation.lon, p.lat, p.lon) : 999
+        distance: userLocation ? getDistance(userLocation.lat, userLocation.lng, p.lat, p.lng) : 999
       })).sort((a, b) => a.distance - b.distance).slice(0, 6);
 
       items.push(...pop);
@@ -529,7 +529,7 @@ function initLocationAutocomplete(inputId, callback) {
       ...p,
       popular: true,
       address: p.city,
-      distance: userLocation ? getDistance(userLocation.lat, userLocation.lon, p.lat, p.lon) : 0
+      distance: userLocation ? getDistance(userLocation.lat, userLocation.lng, p.lat, p.lng) : 0
     })).sort((a, b) => a.distance - b.distance);
 
     if (popularMatches.length > 0) {
@@ -545,7 +545,7 @@ function initLocationAutocomplete(inputId, callback) {
         let url = `${PHOTON_API}?q=${encodeURIComponent(query)}&limit=8&lang=en`;
         if (userLocation) {
           // Add location bias with tighter radius for better local results
-          url += `&lat=${userLocation.lat}&lon=${userLocation.lon}&location_bias_scale=0.5`;
+          url += `&lat=${userLocation.lat}&lon=${userLocation.lng}&location_bias_scale=0.5`;
         }
 
         const photonData = await fetchWithRetry(url);
@@ -573,7 +573,7 @@ function initLocationAutocomplete(inputId, callback) {
             name: name,
             address: addressParts.slice(0, 3).join(', '), // Max 3 parts
             lat: coords[1],
-            lon: coords[0],
+            lng: coords[0],
             distance: dist,
             source: 'photon'
           };
@@ -589,12 +589,12 @@ function initLocationAutocomplete(inputId, callback) {
           });
 
           searchResults = nominatimData.map(item => {
-            const dist = userLocation ? getDistance(userLocation.lat, userLocation.lon, parseFloat(item.lat), parseFloat(item.lon)) : 0;
+            const dist = userLocation ? getDistance(userLocation.lat, userLocation.lng, parseFloat(item.lat), parseFloat(item.lon)) : 0;
             return {
               name: item.name || item.display_name.split(',')[0],
               address: item.display_name,
               lat: parseFloat(item.lat),
-              lon: parseFloat(item.lon),
+              lng: parseFloat(item.lon),
               distance: dist,
               source: 'nominatim'
             };
