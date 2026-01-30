@@ -172,7 +172,7 @@
           // ALWAYS require phone verification after email sign-in
           showSuccess('Email verified! Please verify your phone number...');
           setTimeout(() => {
-            window.location.href = 'link-phone.html?v=2';
+            window.location.href = 'link-phone.html';
           }, 1500);
         } else {
           showError(data.message || 'Failed to complete sign-in');
