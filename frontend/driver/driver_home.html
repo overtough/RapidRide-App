@@ -336,16 +336,9 @@
       if (user) {
         updateStats();
 
-        // Restore Session
-        const savedState = localStorage.getItem('driver_online_state');
-        if (savedState) {
-          const state = JSON.parse(savedState);
-          if (state.userId === user.id) {
-            // Auto-Resume
-            // Small delay to ensure socket conn
-            setTimeout(goOnline, 1000);
-          }
-        }
+        // Auto-go online on page load
+        // Small delay to ensure socket connection
+        setTimeout(goOnline, 1000);
       }
     });
 
